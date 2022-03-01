@@ -1,57 +1,21 @@
-# Project Name
+# Deploy a Flask web app with PostgreSQL in Azure
 
-(short, 1-3 sentenced, description of the project)
+This is a Python web app using the Flask framework and the Azure Database for PostgreSQL relational database service. The Flask app is hosted in a fully managed Azure App Service. This app is designed to be be run locally and then deployed to Azure. For more information on how to use this web app, see the tutorial [Deploy a Flask web app with PostgreSQL in Azure](TBD).
 
-## Features
+If you need an Azure account, you can [create on for free](https://azure.microsoft.com/en-us/free/).
 
-This project framework provides the following features:
+Temporary instructions for running:
 
-* Feature 1
-* Feature 2
-* ...
+* clone
+* specify .env variables based off of .env.example
+* py -m venv .venv
+* .venv\scripts\activate
+* pip install -r requirements.txt
+* flask db init and flask db migrate -m "first migration"  (roughly equivalent to django "python manage.py migrate")
+* flask run (equivalent to django "python manage.py runserver")
 
-## Getting Started
+To do:
 
-### Prerequisites
-
-(ideally very short, if any)
-
-- OS
-- Library version
-- ...
-
-### Installation
-
-(ideally very short)
-
-- npm install [package name]
-- mvn install
-- ...
-
-### Quickstart
-(Add steps to get up and running quickly)
-
-1. git clone [repository clone url]
-2. cd [respository name]
-3. ...
-
-
-## Demo
-
-A demo app is included to show how to use the project.
-
-To run the demo, follow these steps:
-
-(Add steps to start up the demo)
-
-1.
-2.
-3.
-
-## Resources
-
-(Any additional resources or related projects)
-
-- Link to supporting information
-- Link to similar sample
-- ...
+* investigate /admin functionality with Flask-Admin
+* handle 500 error in production
+* move app.py to root folder to avoid need for startup.txt (command) and one less step, [details](https://docs.microsoft.com/en-us/azure/developer/python/tutorial-deploy-app-service-on-linux-04#flask-startup-commands)
