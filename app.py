@@ -29,11 +29,7 @@ db = SQLAlchemy(app)
 # Enable Flask-Migrate commands "flask db init/migrate/upgrade" to work
 migrate = Migrate(app, db)
 
-# Create databases, if databases exists doesn't issue create
-# For schema changes, run "flask db migrate"
 from models import Restaurant, Review
-db.create_all()
-db.session.commit()
 
 @app.route('/', methods=['GET'])
 def index():
