@@ -105,12 +105,13 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
   resource appSettings 'config' = {
     name: 'appsettings'
     properties: {
+      SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
       DBHOST: postgresServer.name
       DBNAME: flaskDatabase.name
       DBUSER: postgresServer.properties.administratorLogin
       DBPASS: databasePassword
-      SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
       SECRET_KEY: secretKey
+      FLASK_DEBUG: 'False'
     }
   }
 
@@ -197,7 +198,7 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-01-20-pr
   }
   properties: {
     version: '13'
-    administratorLogin: 'postgres-admin'
+    administratorLogin: 'postgresadmin'
     administratorLoginPassword: databasePassword
     storage: {
       storageSizeGB: 128
@@ -230,15 +231,6 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-01-20-pr
 resource flaskDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2022-01-20-preview' = {
   parent: postgresServer
   name: 'flask'
-}
-
-resource postgresServer_AllowAllWindowsAzureIps 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-01-20-preview' = {
-  parent: postgresServer
-  name: 'AllowAllWindowsAzureIps'
-  properties: {
-    startIpAddress: '0.0.0.0'
-    endIpAddress: '0.0.0.0'
-  }
 }
 
 output WEB_URI string = 'https://${web.properties.defaultHostName}'

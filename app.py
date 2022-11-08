@@ -32,19 +32,18 @@ migrate = Migrate(app, db)
 # Create databases, if databases exists doesn't issue create
 # For schema changes, run "flask db migrate"
 from models import Restaurant, Review
-db.create_all()
-db.session.commit()
+
+with app.app_context():
+    db.create_all()
 
 @app.route('/', methods=['GET'])
 def index():
-    from models import Restaurant
     print('Request for index page received')
     restaurants = Restaurant.query.all()    
     return render_template('index.html', restaurants=restaurants)
 
 @app.route('/<int:id>', methods=['GET'])
 def details(id):
-    from models import Restaurant, Review
     restaurant = Restaurant.query.where(Restaurant.id == id).first()
     reviews = Review.query.where(Review.restaurant==id)
     return render_template('details.html', restaurant=restaurant, reviews=reviews)
@@ -57,7 +56,6 @@ def create_restaurant():
 @app.route('/add', methods=['POST'])
 @csrf.exempt
 def add_restaurant():
-    from models import Restaurant
     try:
         name = request.values.get('restaurant_name')
         street_address = request.values.get('street_address')
@@ -80,7 +78,6 @@ def add_restaurant():
 @app.route('/review/<int:id>', methods=['POST'])
 @csrf.exempt
 def add_review(id):
-    from models import Review
     try:
         user_name = request.values.get('user_name')
         rating = request.values.get('rating')
