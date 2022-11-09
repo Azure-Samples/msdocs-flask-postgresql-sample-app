@@ -1,9 +1,8 @@
-from app import db
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import declarative_base, validates
+from sqlalchemy.orm import validates
 
-# declarative base class
-Base = declarative_base()
+from app import db
+
 
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
