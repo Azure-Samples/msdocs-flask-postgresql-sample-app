@@ -14,7 +14,7 @@ param location string
 param databasePassword string
 
 @secure()
-@description('Django SECRET_KEY for securing signed data')
+@description('Flask SECRET_KEY for securing signed data')
 param secretKey string
 
 var resourceToken = toLower(uniqueString(subscription().id, name, location))
