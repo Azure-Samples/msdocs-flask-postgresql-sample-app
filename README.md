@@ -51,6 +51,8 @@ flask run
 
 This repo is set up for deployment on Azure App Service (w/PostGreSQL server) using the configuration files in the `infra` folder.
 
+🎥 Watch me deploy and re-deploy the app in [this 5 minute video](https://www.youtube.com/watch?v=r6Hnp9RXUpY).
+
 Steps for deployment:
 
 1. Sign up for a [free Azure account](https://azure.microsoft.com/free/?WT.mc_id=python-79651-pamelafox)
