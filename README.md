@@ -38,7 +38,7 @@ Create an `.env` file using `.env.sample` as a guide. Set the value of `DBNAME` 
 Run the migrations:
 
 ```shell
-flask db migrate
+flask db upgrade
 ```
 
 Run the local server: (or use VS Code "Run" button and select "Run server")
