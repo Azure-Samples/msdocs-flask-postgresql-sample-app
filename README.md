@@ -24,24 +24,29 @@ which makes it easier to develop apps locally, deploy them to Azure, and monitor
 
 ### Local development
 
-This project has devcontainer support, so you can open it in Github Codespaces or local VS Code with the Dev Containers extension. If you're unable to open the devcontainer,
-then it's best to first [create a Python virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments) and activate that.
+This project has devcontainer support, so you can open it in Github Codespaces or local VS Code with the Dev Containers extension. 
 
-Install the requirements:
+🎥 [Watch me run the app in Github Codespaces.](https://www.youtube.com/watch?v=r6Hnp9RXUpY)
+
+Steps for running the server: 
+
+1. (Optional) If you're unable to open the devcontainer, [create a Python virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments) and activate that.
+
+2. Install the requirements:
 
 ```shell
 pip install -r requirements.txt
 ```
 
-Create an `.env` file using `.env.sample` as a guide. Set the value of `DBNAME` to the name of an existing database in your local PostgreSQL instance. Set the values of `DBHOST`, `DBUSER`, and `DBPASS` as appropriate for your local PostgreSQL instance.
+3. Create an `.env` file using `.env.sample` as a guide. Set the value of `DBNAME` to the name of an existing database in your local PostgreSQL instance. Set the values of `DBHOST`, `DBUSER`, and `DBPASS` as appropriate for your local PostgreSQL instance.
 
-Run the migrations:
+4. Run the migrations:
 
 ```shell
 flask db upgrade
 ```
 
-Run the local server: (or use VS Code "Run" button and select "Run server")
+5. Run the local server: (or use VS Code "Run" button and select "Run server")
 
 ```shell
 flask run
@@ -51,7 +56,7 @@ flask run
 
 This repo is set up for deployment on Azure App Service (w/PostGreSQL server) using the configuration files in the `infra` folder.
 
-🎥 Watch me deploy and re-deploy the app in [this 5 minute video](https://www.youtube.com/watch?v=r6Hnp9RXUpY).
+🎥 [Watch me deploy and re-deploy the app.](https://www.youtube.com/watch?v=r6Hnp9RXUpY)
 
 Steps for deployment:
 
