@@ -1,6 +1,6 @@
 # Deploy a Python (Flask) web app with PostgreSQL in Azure
 
-This is a Python web app using the Flask framework and the Azure Database for PostgreSQL relational database service. The Flask app is hosted in a fully managed Azure App Service. This app is designed to be be run locally and then deployed to Azure. You can either deploy this project by following the tutorial [*Deploy a Python (Django or Flask) web app with PostgreSQL in Azure*](https://docs.microsoft.com/en-us/azure/app-service/tutorial-python-postgresql-app) or by using the [Azure Developer CLI (azd)](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview?WT.mc_id=python-79651-pamelafox) according to the instructions below.
+This is a Python web app using the Flask framework and the Azure Database for PostgreSQL relational database service. The Flask app is hosted in a fully managed Azure App Service. This app is designed to be be run locally and then deployed to Azure. You can either deploy this project by following the tutorial [*Deploy a Python (Django or Flask) web app with PostgreSQL in Azure*](https://docs.microsoft.com/en-us/azure/app-service/tutorial-python-postgresql-app) or by using the [Azure Developer CLI (azd)](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview) according to the instructions below.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ The [requirements.txt](./requirements.txt) has the following packages:
 
 ## Using this project with the Azure Developer CLI (azd)
 
-This project is designed to work well with the [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview?WT.mc_id=python-79651-pamelafox),
+This project is designed to work well with the [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview),
 which makes it easier to develop apps locally, deploy them to Azure, and monitor them.
 
 ### Local development
@@ -38,7 +38,7 @@ Steps for running the server:
 pip install -r requirements.txt
 ```
 
-3. Create an `.env` file using `.env.sample` as a guide. Set the value of `DBNAME` to the name of an existing database in your local PostgreSQL instance. Set the values of `DBHOST`, `DBUSER`, and `DBPASS` as appropriate for your local PostgreSQL instance.
+3. Create an `.env` file using `.env.sample` as a guide. Set the value of `DBNAME` to the name of an existing database in your local PostgreSQL instance. Set the values of `DBHOST`, `DBUSER`, and `DBPASS` as appropriate for your local PostgreSQL instance. If you're in the devcontainer, copy the values from `.env.sample.devcontainer`.
 
 4. Run the migrations:
 
@@ -60,8 +60,8 @@ This repo is set up for deployment on Azure App Service (w/PostGreSQL server) us
 
 Steps for deployment:
 
-1. Sign up for a [free Azure account](https://azure.microsoft.com/free/?WT.mc_id=python-79651-pamelafox)
-2. Install the [Azure Dev CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd?WT.mc_id=python-79651-pamelafox). (If you opened this repository in a devcontainer, that part will be done for you.)
+1. Sign up for a [free Azure account](https://azure.microsoft.com/free/)
+2. Install the [Azure Dev CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd). (If you opened this repository in a devcontainer, that part will be done for you.)
 3. Provision and deploy all the resources:
 
 ```shell
