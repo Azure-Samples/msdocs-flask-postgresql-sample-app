@@ -100,7 +100,6 @@ def add_review(id):
 @app.context_processor
 def utility_processor():
     def star_rating(id):
-        from models import Review
         reviews = Review.query.where(Review.restaurant==id)
 
         ratings = []
