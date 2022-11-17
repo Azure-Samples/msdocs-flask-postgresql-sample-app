@@ -26,7 +26,7 @@ which makes it easier to develop apps locally, deploy them to Azure, and monitor
 
 This project has devcontainer support, so you can open it in Github Codespaces or local VS Code with the Dev Containers extension. 
 
-🎥 [Watch me run the app in Github Codespaces.](https://www.youtube.com/watch?v=r6Hnp9RXUpY)
+🎥 [Watch a screencast of running the app in Github Codespaces.](https://www.youtube.com/watch?v=r6Hnp9RXUpY)
 
 Steps for running the server: 
 
@@ -56,7 +56,7 @@ flask run
 
 This repo is set up for deployment on Azure App Service (w/PostGreSQL server) using the configuration files in the `infra` folder.
 
-🎥 [Watch me deploy and re-deploy the app.](https://www.youtube.com/watch?v=r6Hnp9RXUpY)
+🎥 [Watch a screencast of deploying and re-deploying the app.](https://www.youtube.com/watch?v=r6Hnp9RXUpY)
 
 Steps for deployment:
 
