@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'ceco-backend'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6F52D9F6EC0B4E358343A40156D3705B }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_50EF0AB5AAB3410DAEBF37BF8D7C203D }}
