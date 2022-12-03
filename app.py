@@ -5,10 +5,12 @@ from flask import Flask, render_template, request, redirect, url_for, send_from_
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
+from flask_restful import reqparse, Api, Resource
 
 
 app = Flask(__name__, static_folder='static')
 csrf = CSRFProtect(app)
+api = Api(app)
 
 # WEBSITE_HOSTNAME exists only in production environment
 if not 'WEBSITE_HOSTNAME' in os.environ:
@@ -124,5 +126,12 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+parser = reqparse.RequestParser()
+parser.add_argument('task')
+class Message(Resource):
+    def get(self):
+        return {"message": 'bello World'}
+api.add_resource(Message, '/api/bello')
+
 if __name__ == '__main__':
-   app.run()
+   app.run(debug=True)
