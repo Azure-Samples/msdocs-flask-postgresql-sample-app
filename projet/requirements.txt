@@ -1,0 +1,5 @@
+dotenv
+flask
+sqlalchemy
+flask-sqlalchemy
+bcrypt
