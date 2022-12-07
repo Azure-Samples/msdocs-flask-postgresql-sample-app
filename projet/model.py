@@ -5,11 +5,8 @@ from app import db
 
 class Produits(db.Model):
     __tablename__ = 'produits'
-
-
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-    id_magasin = db.Column(db.Integer)
-    id_article = db.Column(db.BigInteger)
+    id_magasin = db.Column(db.Integer,primary_key=True)
+    id_article = db.Column(db.BigInteger,primary_key=True)
     carbone = db.Column(db.String())
     name = db.Column(db.String())
 
@@ -21,10 +18,7 @@ class Produits(db.Model):
 
 class Utilisateur(db.Model):
     __tablename__ = 'utilisateur'
-
-
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-    id_magasin = db.Column(db.Integer)
+    id_magasin = db.Column(db.Integer, primary_key=True)
     password = db.Column(db.Text)
 
     def __init__(self, id_user,password):

@@ -31,10 +31,9 @@ s = Session()
 # classes representant les tables
 class Produits(Base):
     __tablename__ = 'produits'
-
-    id = Column(Integer, primary_key=True,autoincrement=True)
-    id_magasin = Column(Integer)
-    id_article = Column(BigInteger)
+    #id = Column(Integer, primary_key=True,autoincrement=True)
+    id_magasin = Column(Integer, primary_key=True)
+    id_article = Column(BigInteger, primary_key=True)
     carbone = Column(String())
     name = Column(String())
 
@@ -45,13 +44,11 @@ class Produits(Base):
         self.name=name
 
     def __repr__(self):
-        return f"<Produit {self.id, self.id_magasin, self.id_article, self.name, self.carbone}>"
+        return f"<Produit {self.id_magasin, self.id_article, self.name, self.carbone}>"
     
 class Utilisateur(Base):
     __tablename__ = 'utilisateur'
-
-    id = Column(Integer, primary_key=True,autoincrement=True)
-    id_magasin = Column(Integer)
+    id_magasin = Column(Integer, primary_key=True)
     password = Column(Text)
 
     def __init__(self, id_magasin,password):
@@ -59,7 +56,7 @@ class Utilisateur(Base):
         self.password=password
     
     def __repr__(self):
-        return f"<Utilisateur {self.id, self.id_magasin, self.password}>"
+        return f"<Utilisateur {self.id_magasin, self.password}>"
 
 # Fonction creation et destruction des bases
 def drop_database():
@@ -114,8 +111,37 @@ def update_produit_test():
     PRODUITS=metadata_obj.tables["produits"]
     stmt= PRODUITS.update().where(PRODUITS.c.id_article==3760213050052 and PRODUITS.c.carbone==None).values(carbone='100')
     engine.execute(stmt)
+
+def update_or_insert(lien,id_magasin):
+    db=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
+    qry_exist = s.query(Produits).filter_by(id_magasin=id_magasin).count()
+    if qry_exist==0:
+        products_to_insert=[]
+        for i in range(len(db)):
+            products_to_insert.append(Produits(int(id_magasin),int(db.iloc[i]["ID article"]),db.iloc[i]["(kgCO2/kgproduit)"],db.iloc[i]["Libellé"]))
+        s.bulk_save_objects(products_to_insert)
+    else:
+        qry_magasin=s.query(Produits).filter_by(id_magasin=id_magasin).all()
+        for i in range(len(db)):
+            flag=False
+            for j in range(len(qry_magasin)):
+                if db.iloc[i]["id_article"] == qry_magasin[j]["id_article"]:
+                    PRODUITS=metadata_obj.tables["produits"]
+                    stmt= PRODUITS.update().where(PRODUITS.c.id_article==db.iloc[i]["id_article"]).values(carbone=db.iloc["(kgCO2/kgproduit)"])
+                    engine.execute(stmt)
+                    flag=True
+            if flag == False:
+                prod=Produits(int(id_magasin),int(db.iloc[i]["ID article"]),db.iloc[i]["(kgCO2/kgproduit)"],db.iloc[i]["Libellé"])
+                s.add(prod)
+    s.commit()
     
-        
+      
+def query_test():
+    id_magasin=3
+    qry_magasin=s.query(Produits).filter_by(id_magasin=id_magasin).all()
+    print(qry_magasin[0])
+    print(qry_magasin[0].id_article)
+    
 
 # Fonctions gestion des utilisateurs
 def create_hash(mdp):
@@ -139,6 +165,15 @@ def delete_user(utilisateur):
     user=s.query(Utilisateur).where(Utilisateur.id_magasin==utilisateur)
     s.delete(user)
     s.commit()
+    
+def update_user_mdp(utilisateur,nouveau_mdp):
+    UTILISATEUR=metadata_obj.tables["utilisateur"]
+    hashed=create_hash(nouveau_mdp)
+    stmt= UTILISATEUR.update().where(UTILISATEUR.c.id_magasin==utilisateur).values(password=hashed)
+    engine.execute(stmt)
+
+
+
 
 # select data
 def select_user():
@@ -151,19 +186,22 @@ def select_data():
 def read_database_temp(lien):
     db=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
     print(db.iloc[0].keys())
-    print(db.iloc[0]["ID article"])
+    
     
 if __name__ == "__main__":
     """
     drop_database()
     init_database()
     load_database("./database/tickarbase-v0.1.xlsx")
-    insert_user(1,"tom55")
+    insert_user(1,"test")
+    insert_user(2,"test")
+    insert_user(3,"test")
+    
     select_user()
     select_data()
-    """
     update_produit_test()
-
+    """
+    query_test()
 
 
 

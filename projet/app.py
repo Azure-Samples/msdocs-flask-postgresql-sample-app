@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import os
 import bcrypt
 
+#http://localhost:5000/select/avec_protection?id_magasin=2&id_article=100764&password=test
+#http://localhost:5000/select/magasin?id_magasin=2&password=test
 
 load_dotenv()
 app = Flask(__name__)
@@ -35,18 +37,20 @@ def select():
             record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
         for record in qry
        ]}
-        
+
+
 @app.route('/select/sans_protection',methods=['GET'])
 def select_2():
     id_magasin=request.args.get('id_magasin')
     id_article=request.args.get('id_article')
-    qry=Produits.query.where(Produits.id_article==id_article and Produits.id_magasin==id_magasin)
+    qry=Produits.query.filter_by(id_magasin=id_magasin).filter_by(id_article=id_article)
     return {'data': [
          {'id_article':record.id_article, 'id_magasin':
             record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
         for record in qry
        ]}
 
+#selectionne un produit
 @app.route('/select/avec_protection',methods=['GET'])
 def select_3():
     mdp=request.args.get('password')
@@ -54,7 +58,24 @@ def select_3():
     id_article=request.args.get('id_article')
     res = password(id_magasin,mdp)
     if res ==True:
-        qry=Produits.query.where(Produits.id_article== id_article and Produits.id_magasin== id_magasin)
+        qry=Produits.query.filter_by(id_magasin=id_magasin).filter_by(id_article=id_article)
+        print(qry)
+        return {'data': [
+         {'id_article':record.id_article, 'id_magasin':
+            record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
+        for record in qry
+       ]}
+    else:
+        return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
+
+# selectionner toute la base d'un magasin
+@app.route('/select/magasin',methods=['GET'])
+def select_4():
+    mdp=request.args.get('password')
+    id_magasin=request.args.get('id_magasin')
+    res = password(id_magasin,mdp)
+    if res ==True:
+        qry=Produits.query.filter_by(id_magasin=id_magasin)
         print(qry)
         return {'data': [
          {'id_article':record.id_article, 'id_magasin':
