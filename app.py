@@ -6,11 +6,9 @@ from dotenv import load_dotenv
 import os
 import bcrypt
 
-#http://localhost:5000/select/avec_protection?id_magasin=2&id_article=100764&password=test
-#http://localhost:5000/select/magasin?id_magasin=2&password=test
+app = Flask(__name__)
 
 load_dotenv()
-app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR")
 db = SQLAlchemy(app)
 
