@@ -20,6 +20,12 @@ db.session.commit()
 def hello():
     return {"hello": "world"}
 
+
+@app.route('/temp')
+def temp():
+    return {"hello": "temp"}
+
+
 @app.route('/insert')
 def insert():
     prod = Magasins(1,2, '128')
