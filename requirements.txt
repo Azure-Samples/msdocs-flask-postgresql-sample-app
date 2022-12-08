@@ -1,4 +1,4 @@
-dotenv
+python-dotenv
 flask
 sqlalchemy
 flask-sqlalchemy
