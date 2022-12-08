@@ -34,8 +34,8 @@ class Utilisateur(db.Model):
         self.id_magasin=id_user
         self.password=password
 
-db.create_all()
-db.session.commit()
+#db.create_all()
+#db.session.commit()
 
 @app.route('/')
 def hello():
