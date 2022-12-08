@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, BigInteger
 from sqlalchemy.orm import validates
-
+"""
 from app import db
 
 class Produits(db.Model):
@@ -24,3 +24,4 @@ class Utilisateur(db.Model):
     def __init__(self, id_user,password):
         self.id_magasin=id_user
         self.password=password
+"""
