@@ -1,7 +1,7 @@
-Flask
-Flask-Migrate
-Flask-SQLAlchemy
-flask_wtf
+dotenv
+flask
+sqlalchemy
+flask-sqlalchemy
+bcrypt
 psycopg2
-python-dotenv
-SQLAlchemy
+pandas

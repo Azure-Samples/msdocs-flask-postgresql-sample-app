@@ -1,123 +1,105 @@
-from datetime import datetime
-import os
-
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_wtf.csrf import CSRFProtect
+import psycopg2
+from model import *
+from dotenv import load_dotenv
+import os
+import bcrypt
 
+#http://localhost:5000/select/avec_protection?id_magasin=2&id_article=100764&password=test
+#http://localhost:5000/select/magasin?id_magasin=2&password=test
 
-app = Flask(__name__, static_folder='static')
-csrf = CSRFProtect(app)
-
-# WEBSITE_HOSTNAME exists only in production environment
-if not 'WEBSITE_HOSTNAME' in os.environ:
-   # local development, where we'll use environment variables
-   print("Loading config.development and environment variables from .env file.")
-   app.config.from_object('azureproject.development')
-else:
-   # production
-   print("Loading config.production.")
-   app.config.from_object('azureproject.production')
-
-app.config.update(
-    SQLALCHEMY_DATABASE_URI=app.config.get('DATABASE_URI'),
-    SQLALCHEMY_TRACK_MODIFICATIONS=False,
-)
-
-# Initialize the database connection
+load_dotenv()
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR")
 db = SQLAlchemy(app)
 
-# Enable Flask-Migrate commands "flask db init/migrate/upgrade" to work
-migrate = Migrate(app, db)
 
-# The import must be done after db initialization due to circular import issue
-from models import Restaurant, Review
+db.create_all()
+db.session.commit()
 
-@app.route('/', methods=['GET'])
-def index():
-    print('Request for index page received')
-    restaurants = Restaurant.query.all()    
-    return render_template('index.html', restaurants=restaurants)
+@app.route('/')
+def hello():
+    return {"hello": "world"}
 
-@app.route('/<int:id>', methods=['GET'])
-def details(id):
-    restaurant = Restaurant.query.where(Restaurant.id == id).first()
-    reviews = Review.query.where(Review.restaurant==id)
-    return render_template('details.html', restaurant=restaurant, reviews=reviews)
+@app.route('/insert')
+def insert():
+    prod = Magasins(1,2, '128')
+    db.session.add(prod)
+    db.session.commit()
+    return "done"
 
-@app.route('/create', methods=['GET'])
-def create_restaurant():
-    print('Request for add restaurant page received')
-    return render_template('create_restaurant.html')
+@app.route('/select/all') 
+def select():
+    qry=Produits.query.all()
+    return {'data': [
+         {'id_produit':record.id_article, 'id_magasin':
+            record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
+        for record in qry
+       ]}
 
-@app.route('/add', methods=['POST'])
-@csrf.exempt
-def add_restaurant():
-    try:
-        name = request.values.get('restaurant_name')
-        street_address = request.values.get('street_address')
-        description = request.values.get('description')
-    except (KeyError):
-        # Redisplay the question voting form.
-        return render_template('add_restaurant.html', {
-            'error_message': "You must include a restaurant name, address, and description",
-        })
+
+@app.route('/select/sans_protection',methods=['GET'])
+def select_2():
+    id_magasin=request.args.get('id_magasin')
+    id_article=request.args.get('id_article')
+    qry=Produits.query.filter_by(id_magasin=id_magasin).filter_by(id_article=id_article)
+    return {'data': [
+         {'id_article':record.id_article, 'id_magasin':
+            record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
+        for record in qry
+       ]}
+
+#selectionne un produit
+@app.route('/select/avec_protection',methods=['GET'])
+def select_3():
+    mdp=request.args.get('password')
+    id_magasin=request.args.get('id_magasin')
+    id_article=request.args.get('id_article')
+    res = password(id_magasin,mdp)
+    if res ==True:
+        qry=Produits.query.filter_by(id_magasin=id_magasin).filter_by(id_article=id_article)
+        print(qry)
+        return {'data': [
+         {'id_article':record.id_article, 'id_magasin':
+            record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
+        for record in qry
+       ]}
     else:
-        restaurant = Restaurant()
-        restaurant.name = name
-        restaurant.street_address = street_address
-        restaurant.description = description
-        db.session.add(restaurant)
-        db.session.commit()
+        return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
 
-        return redirect(url_for('details', id=restaurant.id))
-
-@app.route('/review/<int:id>', methods=['POST'])
-@csrf.exempt
-def add_review(id):
-    try:
-        user_name = request.values.get('user_name')
-        rating = request.values.get('rating')
-        review_text = request.values.get('review_text')
-    except (KeyError):
-        #Redisplay the question voting form.
-        return render_template('add_review.html', {
-            'error_message': "Error adding review",
-        })
+# selectionner toute la base d'un magasin
+@app.route('/select/magasin',methods=['GET'])
+def select_4():
+    mdp=request.args.get('password')
+    id_magasin=request.args.get('id_magasin')
+    res = password(id_magasin,mdp)
+    if res ==True:
+        qry=Produits.query.filter_by(id_magasin=id_magasin)
+        print(qry)
+        return {'data': [
+         {'id_article':record.id_article, 'id_magasin':
+            record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
+        for record in qry
+       ]}
     else:
-        review = Review()
-        review.restaurant = id
-        review.review_date = datetime.now()
-        review.user_name = user_name
-        review.rating = int(rating)
-        review.review_text = review_text
-        db.session.add(review)
-        db.session.commit()
-                
-    return redirect(url_for('details', id=id))        
+        return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
 
-@app.context_processor
-def utility_processor():
-    def star_rating(id):
-        reviews = Review.query.where(Review.restaurant==id)
+@app.route('/drop_all')
+def drop():
+    db.drop_all()
+    return "done"
 
-        ratings = []
-        review_count = 0;        
-        for review in reviews:
-            ratings += [review.rating]
-            review_count += 1
 
-        avg_rating = sum(ratings)/len(ratings) if ratings else 0
-        stars_percent = round((avg_rating / 5.0) * 100) if review_count > 0 else 0
-        return {'avg_rating': avg_rating, 'review_count': review_count, 'stars_percent': stars_percent}
-
-    return dict(star_rating=star_rating)
-
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+# Fonctions support
+def password(id_magasin,password):
+    mdp_encoded=password.encode('utf-8')
+    qry = Utilisateur.query.where(Utilisateur.id_magasin==id_magasin).first()
+    hashed=qry.password
+    hashed=hashed.encode('utf-8')
+    result = bcrypt.checkpw(mdp_encoded, hashed)
+    return result
+    
 
 if __name__ == '__main__':
-   app.run()
+    app.run(debug=True)

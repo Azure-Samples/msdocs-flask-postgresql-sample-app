@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 import bcrypt
 
 
-load_dotenv() #import les variables d'environnement
+load_dotenv() #import des variables d'environnement
 
 # Definition de l'engine
 engine = create_engine("postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR"))
@@ -31,7 +31,6 @@ s = Session()
 # classes representant les tables
 class Produits(Base):
     __tablename__ = 'produits'
-    #id = Column(Integer, primary_key=True,autoincrement=True)
     id_magasin = Column(Integer, primary_key=True)
     id_article = Column(BigInteger, primary_key=True)
     carbone = Column(String())
@@ -189,20 +188,20 @@ def read_database_temp(lien):
     
     
 if __name__ == "__main__":
-    """
+    
     drop_database()
     init_database()
     load_database("./database/tickarbase-v0.1.xlsx")
     insert_user(1,"test")
     insert_user(2,"test")
     insert_user(3,"test")
-    
+    """
     select_user()
     select_data()
     update_produit_test()
-    """
+    
     query_test()
-
+    """
 
 
 
