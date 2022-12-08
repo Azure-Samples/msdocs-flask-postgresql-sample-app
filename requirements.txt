@@ -5,3 +5,4 @@ flask-sqlalchemy
 bcrypt
 psycopg2
 pandas
+os
