@@ -124,9 +124,9 @@ def update_or_insert(lien,id_magasin):
         for i in range(len(db)):
             flag=False
             for j in range(len(qry_magasin)):
-                if db.iloc[i]["id_article"] == qry_magasin[j]["id_article"]:
+                if db.iloc[i]["ID article"] == qry_magasin[j].id_article:
                     PRODUITS=metadata_obj.tables["produits"]
-                    stmt= PRODUITS.update().where(PRODUITS.c.id_article==db.iloc[i]["id_article"]).values(carbone=db.iloc["(kgCO2/kgproduit)"])
+                    stmt= PRODUITS.update().where(PRODUITS.c.id_article==int(db.iloc[i]["ID article"])).values(carbone=db.iloc[i]["(kgCO2/kgproduit)"])
                     engine.execute(stmt)
                     flag=True
             if flag == False:
@@ -188,21 +188,29 @@ def read_database_temp(lien):
     
     
 if __name__ == "__main__":
-    
+    """
     drop_database()
     init_database()
     load_database("./database/tickarbase-v0.1.xlsx")
     insert_user(1,"test")
     insert_user(2,"test")
     insert_user(3,"test")
-    """
+    
     select_user()
     select_data()
     update_produit_test()
     
     query_test()
+    
+    drop_database()
+    init_database()
+    insert_user(1,"test")
+    insert_user(2,"test")
+    insert_user(3,"test")
     """
-
+    update_or_insert("./database/tickarbase-v0.1_test3.xlsx",2)
+    
+    
 
 
 

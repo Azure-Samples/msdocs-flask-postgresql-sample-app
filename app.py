@@ -34,8 +34,6 @@ class Utilisateur(db.Model):
         self.id_magasin=id_user
         self.password=password
 
-#db.create_all()
-#db.session.commit()
 
 @app.route('/')
 def hello():
@@ -53,6 +51,12 @@ def insert():
     db.session.add(prod)
     db.session.commit()
     return "done"
+
+@app.route('/drop_all')
+def drop():
+    db.drop_all()
+    return "done"
+
 
 @app.route('/select/all') 
 def select():
@@ -110,10 +114,33 @@ def select_4():
     else:
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
 
-@app.route('/drop_all')
-def drop():
-    db.drop_all()
-    return "done"
+
+# recevoir un json et l'afficher
+@app.route('/envoi_json',methods=['POST'])
+def process_json():
+    content_type = request.headers.get('Content-Type')
+    id_magasin = request.headers.get('id_magasin')
+    mdp= request.headers.get('password')    
+    res = password(id_magasin,mdp)
+    if res== True:
+        if (content_type == 'application/json'):
+            json = request.json
+            return json
+        else:
+            return 'Content-Type not supported!'
+    else:
+        return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
+    
+# Format envoi_json: curl -X POST -H "Content-type: application/json" -H "password: test" -H "id_magasin: 1" -d "{\"firstName\" : \"John\", \"lastName\" : \"Smith\"}" "localhost:8080/envoi_json"
+
+@app.route('/test',methods=['POST'])
+def test():
+    json = request.data
+    print(json)
+    return str(json)
+    #query=Produits.query.filter(Produits.id_article.in_(my_list)).all()
+    #return str(query)
+    
 
 
 # Fonctions support
