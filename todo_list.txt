@@ -1,0 +1,33 @@
+- demonstrateur fonctionnel  (2)
++ SAV
++ envoi json par magasin
++ endpoint par magasin
+
+- creation interface basique (design ???)=> accessible seulement par admin  (3)
++ maj bdd produits via api (creation/update/suppr)
++ maj bdd user via api (creation/update/suppr)
++ retour id non present dans la base
+
+- automatisation  => modif bdd ?? (4)
++ distinguer article alim et non alim
++ proxi valeur carbone => à voir
++ faire lien entre les magasins 
++ faire recherhces sur OFF (carbone ou categorie ou code siqual) 40% produits 
++ Faire recherches sur autres bases (catgerorie) : etudier les bases GS1, ecoalim, bdd prod agricole, 
+
+- securisation api  (1)
++ enlever endpoints non proteges
++ creer utilisateur test
+
+- documentation technique  (1)
++ API
++ BDD
+
+- deployer par repo github (1)
+
+- statistiques entre magasins
++ intellignece achats
+
+- ticket de caisse accessible via scan d'un code
+
+- page notion
