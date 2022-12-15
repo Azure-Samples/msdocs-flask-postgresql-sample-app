@@ -16,8 +16,8 @@
 + Faire recherches sur autres bases (catgerorie) : etudier les bases GS1, ecoalim, bdd prod agricole, 
 
 - securisation api  (1)
-+ enlever endpoints non proteges
-+ creer utilisateur test
++ enlever endpoints non proteges (fait)
++ creer utilisateur test 
 
 - documentation technique  (1)
 + API
@@ -31,3 +31,5 @@
 - ticket de caisse accessible via scan d'un code
 
 - page notion
+
+- Nettoyage code

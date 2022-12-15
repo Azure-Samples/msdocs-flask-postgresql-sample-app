@@ -12,6 +12,7 @@ load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR")
 db = SQLAlchemy(app)
 
+# Schema BDD
 class Produits(db.Model):
     __tablename__ = 'produits'
     id_magasin = db.Column(db.Integer,primary_key=True)
@@ -37,9 +38,9 @@ class Utilisateur(db.Model):
 
 @app.route('/')
 def hello():
-    return {"hello": "world"}
+    return {"Bienvenue sur l'API de Tickarbone: https://www.tickarbone.fr/"}
 
-
+"""
 @app.route('/temp')
 def temp():
     return {"hello": "temp"}
@@ -47,7 +48,7 @@ def temp():
 
 @app.route('/insert')
 def insert():
-    prod = Magasins(1,2, '128')
+    prod = Produits(1,2, '128')
     db.session.add(prod)
     db.session.commit()
     return "done"
@@ -78,7 +79,7 @@ def select_2():
             record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
         for record in qry
        ]}
-
+"""
 #selectionne un produit
 @app.route('/select/avec_protection',methods=['GET'])
 def select_3():
@@ -132,7 +133,7 @@ def process_json():
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
     
 # Format envoi_json: curl -X POST -H "Content-type: application/json" -H "password: test" -H "id_magasin: 1" -d "{\"firstName\" : \"John\", \"lastName\" : \"Smith\"}" "localhost:8080/envoi_json"
-
+"""
 @app.route('/test',methods=['POST'])
 def test():
     json = request.data
@@ -140,7 +141,7 @@ def test():
     return str(json)
     #query=Produits.query.filter(Produits.id_article.in_(my_list)).all()
     #return str(query)
-    
+""" 
 
 
 # Fonctions support
