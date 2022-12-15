@@ -38,7 +38,7 @@ class Utilisateur(db.Model):
 
 @app.route('/')
 def hello():
-    return {"Bienvenue sur l'API de Tickarbone: https://www.tickarbone.fr/"}
+    return "Bienvenue sur l'API de Tickarbone: https://www.tickarbone.fr/"
 
 """
 @app.route('/temp')
