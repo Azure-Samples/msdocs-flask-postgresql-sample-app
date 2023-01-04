@@ -1,4 +1,4 @@
-from flask import Flask, request,, render_template
+from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 from model import *
@@ -7,13 +7,7 @@ import os
 import bcrypt
 import json
 import pandas as pd
-import pyodbc
-import sqlalchemy as sal
-from sqlalchemy import create_engine, MetaData, update
-from sqlalchemy.orm.session import sessionmaker,Session
-from sqlalchemy.orm import relationship
-from sqlalchemy import (Column, Integer, String, ForeignKey, BigInteger, Text)
-from sqlalchemy.ext.declarative import declarative_base
+
 
 
 
@@ -138,7 +132,7 @@ def select_4():
     else:
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
 
-"""
+
 # recevoir un json et l'afficher
 @app.route('/envoi_json',methods=['POST'])
 def process_json():
@@ -172,7 +166,7 @@ def process_json():
             return 'Content-Type not supported!'
     else:
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
-"""
+
 @app.route('/index')
 def index():
     return render_template('index.html')
@@ -183,7 +177,7 @@ def upload_file():
     update_or_insert_2(file,"(kgCO2/kgproduit)","Libellé","ID magasin","ID article")
     #colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit
     
-    qry=Produits.query.filter_by(id_magasin="6").all()
+    qry=Produits.query.filter_by(id_magasin="7").all()
     return {'data': [
      {'id_article':record.id_article, 'id_magasin':
         record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
@@ -239,39 +233,24 @@ def password(id_magasin,password):
     
 
 def update_or_insert_2(lien,colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit):
-
-    # Definition de l'engine
-    engine = create_engine("postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR"))
-
-    # Classe de base du modele
-    Base = declarative_base(engine)
-
-    # Create the Metadata Object
-    metadata_obj = MetaData(bind=engine)
-    MetaData.reflect(metadata_obj)
-
-    conn = engine.connect()
-    Session = sessionmaker(bind=engine)
-    s = Session()
-
-    db=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
-    #qry_exist = s.query(Produits).filter_by(id_magasin=id_magasin).count()
-    #id_all_magasin = list(db[colonne_id_magasin]).unique()
-    qry_magasin=s.query(Produits).all()
-    for i in range(len(db)):
+    df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
+    qry_magasin=Produits.query.all()
+    for i in range(len(df)):
         flag=False
         for j in range(len(qry_magasin)):
-            if db.iloc[i][colonne_id_produit] == qry_magasin[j].id_article and db.iloc[i][colonne_id_magasin] == qry_magasin[j].id_magasin :
-                PRODUITS=metadata_obj.tables["produits"]
-                stmt= PRODUITS.update().where(PRODUITS.c.id_article==int(db.iloc[i][colonne_id_produit])).values(carbone=db.iloc[i][colonne_carbone])
-                engine.execute(stmt)
+            if df.iloc[i][colonne_id_produit] == qry_magasin[j].id_article and df.iloc[i][colonne_id_magasin] == qry_magasin[j].id_magasin :
+                if df.iloc[i][colonne_carbone]!=qry_magasin[j].carbone and df.iloc[i][colonne_name]!=qry_magasin[j].name:
+                    update_elem=Produits.query.filter_by(id_magasin=df.iloc[i][colonne_id_magasin],id_produit=df.iloc[i][colonne_id_produit])
+                    update_elem.name=df.iloc[i][colonne_name]
+                    update_elem.carbone=df.iloc[i][colonne_carbone]
+                    db.session.commit()
                 flag=True
                 break
         if flag == False:
             print("passe")
-            prod=Produits(int(db.iloc[i][colonne_id_magasin]),int(db.iloc[i][colonne_id_produit]),db.iloc[i][colonne_carbone],db.iloc[i][colonne_name])
-            s.add(prod)
-    s.commit()
+            prod=Produits(int(df.iloc[i][colonne_id_magasin]),int(df.iloc[i][colonne_id_produit]),df.iloc[i][colonne_carbone],df.iloc[i][colonne_name])
+            db.session.add(prod)
+    db.session.commit()
     
 
 if __name__ == '__main__':
