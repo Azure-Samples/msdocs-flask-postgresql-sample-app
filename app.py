@@ -5,6 +5,8 @@ from model import *
 from dotenv import load_dotenv
 import os
 import bcrypt
+import json
+import time
 
 app = Flask(__name__)
 
@@ -24,6 +26,18 @@ class Produits(db.Model):
         self.id_magasin=id_magasin
         self.id_article=id_article
         self.carbone = carbone
+        self.name=name
+        
+        
+class ProduitsManquants(db.Model):
+    __tablename__ = 'produitsManquants'
+    id_magasin = db.Column(db.Integer,primary_key=True)
+    id_article = db.Column(db.BigInteger,primary_key=True)
+    name = db.Column(db.String())
+
+    def __init__(self, id_magasin,id_article,name):
+        self.id_magasin=id_magasin
+        self.id_article=id_article
         self.name=name
 
 class Utilisateur(db.Model):
@@ -121,18 +135,39 @@ def select_4():
 def process_json():
     content_type = request.headers.get('Content-Type')
     id_magasin = request.headers.get('id_magasin')
-    mdp= request.headers.get('password')    
+    mdp= request.headers.get('password')   
     res = password(id_magasin,mdp)
     if res== True:
         if (content_type == 'application/json'):
-            json = request.json
-            return json
+            json_data = request.json
+
+            # recupere la liste des produits du magasin (id_article + carbone)
+            qry2 = db.engine.execute(f"select id_article,carbone from produits where id_magasin = {id_magasin}")
+            qry_temp=list(qry2) # cree une copie car qry2 est un curseur
+            
+            qry3 = dict((x[0],x[1]) for x in list(qry_temp)) # cree un dictionnaire clé: id_article, valeur: carbone
+            qry4=list(map(lambda x: (str(x[0])),list(qry_temp))) # cree une liste des id_articles
+
+            new_json=[] # liste contenant la liste des produits à renvoyer
+            for i in json_data['data']:
+                if str(i["id_article"]) in qry4:
+                    new_json.append({"id_article":i["id_article"],'carbone':qry3[i["id_article"]]})
+                else:
+                    #ajouter à la base des produits manquants
+                    produitsManquants =  ProduitsManquants(id_magasin, i["id_article"],i["name"])
+                    db.session.add(produitsManquants)
+                    #prod_manquants.append({"id_magasin":id_magasin,"id_article":i["id_article"],"name":i["name"]})
+            db.session.commit()
+            return {"data":new_json}
         else:
             return 'Content-Type not supported!'
     else:
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
     
-# Format envoi_json: curl -X POST -H "Content-type: application/json" -H "password: test" -H "id_magasin: 1" -d "{\"firstName\" : \"John\", \"lastName\" : \"Smith\"}" "localhost:8080/envoi_json"
+
+
+
+# Format envoi_json: curl -X POST -H "Content-type: application/json" -H "password: jaimelebio" -H "id_magasin: 1" -d "" "localhost:8080/envoi_json"
 """
 @app.route('/test',methods=['POST'])
 def test():

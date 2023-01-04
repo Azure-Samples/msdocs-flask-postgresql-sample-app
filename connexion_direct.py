@@ -57,6 +57,20 @@ class Utilisateur(Base):
     def __repr__(self):
         return f"<Utilisateur {self.id_magasin, self.password}>"
 
+
+class ProduitsManquants(Base):
+    __tablename__ = 'produitsManquants'
+    id_magasin = Column(Integer,primary_key=True)
+    id_article = Column(BigInteger,primary_key=True)
+    name = Column(String())
+
+    def __init__(self, id_magasin,id_article,name):
+        self.id_magasin=id_magasin
+        self.id_article=id_article
+        self.name=name
+
+
+
 # Fonction creation et destruction des bases
 def drop_database():
     Base.metadata.drop_all(bind=engine)
@@ -192,9 +206,10 @@ if __name__ == "__main__":
     drop_database()
     init_database()
     load_database("./database/tickarbase-v0.1.xlsx")
-    insert_user(1,"test")
-    insert_user(2,"test")
-    insert_user(3,"test")
+    insert_user(1,"jaimelebio")
+    insert_user(2,"laviesaine")
+    insert_user(3,"lavieclaire")
+    insert_user(4,"cbiocbon")
     
     select_user()
     select_data()
@@ -208,8 +223,8 @@ if __name__ == "__main__":
     insert_user(2,"test")
     insert_user(3,"test")
     """
-    update_or_insert("./database/tickarbase-v0.1_test3.xlsx",2)
-    
+    #update_or_insert("./database/tickarbase-v0.1_test3.xlsx",2)
+    printTableName()
     
 
 
