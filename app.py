@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request,, render_template
 from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 from model import *
