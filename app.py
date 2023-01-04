@@ -7,7 +7,7 @@ import os
 import bcrypt
 import json
 import pandas as pd
-from connexion_direct import update_or_insert_2
+#from connexion_direct import update_or_insert_2
 
 
 
