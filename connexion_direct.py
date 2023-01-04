@@ -185,7 +185,41 @@ def update_user_mdp(utilisateur,nouveau_mdp):
     stmt= UTILISATEUR.update().where(UTILISATEUR.c.id_magasin==utilisateur).values(password=hashed)
     engine.execute(stmt)
 
+def update_or_insert_2(lien,colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit):
 
+    # Definition de l'engine
+    engine = create_engine("postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR"))
+
+    # Classe de base du modele
+    Base = declarative_base(engine)
+
+    # Create the Metadata Object
+    metadata_obj = MetaData(bind=engine)
+    MetaData.reflect(metadata_obj)
+
+    conn = engine.connect()
+    Session = sessionmaker(bind=engine)
+    s = Session()
+
+    db=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
+    #qry_exist = s.query(Produits).filter_by(id_magasin=id_magasin).count()
+    #id_all_magasin = list(db[colonne_id_magasin]).unique()
+    qry_magasin=s.query(Produits).all()
+    for i in range(len(db)):
+        flag=False
+        for j in range(len(qry_magasin)):
+            if db.iloc[i][colonne_id_produit] == qry_magasin[j].id_article and db.iloc[i][colonne_id_magasin] == qry_magasin[j].id_magasin :
+                PRODUITS=metadata_obj.tables["produits"]
+                stmt= PRODUITS.update().where(PRODUITS.c.id_article==int(db.iloc[i][colonne_id_produit])).values(carbone=db.iloc[i][colonne_carbone])
+                engine.execute(stmt)
+                flag=True
+                break
+        if flag == False:
+            print("passe")
+            prod=Produits(int(db.iloc[i][colonne_id_magasin]),int(db.iloc[i][colonne_id_produit]),db.iloc[i][colonne_carbone],db.iloc[i][colonne_name])
+            s.add(prod)
+    s.commit()
+    
 
 
 # select data

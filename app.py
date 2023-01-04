@@ -6,7 +6,10 @@ from dotenv import load_dotenv
 import os
 import bcrypt
 import json
-import time
+import pandas as pd
+from connexion_direct import update_or_insert_2
+
+
 
 app = Flask(__name__)
 
@@ -164,6 +167,46 @@ def process_json():
     else:
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
     
+@app.route('/index')
+def index():
+    return render_template('index.html')
+
+@app.route('/excelupload',methods=['POST'])
+def upload_file():
+    file = request.files['file']
+    update_or_insert_2(file,"(kgCO2/kgproduit)","Libellé","ID magasin","ID article")
+    #colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit
+    """
+    qry=Produits.query.filter_by(id_magasin="6").all()
+    return {'data': [
+     {'id_article':record.id_article, 'id_magasin':
+        record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
+    for record in qry
+   ]}
+    """
+    return render_template('index.html')
+
+    '''
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            UPLOAD_FOLDER = './upload_dir/'
+            CreateNewDir()
+            global UPLOAD_FOLDER
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            return redirect(url_for('uploaded_file',
+                                    filename=filename))
+            '''
 
 
 

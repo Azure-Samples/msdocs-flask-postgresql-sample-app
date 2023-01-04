@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+    <title>Tickarbone</title>
+</head>
+
+<body>
+    <h1>Upload Tickarbone</h1>
+
+    <br>
+    <br>
+
+    <div class="formulaire">
+    <br>
+    <br>
+    <form action="/excelupload" method=post enctype=multipart/form-data>
+        <input type=file name=file>
+        <input type=submit value=Upload>
+    </form>
+    <br>
+    <br>
+    </div>
+
+
+</body>
+</html>
