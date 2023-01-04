@@ -132,7 +132,7 @@ def select_4():
     else:
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
 
-
+"""
 # recevoir un json et l'afficher
 @app.route('/envoi_json',methods=['POST'])
 def process_json():
@@ -166,7 +166,7 @@ def process_json():
             return 'Content-Type not supported!'
     else:
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
-    
+
 @app.route('/index')
 def index():
     return render_template('index.html')
@@ -176,14 +176,14 @@ def upload_file():
     file = request.files['file']
     update_or_insert_2(file,"(kgCO2/kgproduit)","Libellé","ID magasin","ID article")
     #colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit
-    """
+    
     qry=Produits.query.filter_by(id_magasin="6").all()
     return {'data': [
      {'id_article':record.id_article, 'id_magasin':
         record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
     for record in qry
    ]}
-    """
+    
     return render_template('index.html')
 
     '''
@@ -206,9 +206,9 @@ def upload_file():
             file.save(os.path.join(UPLOAD_FOLDER, filename))
             return redirect(url_for('uploaded_file',
                                     filename=filename))
-            '''
+    '''
 
-
+"""
 
 # Format envoi_json: curl -X POST -H "Content-type: application/json" -H "password: jaimelebio" -H "id_magasin: 1" -d "" "localhost:8080/envoi_json"
 """
