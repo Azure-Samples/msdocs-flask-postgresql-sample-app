@@ -1,0 +1,30 @@
+
+.formulaire {
+    text-align: center;
+}
+
+.blockquote-footer{
+    color: whitesmoke;
+    text-align: center;
+}
+
+.container-fluid{
+    color: whitesmoke;
+
+}
+
+body{
+    margin: 0;
+	padding: 0;
+	height: 100%;
+	width: 100%;
+}
+
+.back{
+    background-image: url('/static/img/jungle.jpg');
+    background-repeat: repeat;
+    height: 100%;
+    width : 100%;
+    background-size: cover;
+    position: relative;
+}
