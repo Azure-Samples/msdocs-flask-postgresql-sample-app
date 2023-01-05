@@ -255,14 +255,15 @@ def upload_file():
     file = request.files['file']
     update_or_insert_2(file,"(kgCO2/kgproduit)","Libellé","ID magasin","ID article")
     #colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit
-    
+    """
     qry=Produits.query.filter_by(id_magasin="7").all()
+    
     return {'data': [
      {'id_article':record.id_article, 'id_magasin':
         record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
     for record in qry
    ]}
-    
+    """
     return render_template('index.html')
 
 
