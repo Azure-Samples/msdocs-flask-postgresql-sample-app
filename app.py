@@ -344,7 +344,6 @@ def update_or_insert_2(lien,colonne_carbone,colonne_name,colonne_id_magasin,colo
                 flag=True
                 break
         if flag == False:
-            print("passe")
             prod=Produits(int(df.iloc[i][colonne_id_magasin]),int(df.iloc[i][colonne_id_produit]),df.iloc[i][colonne_carbone],df.iloc[i][colonne_name])
             db.session.add(prod)
     db.session.commit()
