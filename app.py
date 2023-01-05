@@ -218,7 +218,7 @@ def process_json():
                     new_json.append({"id_article":i["id_article"],'carbone':qry3[i["id_article"]]})
                 else:
                     #ajouter à la base des produits manquants
-                    qry_exist = ProduitsManquants.query.filter_by(id_magasin=id_magasin, id_article=i["id_article"])
+                    qry_exist = ProduitsManquants.query.filter_by(id_magasin=int(id_magasin), id_article=int(i["id_article"]))
                     if bool(qry_exist) == False: # verifie pb exisitance
                         produitsManquants =  ProduitsManquants(id_magasin, i["id_article"],i["name"])
                         db.session.add(produitsManquants) 
