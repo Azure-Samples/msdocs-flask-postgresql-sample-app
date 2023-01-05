@@ -7,6 +7,6 @@ if __name__=="__main__":
     
     test = open( "C:\\Users\\xtian\\OneDrive\\Documents\\CentralSupelec\\projet\\msdocs-flask-postgresql-sample-app\\database\\test.json")
     aff = json.load(test)
-    res = requests.post('http://localhost:8080/envoi_json', json=aff,headers=headers)
+    res = requests.post('https://tickarbone.azurewebsites.net/envoi_json', json=aff,headers=headers)
     if res.ok:
         print(res.json())
