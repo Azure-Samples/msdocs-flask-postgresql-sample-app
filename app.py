@@ -18,6 +18,7 @@ db = SQLAlchemy(app)
 
 # Schema BDD
 class Produits(db.Model):
+    
     __tablename__ = 'produits'
     id_magasin = db.Column(db.Integer,primary_key=True)
     id_article = db.Column(db.BigInteger,primary_key=True)
@@ -54,8 +55,19 @@ class Utilisateur(db.Model):
 
 @app.route('/')
 def hello():
+    """
+    
+
+    Returns
+    -------
+    str
+        DESCRIPTION.
+
+    """
     return "Bienvenue sur l'API de Tickarbone: https://www.tickarbone.fr/"
 
+
+# Fonctions non protegees
 """
 @app.route('/temp')
 def temp():
@@ -96,6 +108,7 @@ def select_2():
         for record in qry
        ]}
 """
+
 #selectionne un produit
 @app.route('/select/avec_protection',methods=['GET'])
 def select_3():
@@ -117,6 +130,15 @@ def select_3():
 # selectionner toute la base d'un magasin
 @app.route('/select/magasin',methods=['GET'])
 def select_4():
+    """
+    
+    
+    Returns
+    -------
+    dict
+        json with the products
+
+    """
     mdp=request.args.get('password')
     id_magasin=request.args.get('id_magasin')
     res = password(id_magasin,mdp)
@@ -135,6 +157,25 @@ def select_4():
 # recevoir un json et l'afficher
 @app.route('/envoi_json',methods=['POST'])
 def process_json():
+    """
+    
+    Return a new  json with the id_magasin, id_product and carbone when given a json containing the id of the product
+    
+    Parameters
+    ----------
+    content_type: string
+        type of the file (must be application/json)
+    password : string
+        password of the shop
+    id_magasin : int
+        id of the shop
+    
+    Returns
+    -------
+    Dict
+        new json with carbon or error message
+
+    """
     content_type = request.headers.get('Content-Type')
     id_magasin = request.headers.get('id_magasin')
     mdp= request.headers.get('password')   
@@ -168,10 +209,27 @@ def process_json():
 
 @app.route('/index')
 def index():
+    """
+    Endpoint to access the update page
+
+    Returns
+    -------
+    Template index.html
+
+    """
     return render_template('index.html')
 
 @app.route('/excelupload',methods=['POST'])
 def upload_file():
+    """
+    endpoint to sent the excel file for an update of the database
+
+    Returns
+    -------
+    Template index.html
+        .
+
+    """
     file = request.files['file']
     update_or_insert_2(file,"(kgCO2/kgproduit)","Libellé","ID magasin","ID article")
     #colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit
@@ -201,6 +259,22 @@ def test():
 
 # Fonctions support
 def password(id_magasin,password):
+    """
+    return true if the user is in the database and if the password is correct
+    
+    Parameters
+    ----------
+    id_magasin : int
+        id of the shop
+    password : string
+        password of the shop
+
+    Returns
+    -------
+    result : BOOL
+        DESCRIPTION.
+
+    """
     result=False
     mdp_encoded=password.encode('utf-8')
     if (bool(Utilisateur.query.where(Utilisateur.id_magasin==id_magasin).first())):
@@ -212,6 +286,27 @@ def password(id_magasin,password):
     
 
 def update_or_insert_2(lien,colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit):
+    """
+    insert in the database the information in an excel
+
+    Parameters
+    ----------
+    lien : string
+        link for the excel file
+    colonne_carbone : string
+        name of the carbon column in the excel
+    colonne_name : string
+        name of the name column in the excel
+    colonne_id_magasin : string
+        name of the magasin column in the excel
+    colonne_id_produit : string
+        name of the id product column
+
+    Returns
+    -------
+    None.
+
+    """
     df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
     qry_magasin=Produits.query.all()
     for i in range(len(df)):
