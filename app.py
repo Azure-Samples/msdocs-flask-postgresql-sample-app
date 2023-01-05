@@ -8,13 +8,14 @@ import bcrypt
 import json
 import pandas as pd
 import openpyxl
-
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR")
 db = SQLAlchemy(app)
+
 
 # Schema BDD
 class Produits(db.Model):
@@ -61,6 +62,29 @@ class Utilisateur(db.Model):
         self.password=password
 
 
+# maj journaliere de la base produits manquants
+def maj_produits_manquants():
+    qry_produits=db.engine.execute(f"select * from produits")
+    prod_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits))
+    qry_produits_manquants=db.engine.execute(f"select * from produitsManquants")
+    prod_manquants_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits_manquants))
+    for key,value in prod_dict:
+        if key in prod_dict_manquants:
+            if prod_dict[key]["carbone"]!=None:
+                ProduitsManquants.query.filter_by(id_magasin=prod_dict[key]["id_magasin"],id_article=prod_dict[key]["id_article"]).delete()
+        else:
+            if prod_dict[key]["carbone"]==None:
+                prod_temp=ProduitsManquants(prod_dict[key]["id_magasin"],prod_dict[key]["id_article"],prod_dict[key]["name"])
+                db.session.add(prod_temp) 
+    db.session.commit()
+
+#sched = BackgroundScheduler(daemon=True)
+#sched.add_job(maj_produits_manquants,'interval',minutes=1440)
+#sched.start()
+
+
+
+
 @app.route('/')
 def hello():
     """
@@ -73,6 +97,10 @@ def hello():
 
     """
     return "Bienvenue sur l'API de Tickarbone: https://www.tickarbone.fr/"
+
+
+
+
 
 
 # Fonctions non protegees
@@ -220,8 +248,10 @@ def process_json():
                     #ajouter à la base des produits manquants
                     qry_exist = ProduitsManquants.query.filter_by(id_magasin=int(id_magasin), id_article=int(i["id_article"]))
                     if bool(qry_exist) == False: # verifie pb exisitance
-                        produitsManquants =  ProduitsManquants(id_magasin, i["id_article"],i["name"])
+                        produitsManquants =  ProduitsManquants(id_magasin, i["id_article"],i["name"])# cree l'element qu'on n a pas dans produits
                         db.session.add(produitsManquants) 
+                        produits =  Produits(id_magasin, i["id_article"],i["name"],None)# cree l'element qu'on n a pas dans produits manquants
+                        db.session.add(produits) 
             db.session.commit()
             return {"data":new_json}
         else:
