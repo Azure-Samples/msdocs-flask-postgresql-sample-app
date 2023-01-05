@@ -18,7 +18,9 @@ db = SQLAlchemy(app)
 
 # Schema BDD
 class Produits(db.Model):
-    
+    """
+    Declaration of the table 'produits' that contained every products of the shop
+    """
     __tablename__ = 'produits'
     id_magasin = db.Column(db.Integer,primary_key=True)
     id_article = db.Column(db.BigInteger,primary_key=True)
@@ -33,6 +35,9 @@ class Produits(db.Model):
         
         
 class ProduitsManquants(db.Model):
+    """
+    Declaration of the table produitManquants that contained every products of the shop that are actually in the database
+    """
     __tablename__ = 'produitsManquants'
     id_magasin = db.Column(db.Integer,primary_key=True)
     id_article = db.Column(db.BigInteger,primary_key=True)
@@ -44,6 +49,9 @@ class ProduitsManquants(db.Model):
         self.name=name
 
 class Utilisateur(db.Model):
+    """
+    Declaration of the table Utilisateur that contained every shops that has accessed to our database
+    """
     __tablename__ = 'utilisateur'
     id_magasin = db.Column(db.Integer, primary_key=True)
     password = db.Column(db.Text)
@@ -56,7 +64,7 @@ class Utilisateur(db.Model):
 @app.route('/')
 def hello():
     """
-    
+    Welcome message of the API
 
     Returns
     -------
@@ -112,10 +120,22 @@ def select_2():
 #selectionne un produit
 @app.route('/select/avec_protection',methods=['GET'])
 def select_3():
+    """
+    Select a product of a shop given the password, id article and id of the shop
+    ex: https://tickarbone.azurewebsites.net/select/avec_protection?id_magasin=1&password=jaimelebio&id_article=2220383
+    
+    Returns
+    -------
+    dict
+        json with the product
+
+    """
+    
     mdp=request.args.get('password')
     id_magasin=request.args.get('id_magasin')
     id_article=request.args.get('id_article')
     res = password(id_magasin,mdp)
+    
     if res ==True:
         qry=Produits.query.filter_by(id_magasin=id_magasin).filter_by(id_article=id_article)
         print(qry)
@@ -131,7 +151,8 @@ def select_3():
 @app.route('/select/magasin',methods=['GET'])
 def select_4():
     """
-    
+    Select all the data of a shop given the password and id of the shop
+    ex: https://tickarbone.azurewebsites.net/select/magasin?id_magasin=1&password=jaimelebio
     
     Returns
     -------
