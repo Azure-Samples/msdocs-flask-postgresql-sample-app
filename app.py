@@ -10,8 +10,6 @@ import pandas as pd
 import openpyxl
 
 
-
-
 app = Flask(__name__)
 
 load_dotenv()
@@ -187,28 +185,6 @@ def upload_file():
     
     return render_template('index.html')
 
-    '''
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            UPLOAD_FOLDER = './upload_dir/'
-            CreateNewDir()
-            global UPLOAD_FOLDER
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
-            return redirect(url_for('uploaded_file',
-                                    filename=filename))
-    '''
-
 
 
 # Format envoi_json: curl -X POST -H "Content-type: application/json" -H "password: jaimelebio" -H "id_magasin: 1" -d "" "localhost:8080/envoi_json"
@@ -225,11 +201,13 @@ def test():
 
 # Fonctions support
 def password(id_magasin,password):
+    result=False
     mdp_encoded=password.encode('utf-8')
-    qry = Utilisateur.query.where(Utilisateur.id_magasin==id_magasin).first()
-    hashed=qry.password
-    hashed=hashed.encode('utf-8')
-    result = bcrypt.checkpw(mdp_encoded, hashed)
+    if (bool(Utilisateur.query.where(Utilisateur.id_magasin==id_magasin).first())):
+        qry = Utilisateur.query.where(Utilisateur.id_magasin==id_magasin).first()
+        hashed=qry.password
+        hashed=hashed.encode('utf-8')
+        result = bcrypt.checkpw(mdp_encoded, hashed)
     return result
     
 
