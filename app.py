@@ -336,10 +336,10 @@ def update_or_insert_2(lien,colonne_carbone,colonne_name,colonne_id_magasin,colo
         flag=False
         for j in range(len(qry_magasin)):
             if df.iloc[i][colonne_id_produit] == qry_magasin[j].id_article and df.iloc[i][colonne_id_magasin] == qry_magasin[j].id_magasin :
-                if df.iloc[i][colonne_carbone]!=qry_magasin[j].carbone and df.iloc[i][colonne_name]!=qry_magasin[j].name:
-                    update_elem=Produits.query.filter_by(id_magasin=df.iloc[i][colonne_id_magasin],id_produit=df.iloc[i][colonne_id_produit])
-                    update_elem.name=df.iloc[i][colonne_name]
-                    update_elem.carbone=df.iloc[i][colonne_carbone]
+                if df.iloc[i][colonne_carbone]!=qry_magasin[j].carbone or df.iloc[i][colonne_name]!=qry_magasin[j].name:
+                    update_elem=Produits.query.filter_by(id_magasin=int(df.iloc[i][colonne_id_magasin]),id_article=int(df.iloc[i][colonne_id_produit])).first()
+                    update_elem.name=str(df.iloc[i][colonne_name])
+                    update_elem.carbone=str(df.iloc[i][colonne_carbone])
                     db.session.commit()
                 flag=True
                 break
