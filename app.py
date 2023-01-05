@@ -331,19 +331,17 @@ def update_or_insert_2(lien,colonne_carbone,colonne_name,colonne_id_magasin,colo
 
     """
     df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
-    qry_magasin=Produits.query.all()
+    qry_magasin=db.engine.execute(f"select * from produits")
+    qry2 = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_magasin))
     for i in range(len(df)):
-        flag=False
-        for j in range(len(qry_magasin)):
-            if df.iloc[i][colonne_id_produit] == qry_magasin[j].id_article and df.iloc[i][colonne_id_magasin] == qry_magasin[j].id_magasin :
-                if str(df.iloc[i][colonne_carbone])!=str(qry_magasin[j].carbone) or str(df.iloc[i][colonne_name])!=str(qry_magasin[j].name):
-                    update_elem=Produits.query.filter_by(id_magasin=int(df.iloc[i][colonne_id_magasin]),id_article=int(df.iloc[i][colonne_id_produit])).first()
-                    update_elem.name=str(df.iloc[i][colonne_name])
-                    update_elem.carbone=str(df.iloc[i][colonne_carbone])
-                    db.session.commit()
-                flag=True
-                break
-        if flag == False:
+        key_id=(df.iloc[i][colonne_id_magasin],df.iloc[i][colonne_id_produit])
+        if key_id in qry2:
+            if str(df.iloc[i][colonne_carbone])!=str(qry2[key_id]["carbone"]) or str(df.iloc[i][colonne_name])!=str(qry2[key_id]["name"]):
+                update_elem=Produits.query.filter_by(id_magasin=int(df.iloc[i][colonne_id_magasin]),id_article=int(df.iloc[i][colonne_id_produit])).first()
+                update_elem.name=str(df.iloc[i][colonne_name])
+                update_elem.carbone=str(df.iloc[i][colonne_carbone])
+                db.session.commit()
+        else:
             prod=Produits(int(df.iloc[i][colonne_id_magasin]),int(df.iloc[i][colonne_id_produit]),df.iloc[i][colonne_carbone],df.iloc[i][colonne_name])
             db.session.add(prod)
     db.session.commit()
