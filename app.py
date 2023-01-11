@@ -304,7 +304,7 @@ def download_file():
     qry=ProduitsManquants.query.all()
     df = pd.DataFrame()
     for record in qry:
-        df1=pd.DataFrame({'id_article':record.id_article, 'id_magasin':record.id_magasin, 'name' :record.name},index=[1])
+        df1=pd.DataFrame({'id_article':record.id_article, 'id_magasin':record.id_magasin, 'name' :record.name,'carbone':None},index=[1])
         df=pd.concat([df,df1],ignore_index=True)
     
     # Creating output and writer (pandas excel writer)
@@ -432,7 +432,7 @@ def update_or_insert_2(lien,colonne_carbone="carbone",colonne_name="name",colonn
                 update_elem.carbone=str(df.iloc[i][colonne_carbone])
                 db.session.commit()
         else:
-            prod=Produits(int(df.iloc[i][colonne_id_magasin]),int(df.iloc[i][colonne_id_produit]),df.iloc[i][colonne_carbone],df.iloc[i][colonne_name])
+            prod=Produits(int(df.iloc[i][colonne_id_magasin]),int(df.iloc[i][colonne_id_produit]),str(df.iloc[i][colonne_carbone]),str(df.iloc[i][colonne_name]))
             db.session.add(prod)
     db.session.commit()
     
