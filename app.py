@@ -331,31 +331,41 @@ def download_file():
     return r
 
 
+@app.route('/user')
+def user():
+    return render_template('handleuser.html')
+
+
 @app.route('/handle_user',methods=['POST'])
-def handle_user_add():
-    # 0: base, 1: passe, 2: utilisateur n'existe pas, 3: fail, 4: utilisateur existe deja
+def handle_user_():
+    # 0: base, 1: utilisateur a ete ajouté, 2: utilisateur n'existe pas, 3: fail, 4: utilisateur existe deja, 5: l'utilisateur a été supprime
     utilisateur = request.form.get('utilisateur')
-    mdp = request.form.get('password')
+    mdp = request.form.get('mdp')
     return_box=0
     existence_user=False
-    if(bool(Utilisateur.query.filter_by(id_magasin=utilisateur).first())):
+    if(bool(Utilisateur.query.filter_by(id_magasin=int(utilisateur)).first())):
         existence_user=True
     
     if mdp == None:
         if existence_user:
-            Utilisateur.query.filter_by(id_magasin=utilisateur).delete()
-            return_box=1
+            print("passe")
+            Utilisateur.query.filter_by(id_magasin=int(utilisateur)).delete()
+            return_box=5
         else:
+            print("passe2")
             return_box=2   
     else:
         if existence_user:
+            print("passe3")
             return_box=4
         else:
-            user=Utilisateur(id_magasin=utilisateur,password=mdp)
+            print("passe4")
+            hashed=create_hash(mdp)
+            user=Utilisateur(int(utilisateur),hashed)
             db.session.add(user) 
             return_box=1
     db.session.commit()
-    return render_template('handleuser.html',return_box=return_box)
+    return render_template('handleuser.html',message=return_box)
 
 
 # Format envoi_json: curl -X POST -H "Content-type: application/json" -H "password: jaimelebio" -H "id_magasin: 1" -d "" "localhost:8080/envoi_json"
@@ -437,6 +447,17 @@ def update_or_insert_2(lien,colonne_carbone="carbone",colonne_name="name",colonn
             db.session.add(prod)
     db.session.commit()
     
+
+
+def create_hash(mdp):
+    mdp_encoded=mdp.encode('utf-8')
+    salt=bcrypt.gensalt() # genere le sel
+    hashed = bcrypt.hashpw(mdp_encoded, salt) # cree le mot de passe hashe
+    return hashed.decode()
+    
+    
+
+
 
 if __name__ == '__main__':
     app.run(port=8080,debug=True)

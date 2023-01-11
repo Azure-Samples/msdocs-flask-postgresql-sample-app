@@ -258,7 +258,7 @@ def read_database_temp(lien):
     
     
 if __name__ == "__main__":
-    
+    """
     drop_database()
     init_database()
     load_database("./database/tickarbase-v0.1.xlsx")
@@ -267,7 +267,7 @@ if __name__ == "__main__":
     insert_user(2,"laviesaine")
     insert_user(3,"lavieclaire")
     insert_user(4,"cbiocbon")
-    """
+    
     select_user()
     select_data()
     update_produit_test()
@@ -284,7 +284,7 @@ if __name__ == "__main__":
     
     select_prod_manquants()
     """
-    
+    select_user()
 
 
 
