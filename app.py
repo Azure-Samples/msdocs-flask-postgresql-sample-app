@@ -285,7 +285,7 @@ def upload_file():
 
     """
     file = request.files['file']
-    update_or_insert_2(file,"(kgCO2/kgproduit)","Libellé","ID magasin","ID article")
+    update_or_insert_2(file)
     #colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit
     """
     qry=Produits.query.filter_by(id_magasin="7").all()
@@ -345,8 +345,7 @@ def handle_user_add():
             Utilisateur.query.filter_by(id_magasin=utilisateur).delete()
             return_box=1
         else:
-            return_box=2
-        
+            return_box=2   
     else:
         if existence_user:
             return_box=4
