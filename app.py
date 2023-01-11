@@ -301,16 +301,11 @@ def upload_file():
 
 @app.route('/exceldownload')
 def download_file():
-    #qry=ProduitsManquants.query.all()
-    #df = pd.DataFrame(list(qry))
-    #return Response(csv,mimetype="text/csv",headers={"Content-disposition":"attachment; filename=myplot.csv"})
-    #qry = db.engine.execute(f"select * from produitsManquants")
     qry=ProduitsManquants.query.all()
     df = pd.DataFrame()
     for record in qry:
-        df1=pd.DataFrame({'id_article':record.id_article, 'id_magasin':record.id_magasin, 'name' :record.name},index={1})
+        df1=pd.DataFrame({'id_article':record.id_article, 'id_magasin':record.id_magasin, 'name' :record.name},index=[1])
         df=pd.concat([df,df1],ignore_index=True)
-    print(df.head())
     # Creating output and writer (pandas excel writer)
     out = io.BytesIO()
     writer = pd.ExcelWriter(out, engine='xlsxwriter')
@@ -319,7 +314,6 @@ def download_file():
     # Export data frame to excel
     df.to_excel(excel_writer=writer, index=False, sheet_name='Sheet1')
     writer.save()
-    writer.close()
 
    
     # Flask create response 
