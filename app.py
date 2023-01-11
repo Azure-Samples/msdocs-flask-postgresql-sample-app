@@ -247,13 +247,14 @@ def process_json():
                 if str(i["id_article"]) in qry4:
                     new_json.append({"id_article":i["id_article"],'carbone':qry3[i["id_article"]]})
                 else:
-                    #ajouter à la base des produits manquants
-                    qry_exist = ProduitsManquants.query.filter_by(id_magasin=int(id_magasin), id_article=int(i["id_article"]))
-                    if bool(qry_exist) == False: # verifie pb exisitance
-                        produitsManquants =  ProduitsManquants(id_magasin, i["id_article"],i["name"])# cree l'element qu'on n a pas dans produits
-                        db.session.add(produitsManquants) 
-                        produits =  Produits(id_magasin, i["id_article"],i["name"],None)# cree l'element qu'on n a pas dans produits manquants
-                        db.session.add(produits) 
+                    # ajouter au json de retour
+                    new_json.append({"id_article":i["id_article"],'carbone':None})
+                    # ajouter à la base des produits manquants et des produits
+                    print("passe")
+                    produitsManquants =  ProduitsManquants(int(id_magasin), int(i["id_article"]),str(i["name"]))# cree l'element qu'on n a pas dans produits
+                    db.session.add(produitsManquants) 
+                    produits =  Produits(int(id_magasin), int(i["id_article"]),None,str(i["name"]))# cree l'element qu'on n a pas dans produits manquants
+                    db.session.add(produits) 
             db.session.commit()
             return {"data":new_json}
         else:

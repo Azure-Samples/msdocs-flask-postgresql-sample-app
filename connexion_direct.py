@@ -281,9 +281,10 @@ if __name__ == "__main__":
     insert_user(3,"test")
     
     #update_or_insert("./database/tickarbase-v0.1_test3.xlsx",2)
-    select_prod_manquants()
     
+    select_prod_manquants()
     """
+    
 
 
 
