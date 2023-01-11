@@ -31,19 +31,39 @@
 
   <div class="row bg-dark"> <!-- Scrat Bandeau + Formulaire -->
       <div class="col p-1"><!-- Colonne Formulaire -->
-        <div class="formulaire p-3">
+        <div class="formulaire p-3"> <!-- Export Fichier Block -->
           <form action="/excelupload" method=post enctype=multipart/form-data class="input-group mb-3">
               <input type=file name=file class="form-control">
               <input type=submit class="input-group-text" value="Upload">
           </form>
         </div>
 
-        <div class="container-fluid">
+        <div class="container-fluid"> <!-- Text Block after Export Fichier -->
           <div class="col p-1">
           <h4>Uploadez vos fichier .xmls - .csv </h4>
           <h4>pour mettre à jour la base Carbone.</h4>
           </div>  
         </div>
+
+        <hr>
+
+        <div class="formulaire"> <!-- Download Fichier Block -->
+          <div class="col p-1">
+            <button class="btn btn-light">
+              <span class="spinner-grow spinner-grow-sm"></span>
+              <a class="btn" style="color:rgb(50, 50, 50) " href="{{url_for('download_file')}}"><b>Download</b></a>
+            </button>
+          </div>  
+        </div>
+
+        <div class="container-fluid"> <!-- Text Block after Download Fichier -->
+          <div class="col p-1">
+          <br>  
+          <h4>Télecharger les produits non réferencés Carbone </h4>
+          <h4>sous format .xmls - .csv</h4>
+          </div>  
+        </div>
+        
 
       </div>
 
@@ -51,7 +71,7 @@
 
       <img src="/static/img/backrgoundmonkey.jpg" class="img-fluid" alt="...">
 
-    </div>
+    </div>   
   </div>
 </div>
 </div>

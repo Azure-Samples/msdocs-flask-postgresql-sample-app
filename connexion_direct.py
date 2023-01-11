@@ -69,7 +69,10 @@ class ProduitsManquants(Base):
         self.id_article=id_article
         self.name=name
 
-
+    def __repr__(self):
+        return f"<ProduitsManquants {self.id_magasin, self.id_article, self.name}>"
+    
+    
 
 # Fonction creation et destruction des bases
 def drop_database():
@@ -220,7 +223,23 @@ def update_or_insert_2(lien,colonne_carbone,colonne_name,colonne_id_magasin,colo
             s.add(prod)
     s.commit()
     
+def insert_produits_manquants_test():
+    engine = create_engine("postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR"))
 
+    # Classe de base du modele
+    Base = declarative_base(engine)
+
+    # Create the Metadata Object
+    metadata_obj = MetaData(bind=engine)
+    MetaData.reflect(metadata_obj)
+
+    conn = engine.connect()
+    Session = sessionmaker(bind=engine)
+    s = Session()
+    for i in range(10):
+        prod=ProduitsManquants(1,i,"name_"+str(i))
+        s.add(prod)
+    s.commit()
 
 # select data
 def select_user():
@@ -229,6 +248,9 @@ def select_user():
 def select_data():
     print(s.query(Produits).all())
     
+def select_prod_manquants():
+    print(s.query(ProduitsManquants).all())
+    
 # fonctions supports
 def read_database_temp(lien):
     db=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
@@ -236,15 +258,16 @@ def read_database_temp(lien):
     
     
 if __name__ == "__main__":
-    """
+    
     drop_database()
     init_database()
     load_database("./database/tickarbase-v0.1.xlsx")
+    insert_produits_manquants_test()
     insert_user(1,"jaimelebio")
     insert_user(2,"laviesaine")
     insert_user(3,"lavieclaire")
     insert_user(4,"cbiocbon")
-    
+    """
     select_user()
     select_data()
     update_produit_test()
@@ -256,11 +279,11 @@ if __name__ == "__main__":
     insert_user(1,"test")
     insert_user(2,"test")
     insert_user(3,"test")
-    """
-    #update_or_insert("./database/tickarbase-v0.1_test3.xlsx",2)
-    printTableName()
     
-
+    #update_or_insert("./database/tickarbase-v0.1_test3.xlsx",2)
+    select_prod_manquants()
+    
+    """
 
 
 
