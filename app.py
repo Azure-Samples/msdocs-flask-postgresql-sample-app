@@ -10,7 +10,7 @@ import pandas as pd
 import openpyxl
 from apscheduler.schedulers.background import BackgroundScheduler
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder='templates')
 
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR")
@@ -386,4 +386,4 @@ def update_or_insert_2(lien,colonne_carbone,colonne_name,colonne_id_magasin,colo
     
 
 if __name__ == '__main__':
-    app.run(port=8080,template_folder='templates',debug=True)
+    app.run(port=8080,debug=True)
