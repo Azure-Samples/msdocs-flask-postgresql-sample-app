@@ -9,7 +9,6 @@ import json
 import pandas as pd
 import openpyxl
 import io
-import xlsxwriter
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
@@ -307,6 +306,7 @@ def download_file():
     for record in qry:
         df1=pd.DataFrame({'id_article':record.id_article, 'id_magasin':record.id_magasin, 'name' :record.name},index=[1])
         df=pd.concat([df,df1],ignore_index=True)
+    
     # Creating output and writer (pandas excel writer)
     out = io.BytesIO()
     writer = pd.ExcelWriter(out, engine='xlsxwriter')
@@ -329,6 +329,33 @@ def download_file():
     # Finally return response
     return r
 
+
+@app.route('/handle_user',methods=['POST'])
+def handle_user_add():
+    # 0: base, 1: passe, 2: utilisateur n'existe pas, 3: fail, 4: utilisateur existe deja
+    utilisateur = request.form.get('utilisateur')
+    mdp = request.form.get('password')
+    return_box=0
+    existence_user=False
+    if(bool(Utilisateur.query.filter_by(id_magasin=utilisateur).first())):
+        existence_user=True
+    
+    if mdp == None:
+        if existence_user:
+            Utilisateur.query.filter_by(id_magasin=utilisateur).delete()
+            return_box=1
+        else:
+            return_box=2
+        
+    else:
+        if existence_user:
+            return_box=4
+        else:
+            user=Utilisateur(id_magasin=utilisateur,password=mdp)
+            db.session.add(user) 
+            return_box=1
+    db.session.commit()
+    return render_template('handleuser.html',return_box=return_box)
 
 
 # Format envoi_json: curl -X POST -H "Content-type: application/json" -H "password: jaimelebio" -H "id_magasin: 1" -d "" "localhost:8080/envoi_json"
@@ -371,7 +398,8 @@ def password(id_magasin,password):
     return result
     
 
-def update_or_insert_2(lien,colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit):
+
+def update_or_insert_2(lien,colonne_carbone="carbone",colonne_name="name",colonne_id_magasin="id_magasin",colonne_id_produit="id_article"):
     """
     insert in the database the information in an excel
 
