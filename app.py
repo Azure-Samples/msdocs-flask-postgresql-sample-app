@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, Response
 from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 from model import *
@@ -69,7 +69,7 @@ def maj_produits_manquants():
     qry_produits_manquants=db.engine.execute(f"select * from produitsManquants")
     prod_manquants_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits_manquants))
     for key,value in prod_dict:
-        if key in prod_dict_manquants:
+        if key in prod_manquants_dict:
             if prod_dict[key]["carbone"]!=None:
                 ProduitsManquants.query.filter_by(id_magasin=prod_dict[key]["id_magasin"],id_article=prod_dict[key]["id_article"]).delete()
         else:
@@ -297,6 +297,14 @@ def upload_file():
     return render_template('index.html')
 
 
+@app.route('/exceldownload')
+def download_file():
+    qry=ProduitsManquants.query.all()
+    df = pd.DataFrame(list(qry))
+    #return Response(csv,mimetype="text/csv",headers={"Content-disposition":"attachment; filename=myplot.csv"})
+    return {df.head()}
+
+
 
 # Format envoi_json: curl -X POST -H "Content-type: application/json" -H "password: jaimelebio" -H "id_magasin: 1" -d "" "localhost:8080/envoi_json"
 """
@@ -330,7 +338,7 @@ def password(id_magasin,password):
     """
     result=False
     mdp_encoded=password.encode('utf-8')
-    if (bool(Utilisateur.query.where(Utilisateur.id_magasin==id_magasin).first())):
+    if (bool(Utilisateur.query.where(Utilisateur.id_magasin==id_magasin).first()) or type(id_magasin) is not int):
         qry = Utilisateur.query.where(Utilisateur.id_magasin==id_magasin).first()
         hashed=qry.password
         hashed=hashed.encode('utf-8')
@@ -378,4 +386,4 @@ def update_or_insert_2(lien,colonne_carbone,colonne_name,colonne_id_magasin,colo
     
 
 if __name__ == '__main__':
-    app.run(port=8080,debug=True)
+    app.run(port=8080,template_folder='templates',debug=True)
