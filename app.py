@@ -330,6 +330,39 @@ def upload_file():
     return render_template('index.html',message=message)
 
 
+
+@app.route('/download_everything')
+def download_everything():
+    qry=Produits.query.all()
+    df = pd.DataFrame()
+    for record in qry:
+        df1=pd.DataFrame({'id_article':record.id_article, 'id_magasin':record.id_magasin,'date':record.date, 'name' :record.name,'carbone_kg':record.carbone_kg,'carbone_unite':record.carbone_unite},index=[1])
+        df=pd.concat([df,df1],ignore_index=True)
+    
+    # Creating output and writer (pandas excel writer)
+    out = io.BytesIO()
+    writer = pd.ExcelWriter(out, engine='xlsxwriter')
+
+   
+    # Export data frame to excel
+    df.to_excel(excel_writer=writer, index=False, sheet_name='Sheet1')
+    writer.save()
+
+   
+    # Flask create response 
+    r = make_response(out.getvalue())
+
+    
+    # Defining correct excel headers
+    r.headers["Content-Disposition"] = "attachment; filename=tickarbone_database.xlsx"
+    r.headers["Content-type"] = "application/x-xls"
+
+    
+    # Finally return response
+    return r
+
+
+
 @app.route('/exceldownload')
 def download_file():
     qry=ProduitsManquants.query.all()
