@@ -238,6 +238,9 @@ def process_json():
     id_magasin = request.headers.get('id_magasin')
     mdp= request.headers.get('password')   
     
+    
+        
+    
     # verification des types
     try:
         id_magasin=int(id_magasin)
@@ -249,13 +252,18 @@ def process_json():
     except (ValueError):
         return {"statut":"type de mdp incorrect, doit etre un string"}
     
+    if id_magasin == None or mdp == None or content_type==None:
+        return {"statut":"Vous avez une erreur dans votre header (orthographe des headers ou oubli d'un header ou valeur null dans l'un des headers')"}
+        
+    
     #verification du mdp dans la base de donnees
     res = password(id_magasin,mdp) # bool
-    print("pass2")
-    
     if res== True:
         if (content_type == 'application/json'):
-            json_data = request.json
+            try:
+                json_data = request.json
+            except Exception as e:
+                return {"statut":"Votre fichier json est incorrect."}
 
             # recupere la liste des produits du magasin (id_article + carbone)
             qry2 = db.engine.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
@@ -265,21 +273,24 @@ def process_json():
             qry4=list(map(lambda x: (str(x[0])),list(qry_temp))) # cree une liste des id_articles
 
             new_json=[] # liste contenant la liste des produits à renvoyer
-            for i in json_data['data']:
-                if str(i["id_article"]) in qry4:
-                    print("passe3")
-                    new_json.append({"id_article":i["id_article"],'carbone_kg':qry3[i["id_article"]]["carbone_kg"],'carbone_unite':qry3[i["id_article"]]["carbone_unite"]})
-                else:
-                    print("passe4")
-                    # ajouter au json de retour
-                    new_json.append({"id_article":i["id_article"],'carbone_kg':None,'carbone_unite':None})
-                    # ajouter à la base des produits manquants et des produits
-                    produitsManquants =  ProduitsManquants(int(id_magasin), int(i["id_article"]),str(i["name"]),str(datetime.now().strftime("%d/%m/%Y")))# cree l'element qu'on n a pas dans produits
-                    db.session.add(produitsManquants) 
-                    produits =  Produits(int(id_magasin), int(i["id_article"]),None,str(i["name"]),str(datetime.now().strftime("%d/%m/%Y")),None)# cree l'element qu'on n a pas dans produits manquants
-                    db.session.add(produits) 
-            db.session.commit()
-            return {"data":new_json}
+            try:
+                for i in json_data['data']:
+                    if str(i["id_article"]) in qry4:
+                        print("passe3")
+                        new_json.append({"id_article":i["id_article"],'carbone_kg':qry3[i["id_article"]]["carbone_kg"],'carbone_unite':qry3[i["id_article"]]["carbone_unite"]})
+                    else:
+                        print("passe4")
+                        # ajouter au json de retour
+                        new_json.append({"id_article":i["id_article"],'carbone_kg':None,'carbone_unite':None})
+                        # ajouter à la base des produits manquants et des produits
+                        produitsManquants =  ProduitsManquants(int(id_magasin), int(i["id_article"]),str(i["name"]),str(datetime.now().strftime("%d/%m/%Y")))# cree l'element qu'on n a pas dans produits
+                        db.session.add(produitsManquants) 
+                        produits =  Produits(int(id_magasin), int(i["id_article"]),None,str(i["name"]),str(datetime.now().strftime("%d/%m/%Y")),None)# cree l'element qu'on n a pas dans produits manquants
+                        db.session.add(produits) 
+                db.session.commit()
+                return {"data":new_json}
+            except(KeyError):
+                return {"statut":"Votre fichier json est incorrect."}
         else:
             return {"statut":"type de contenu non supporte."} 
 
@@ -386,7 +397,7 @@ def download_file():
 
     
     # Defining correct excel headers
-    r.headers["Content-Disposition"] = "attachment; filename=export.xlsx"
+    r.headers["Content-Disposition"] = "attachment; filename=produits_manquants.xlsx"
     r.headers["Content-type"] = "application/x-xls"
 
     
