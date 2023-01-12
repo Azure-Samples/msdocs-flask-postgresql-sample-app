@@ -13,7 +13,7 @@
     <title>Tickarbone</title>
 </head>
 
-<body class="back">
+<body class="back" onload="afficheMessage(' {{ message }} ')">
 <div class="container-fluid"> <!-- Class permettant de conserver la page vertical-fixe -->
 <div class="col"> <!-- Class de la page web, permet de Stratifier la page, développer le code dedans -->
   <div class="row"> <!-- Bande Titre Tickarbone-->
@@ -73,5 +73,22 @@
   </div>
 </div>
 </div>
+
+ <script>
+        function afficheMessage(message){
+            switch (parseInt(message)) {
+                case 2 :
+                writeAlert = "Upload reussi !";
+                alert(writeAlert);
+                break;
+                case 1 :
+                writeAlert = "Echec de l'upload";
+                alert(writeAlert);
+                break;
+                default:
+                break;
+            }
+        }
+    </Script>
 </body>
 </html>

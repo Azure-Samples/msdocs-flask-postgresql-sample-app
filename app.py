@@ -300,6 +300,7 @@ def index():
 
 @app.route('/excelupload',methods=['POST'])
 def upload_file():
+    
     """
     endpoint to sent the excel file for an update of the database
 
@@ -309,8 +310,13 @@ def upload_file():
         .
 
     """
+    message=0 # message: 0:rien faire, 1:fichier uploade, 2:echec upload
     file = request.files['file']
-    update_or_insert_2(file)
+    try:
+        update_or_insert_2(file)
+        message=2
+    except():
+        message=1
     #colonne_carbone,colonne_name,colonne_id_magasin,colonne_id_produit
     """
     qry=Produits.query.filter_by(id_magasin="7").all()
@@ -321,7 +327,7 @@ def upload_file():
     for record in qry
    ]}
     """
-    return render_template('index.html')
+    return render_template('index.html',message=message)
 
 
 @app.route('/exceldownload')
