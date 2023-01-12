@@ -105,7 +105,8 @@ def hello():
         DESCRIPTION.
 
     """
-    return "Bienvenue sur l'API de Tickarbone: https://www.tickarbone.fr/"
+    return render_template("home.html")
+    #return "Bienvenue sur l'API de Tickarbone: https://www.tickarbone.fr/"
 
 
 

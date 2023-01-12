@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <!-- Stylesheet CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+
+    <title>Home</title>
+    
+</head>
+<body class="back">
+  <div class="container-fluid"> <!-- Class permettant de conserver la page vertical-fixe -->
+  <div class="col"> <!-- Class de la page web, permet de Stratifier la page, développer le code dedans -->
+    <div class="row"> <!-- Bande Titre Tickarbone-->
+      <div class="col p-3 text-white" style="background-color: black;">
+        <a href="{{ url_for('index') }}">Gestion des magasins</a>
+        <a href="{{ url_for('user') }}">Gestion des utilisateurs</a>
+        <h1 class="text-center">Tickarbone</h1>
+          <figcaption class="blockquote-footer">
+          Combien pèse votre <cite title="Source Title">Panier</cite> ?
+          </figcaption>
+      </div>
+    </div>
+  </div>
+
+  <div class="row"> <!-- Bande blanche séparateur menu -->
+      <div class="col p-1 bg-white"> </div>
+  </div>
+
+  <div class="col p-1 container-sm bg-dark"> <!-- Image Scrat -->
+    <img src="/static/img/gland.jpg" class="img-fluid w-75" style="margin:10px; float:left" alt="gland.jpg">
+  </div>
+  
+  <br>
+  <br>
+
+
+
+  <br>
+  
+  
+
+
+  </div>
+</body>
+</html>
