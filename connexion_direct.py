@@ -9,6 +9,7 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 import bcrypt
+from datetime import datetime
 
 
 load_dotenv() #import des variables d'environnement
@@ -33,17 +34,22 @@ class Produits(Base):
     __tablename__ = 'produits'
     id_magasin = Column(Integer, primary_key=True)
     id_article = Column(BigInteger, primary_key=True)
-    carbone = Column(String())
+    carbone_kg = Column(String())
+    carbone_unite = Column(String())
     name = Column(String())
+    date=Column(String())
+    
 
-    def __init__(self,id_magasin, id_article, carbone,name):
+    def __init__(self,id_magasin, id_article, carbone_kg,name,date,carbone_unite):
         self.id_magasin=id_magasin
         self.id_article=id_article
-        self.carbone = carbone
+        self.carbone_kg = carbone_kg
         self.name=name
+        self.date=date
+        self.carbone_unite=carbone_unite
 
     def __repr__(self):
-        return f"<Produit {self.id_magasin, self.id_article, self.name, self.carbone}>"
+        return f"<Produit {self.id_magasin, self.id_article, self.name, self.carbone_kg,self.date,self.carbone_unite}>"
     
 class Utilisateur(Base):
     __tablename__ = 'utilisateur'
@@ -63,14 +69,16 @@ class ProduitsManquants(Base):
     id_magasin = Column(Integer,primary_key=True)
     id_article = Column(BigInteger,primary_key=True)
     name = Column(String())
+    date=Column(String())
 
-    def __init__(self, id_magasin,id_article,name):
+    def __init__(self, id_magasin,id_article,name,date):
         self.id_magasin=id_magasin
         self.id_article=id_article
         self.name=name
+        self.date=date
 
     def __repr__(self):
-        return f"<ProduitsManquants {self.id_magasin, self.id_article, self.name}>"
+        return f"<ProduitsManquants {self.id_magasin, self.id_article, self.name, self.date}>"
     
     
 
@@ -96,7 +104,7 @@ def load_database(lien):
         if db.iloc[i]["ID magasin"]!= id_magasin:
             k+=1
             id_magasin=db.iloc[i]["ID magasin"]
-        products_to_insert.append(Produits(int(k),int(db.iloc[i]["ID article"]),db.iloc[i]["(kgCO2/kgproduit)"],db.iloc[i]["Libellé"]))
+        products_to_insert.append(Produits(int(k),int(db.iloc[i]["ID article"]),db.iloc[i]["(kgCO2/kgproduit)"],db.iloc[i]["Libellé"],str(datetime.now().strftime("%d/%m/%Y")),None))
     s.bulk_save_objects(products_to_insert)
     s.commit()
     
@@ -237,7 +245,7 @@ def insert_produits_manquants_test():
     Session = sessionmaker(bind=engine)
     s = Session()
     for i in range(10):
-        prod=ProduitsManquants(1,i,"name_"+str(i))
+        prod=ProduitsManquants(1,i,"name_"+str(i),str(datetime.now().strftime("%d/%m/%Y")))
         s.add(prod)
     s.commit()
 
@@ -281,12 +289,12 @@ if __name__ == "__main__":
     insert_user(3,"test")
     
     #update_or_insert("./database/tickarbase-v0.1_test3.xlsx",2)
-    
-    select_prod_manquants()
     """
-    select_user()
-
-
+    select_prod_manquants()
+    
+    #select_user()
+    
+    
 
 
 

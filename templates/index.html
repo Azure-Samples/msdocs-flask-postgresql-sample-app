@@ -20,7 +20,7 @@
     <div class="col p-3 text-white" style="background-color: black;">
       <h1 class="text-center">Tickarbone</h1>
         <figcaption class="blockquote-footer">
-        Combien pèse votre <cite title="Source Title">Ticket</cite> ?
+        Combien pèse votre <cite title="Source Title">Panier</cite> ?
         </figcaption>
     </div>
   </div>
@@ -28,9 +28,17 @@
   <div class="row"> <!-- Bande blanche séparateur menu -->
     <div class="col p-1 bg-white"> </div>
   </div>
-
+  <br>
+  <br>
   <div class="row bg-dark"> <!-- Scrat Bandeau + Formulaire -->
       <div class="col p-1"><!-- Colonne Formulaire -->
+
+        <div class="container-fluid"> <!-- Text Block after Export Fichier -->
+          <div class="col p-1">
+            <label class="col-form-label"><h5><u>Uploader vos fichiers .csv pour mettre à jour la base TickCarbone</u></h5></label>
+          </div>  
+        </div>
+
         <div class="formulaire p-3"> <!-- Export Fichier Block -->
           <form action="/excelupload" method=post enctype=multipart/form-data class="input-group mb-3">
               <input type=file name=file class="form-control">
@@ -38,14 +46,13 @@
           </form>
         </div>
 
-        <div class="container-fluid"> <!-- Text Block after Export Fichier -->
+        <hr>
+
+        <div class="container-fluid"> <!-- Text Block after Download Fichier -->
           <div class="col p-1">
-          <h4>Uploadez vos fichier .xmls - .csv </h4>
-          <h4>pour mettre à jour la base Carbone.</h4>
+          <label class="col-form-label"><h5><u>Télecharger les produits sans réference Carbone sous format .xlsx</u></h5></label>  
           </div>  
         </div>
-
-        <hr>
 
         <div class="formulaire"> <!-- Download Fichier Block -->
           <div class="col p-1">
@@ -55,16 +62,7 @@
             </button>
           </div>  
         </div>
-
-        <div class="container-fluid"> <!-- Text Block after Download Fichier -->
-          <div class="col p-1">
-          <br>  
-          <h4>Télecharger les produits non réferencés Carbone </h4>
-          <h4>sous format .xlsx </h4>
-          </div>  
-        </div>
-        
-
+        <br>
       </div>
 
     <div class="col-sm p-3 text-center"> <!-- Colonne ScriptScrat.Gif -->

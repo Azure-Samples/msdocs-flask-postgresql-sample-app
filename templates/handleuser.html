@@ -17,7 +17,7 @@
         <div class="col p-3 text-white" style="background-color: black;">
           <h1 class="text-center">Tickarbone</h1>
             <figcaption class="blockquote-footer">
-            Combien pèse votre <cite title="Source Title">Ticket</cite> ?
+            Combien pèse votre <cite title="Source Title">Panier</cite> ?
             </figcaption>
         </div>
       </div>
@@ -29,15 +29,14 @@
     
     <br>
     <br>
-    <br>
 
     <div class="row"> <!-- Ligne Block Centrale 1 -->
         <div class="col"> <!-- Marge Gauche sur la ligne 1 -->
         </div>
         <div class="col p-1 container-sm bg-dark"> <!-- Ligne Block Centrale 1 -->
             <form class="container-sm bg-dark" action="/handle_user" method=post enctype=multipart/form-data> <!--Add User -->
-                <h4><u>Ajouter un Utilisateur</u></h4> 
-                <label class="col-form-label">Utilisateur</label>
+                <h4><u>Ajouter un Magasin</u></h4> 
+                <label class="col-form-label">ID Magasin</label>
                 <input name="utilisateur" type="name" class="form-control" id="inputEmail3">
                 <label class="col-form-label">Mot de passe</label>
                 <input name="mdp" type="password" class="form-control" id="inputPassword3">
@@ -46,8 +45,8 @@
                 <br>
             </form>
         </div>
-        <div class="col p-1 container-sm bg-dark">
-            <img src="/static/img/scratFace.jpg" class="img-fluid text-center size:75%" alt="...">
+        <div class="col p-1 container-sm bg-dark"> <!-- Image Scrat -->
+            <img src="/static/img/scratFace.jpg" class="img-fluid w-75" style="margin:10px; float:right" alt="ScratFace.jpg">
         </div>
         <div class="col"> <!-- Marge Droite sur la ligne-->
         </div>
@@ -59,19 +58,24 @@
         <div class="col"> <!-- Marge Gauche sur la ligne-->
         </div>
         <div class="col p-1 container-sm bg-dark"> <!-- Ligne Block Centrale 2 -->
-
             <form class="container-sm bg-dark" action="/handle_user" method=post enctype=multipart/form-data> <!-- Delete User -->
-                <h4><u>Supprimer un Utilisateur</u></h4> 
-                <label class="col-form-label">Utilisateur à supprimer</label>
+                <h4><u>Supprimer un Magasin</u></h4> 
+                <label class="col-form-label">Magasin à supprimer</label>
                 <input name="utilisateur" type="name" class="form-control" id="inputEmail3">
                 <br>
                 <input type=submit class="input-group-text" value="Supprimer">
                 <br>
             </form>
         </div>
+        <div class="col p-1 container-sm bg-dark"> <!-- Image Scrat -->
+            <img src="/static/img/ScratScared.gif" class="img-fluid w-75" style="margin:10px; float:right" alt="ScratScared.gif">
+        </div>
         <div class="col"> <!-- Marge Droite sur la ligne-->
         </div>
     </div>
+
+    <br>
+    <br>
 
     <script>
         function afficheMessage(message){

@@ -10,6 +10,7 @@ import pandas as pd
 import openpyxl
 import io
 from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
 
 
 app = Flask(__name__,template_folder='templates')
@@ -27,14 +28,18 @@ class Produits(db.Model):
     __tablename__ = 'produits'
     id_magasin = db.Column(db.Integer,primary_key=True)
     id_article = db.Column(db.BigInteger,primary_key=True)
-    carbone = db.Column(db.String())
+    carbone_kg = db.Column(db.String())
+    carbone_unite = db.Column(db.String())
     name = db.Column(db.String())
+    date= db.Column(db.String())
 
-    def __init__(self, id_magasin,id_article, carbone,name):
+    def __init__(self, id_magasin,id_article, carbone_kg,name,date,carbone_unite):
         self.id_magasin=id_magasin
         self.id_article=id_article
-        self.carbone = carbone
+        self.carbone_kg = carbone_kg
+        self.carbone_unite=carbone_unite
         self.name=name
+        self.date=date
         
         
 class ProduitsManquants(db.Model):
@@ -45,11 +50,13 @@ class ProduitsManquants(db.Model):
     id_magasin = db.Column(db.Integer,primary_key=True)
     id_article = db.Column(db.BigInteger,primary_key=True)
     name = db.Column(db.String())
+    date= db.Column(db.String())
 
-    def __init__(self, id_magasin,id_article,name):
+    def __init__(self, id_magasin,id_article,name,date):
         self.id_magasin=id_magasin
         self.id_article=id_article
         self.name=name
+        self.date=date
 
 class Utilisateur(db.Model):
     """
@@ -65,7 +72,7 @@ class Utilisateur(db.Model):
 
 
 # maj journaliere de la base produits manquants
-def maj_produits_manquants():
+def maj_produits_manquants(): # A REECRIRE PAR RAPPORT A LA MAJ DE LA BDD
     qry_produits=db.engine.execute(f"select * from produits")
     prod_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits))
     qry_produits_manquants=db.engine.execute(f"select * from produitsManquants")
@@ -76,7 +83,7 @@ def maj_produits_manquants():
                 ProduitsManquants.query.filter_by(id_magasin=prod_dict[key]["id_magasin"],id_article=prod_dict[key]["id_article"]).delete()
         else:
             if prod_dict[key]["carbone"]==None:
-                prod_temp=ProduitsManquants(prod_dict[key]["id_magasin"],prod_dict[key]["id_article"],prod_dict[key]["name"])
+                prod_temp=ProduitsManquants(prod_dict[key]["id_magasin"],prod_dict[key]["id_article"],prod_dict[key]["name"],str(datetime.now().strftime("%d/%m/%Y")))
                 db.session.add(prod_temp) 
     db.session.commit()
 
@@ -171,7 +178,7 @@ def select_3():
         print(qry)
         return {'data': [
          {'id_article':record.id_article, 'id_magasin':
-            record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
+            record.id_magasin, 'name' :record.name,'carbone_kg' :record.carbone_kg,'carbone_unite' :record.carbone_unite,'date':record.date}
         for record in qry
        ]}
     else:
@@ -198,7 +205,7 @@ def select_4():
         print(qry)
         return {'data': [
          {'id_article':record.id_article, 'id_magasin':
-            record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
+            record.id_magasin, 'name' :record.name,'carbone_kg' :record.carbone_kg,'carbone_unite' :record.carbone_unite,'date':record.date}
         for record in qry
        ]}
     else:
@@ -230,35 +237,52 @@ def process_json():
     content_type = request.headers.get('Content-Type')
     id_magasin = request.headers.get('id_magasin')
     mdp= request.headers.get('password')   
-    res = password(id_magasin,mdp)
+    
+    # verification des types
+    try:
+        id_magasin=int(id_magasin)
+    except (ValueError):
+        return {"statut":"type de id_magasin incorrect, doit etre un int"}
+    print("pass1")
+    try:
+        mdp=str(mdp)
+    except (ValueError):
+        return {"statut":"type de mdp incorrect, doit etre un string"}
+    
+    #verification du mdp dans la base de donnees
+    res = password(id_magasin,mdp) # bool
+    print("pass2")
+    
     if res== True:
         if (content_type == 'application/json'):
             json_data = request.json
 
             # recupere la liste des produits du magasin (id_article + carbone)
-            qry2 = db.engine.execute(f"select id_article,carbone from produits where id_magasin = {id_magasin}")
+            qry2 = db.engine.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
             qry_temp=list(qry2) # cree une copie car qry2 est un curseur
             
-            qry3 = dict((x[0],x[1]) for x in list(qry_temp)) # cree un dictionnaire clé: id_article, valeur: carbone
+            qry3 = dict((x[0],{"carbone_kg":x[1],"carbone_unite":x[2]}) for x in list(qry_temp)) # cree un dictionnaire clé: id_article, valeur: carbone
             qry4=list(map(lambda x: (str(x[0])),list(qry_temp))) # cree une liste des id_articles
 
             new_json=[] # liste contenant la liste des produits à renvoyer
             for i in json_data['data']:
                 if str(i["id_article"]) in qry4:
-                    new_json.append({"id_article":i["id_article"],'carbone':qry3[i["id_article"]]})
+                    print("passe3")
+                    new_json.append({"id_article":i["id_article"],'carbone_kg':qry3[i["id_article"]]["carbone_kg"],'carbone_unite':qry3[i["id_article"]]["carbone_unite"]})
                 else:
+                    print("passe4")
                     # ajouter au json de retour
-                    new_json.append({"id_article":i["id_article"],'carbone':None})
+                    new_json.append({"id_article":i["id_article"],'carbone_kg':None,'carbone_unite':None})
                     # ajouter à la base des produits manquants et des produits
-                    print("passe")
-                    produitsManquants =  ProduitsManquants(int(id_magasin), int(i["id_article"]),str(i["name"]))# cree l'element qu'on n a pas dans produits
+                    produitsManquants =  ProduitsManquants(int(id_magasin), int(i["id_article"]),str(i["name"]),str(datetime.now().strftime("%d/%m/%Y")))# cree l'element qu'on n a pas dans produits
                     db.session.add(produitsManquants) 
-                    produits =  Produits(int(id_magasin), int(i["id_article"]),None,str(i["name"]))# cree l'element qu'on n a pas dans produits manquants
+                    produits =  Produits(int(id_magasin), int(i["id_article"]),None,str(i["name"]),str(datetime.now().strftime("%d/%m/%Y")),None)# cree l'element qu'on n a pas dans produits manquants
                     db.session.add(produits) 
             db.session.commit()
             return {"data":new_json}
         else:
-            return 'Content-Type not supported!'
+            return {"statut":"type de contenu non supporte."} 
+
     else:
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
 
@@ -305,7 +329,7 @@ def download_file():
     qry=ProduitsManquants.query.all()
     df = pd.DataFrame()
     for record in qry:
-        df1=pd.DataFrame({'id_article':record.id_article, 'id_magasin':record.id_magasin, 'name' :record.name,'carbone':None},index=[1])
+        df1=pd.DataFrame({'id_article':record.id_article, 'id_magasin':record.id_magasin,'date':record.date, 'name' :record.name,'carbone_kg':None,'carbone_unite':None},index=[1])
         df=pd.concat([df,df1],ignore_index=True)
     
     # Creating output and writer (pandas excel writer)
@@ -409,7 +433,7 @@ def password(id_magasin,password):
     
 
 
-def update_or_insert_2(lien,colonne_carbone="carbone",colonne_name="name",colonne_id_magasin="id_magasin",colonne_id_produit="id_article"):
+def update_or_insert_2(lien,colonne_carbone_kg="carbone_kg",colonne_carbone_unite="carbone_unite",colonne_name="name",colonne_id_magasin="id_magasin",colonne_id_produit="id_article",colonne_date="date"):
     """
     insert in the database the information in an excel
 
@@ -431,19 +455,22 @@ def update_or_insert_2(lien,colonne_carbone="carbone",colonne_name="name",colonn
     None.
 
     """
+    
     df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
     qry_magasin=db.engine.execute(f"select * from produits")
-    qry2 = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_magasin))
+    qry2 = dict(((x[0],x[1]),{colonne_id_magasin:x[0],colonne_id_produit:x[1],colonne_carbone_kg:x[2],colonne_name:x[3],colonne_date:x[4],colonne_carbone_unite:x[5]}) for x in list(qry_magasin))
     for i in range(len(df)):
         key_id=(df.iloc[i][colonne_id_magasin],df.iloc[i][colonne_id_produit])
         if key_id in qry2:
-            if str(df.iloc[i][colonne_carbone])!=str(qry2[key_id]["carbone"]) or str(df.iloc[i][colonne_name])!=str(qry2[key_id]["name"]):
+            if str(df.iloc[i][colonne_carbone_kg])!=str(qry2[key_id][colonne_carbone_kg]) or str(df.iloc[i][colonne_name])!=str(qry2[key_id][colonne_name]) or str(df.iloc[i][colonne_carbone_unite])!=str(qry2[key_id][colonne_carbone_unite]) :
                 update_elem=Produits.query.filter_by(id_magasin=int(df.iloc[i][colonne_id_magasin]),id_article=int(df.iloc[i][colonne_id_produit])).first()
                 update_elem.name=str(df.iloc[i][colonne_name])
-                update_elem.carbone=str(df.iloc[i][colonne_carbone])
+                update_elem.carbone_unite=str(df.iloc[i][colonne_carbone_unite])
+                update_elem.carbone_kg=str(df.iloc[i][colonne_carbone_kg])
+                update_elem.date=str(datetime.now().strftime("%d/%m/%Y"))
                 db.session.commit()
         else:
-            prod=Produits(int(df.iloc[i][colonne_id_magasin]),int(df.iloc[i][colonne_id_produit]),str(df.iloc[i][colonne_carbone]),str(df.iloc[i][colonne_name]))
+            prod=Produits(int(df.iloc[i][colonne_id_magasin]),int(df.iloc[i][colonne_id_produit]),str(df.iloc[i][colonne_carbone_kg]),str(df.iloc[i][colonne_name]),str(datetime.now().strftime("%d/%m/%Y")),str(df.iloc[i][colonne_carbone_unite]))
             db.session.add(prod)
     db.session.commit()
     
