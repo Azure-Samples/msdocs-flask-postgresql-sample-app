@@ -7,6 +7,6 @@ psycopg2
 pandas
 pyodbc
 openpyxl
-apscheduler
+flask-apscheduler
 xlsxwriter
 datetime

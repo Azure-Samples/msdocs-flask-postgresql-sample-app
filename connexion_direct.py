@@ -281,17 +281,12 @@ if __name__ == "__main__":
     update_produit_test()
     
     query_test()
-    
-    drop_database()
-    init_database()
-    insert_user(1,"test")
-    insert_user(2,"test")
-    insert_user(3,"test")
+
     
     #update_or_insert("./database/tickarbase-v0.1_test3.xlsx",2)
     """
     select_prod_manquants()
-    
+    printTableName()
     #select_user()
     
     
