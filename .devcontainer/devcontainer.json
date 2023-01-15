@@ -1,5 +1,5 @@
 {
-	"name": "Python 3 & PostgreSQL",
+	"name": "msdocs-flask-postgresql-sample-app",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
 	"workspaceFolder": "/workspace",
@@ -37,9 +37,6 @@
 		"python.testing.pytestPath": "/usr/local/py-utils/bin/pytest"
 	},
 	"features": {
-        "ghcr.io/devcontainers/features/azure-cli:1": {
-            "version": "latest"
-        },
 		"ghcr.io/devcontainers/features/github-cli:1": {
             "version": "latest"
         }
