@@ -18,10 +18,10 @@ app = Flask(__name__,template_folder='templates')
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR")
 db = SQLAlchemy(app)
+scheduler = APScheduler()
+scheduler.api_enabled = True
 
 with app.app_context():
-    scheduler = APScheduler()
-    scheduler.api_enabled = True
     scheduler.init_app(app)
     scheduler.start()
 
@@ -594,4 +594,4 @@ def create_hash(mdp):
 
 
 if __name__ == '__main__':
-    app.run(port=8080,debug=True)
+    app.run(port=8080,debug=False)
