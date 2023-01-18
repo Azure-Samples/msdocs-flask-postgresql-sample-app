@@ -35,14 +35,14 @@
 
         <div class="container-fluid"> <!-- Text Block after Export Fichier -->
           <div class="col p-1">
-            <label class="col-form-label"><h5><u>Uploader vos fichiers .csv pour mettre à jour la base TickCarbone</u></h5></label>
+            <label class="col-form-label"><h5><u>Charger vos fichiers .csv pour mettre à jour la base TickCarbone</u></h5></label>
           </div>  
         </div>
 
         <div class="formulaire p-3"> <!-- Export Fichier Block -->
           <form action="/excelupload" method=post enctype=multipart/form-data class="input-group mb-3">
               <input type=file name=file class="form-control">
-              <input type=submit class="input-group-text" value="Upload">
+              <input type=submit class="input-group-text" value="Charger">
           </form>
         </div>
 
@@ -58,7 +58,7 @@
           <div class="col p-1">
             <button class="btn btn-light">
               <span class="spinner-grow spinner-grow-sm"></span>
-              <a class="btn" style="color:rgb(50, 50, 50) " href="{{url_for('download_file')}}"><b>Download</b></a>
+              <a class="btn" style="color:rgb(50, 50, 50) " href="{{url_for('download_file')}}"><b>Telecharger</b></a>
             </button>
           </div>  
         </div>
@@ -88,7 +88,7 @@
         <div class="col p-1">
             <button class="btn btn-light">
             <span class="spinner-grow spinner-grow-sm"></span>
-            <a class="btn" style="color:rgb(50, 50, 50) " href="{{url_for('download_everything')}}"><b>Download</b></a>
+            <a class="btn" style="color:rgb(50, 50, 50) " href="{{url_for('download_everything')}}"><b>Telecharger</b></a>
             </button>
         </div>  
       </div>
@@ -111,6 +111,10 @@
                 break;
                 case 1 :
                 writeAlert = "Echec de l'upload";
+                alert(writeAlert);
+                break;
+                case 3 :
+                writeAlert = "Pas de fichier";
                 alert(writeAlert);
                 break;
                 default:
