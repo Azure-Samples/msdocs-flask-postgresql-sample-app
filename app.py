@@ -18,11 +18,10 @@ app = Flask(__name__,template_folder='templates')
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR")
 db = SQLAlchemy(app)
-with app.app_context():
-    scheduler = APScheduler()
-    scheduler.api_enabled = True
-    scheduler.init_app(app)
-    scheduler.start()
+scheduler = APScheduler()
+scheduler.api_enabled = True
+scheduler.init_app(app)
+scheduler.start()
 
 
 # Schema BDD
@@ -75,53 +74,54 @@ class Utilisateur(db.Model):
         self.id_magasin=id_user
         self.password=password
 
-
-@scheduler.task('cron', #launch at regular time
-                id='maj_journaliere_prod_manquants',
-                week='*', 
-                day_of_week='mon-sun',
-                timezone="Europe/Paris",
-                hour=os.getenv("HOUR_DAILY_UPDATE"),
-                minute=os.getenv("MINUTE_DAILY_UPDATE"))
-def maj_produits_manquants():
-    """
-    Daily update of the database produitsManquants
-
-    Returns
-    -------
-    None.
-
-    """
-    print("Launch maj produits manquants")
-    qry_produits=db.engine.execute("select * from produits")
-    prod_dict = dict(((x[0],x[1]),{"id_magasin":x[0],
-                                   "id_article":x[1],
-                                   "carbone_kg":x[2],
-                                   "name":x[3],
-                                   "date":x[4],
-                                   "carbone_unite":x[5]}) for x in list(qry_produits))
-    #qry_produits_manquants=db.engine.execute(f"select * from produitsManquants")
-    #prod_manquants_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits_manquants))
-    qry_produits_manquants=ProduitsManquants.query.all()
-    prod_manquants_dict={}
-    for record in qry_produits_manquants:
-        prod_manquants_dict[(record.id_magasin,record.id_article)]={"id_magasin":record.id_magasin,
-                                                                    "id_article":record.id_article,
-                                                                    "date":record.date,
-                                                                    "name":record.name}
-    for key in prod_dict:
-        if key in prod_manquants_dict:
-            if prod_dict[key]["carbone_kg"]!=None or prod_dict[key]["carbone_unite"]!=None:
-                ProduitsManquants.query.filter_by(id_magasin=prod_dict[key]["id_magasin"],
-                                                  id_article=prod_dict[key]["id_article"]).delete()
-        else:
-            if prod_dict[key]["carbone_kg"]==None and prod_dict[key]["carbone_unite"]==None:
-                prod_temp=ProduitsManquants(prod_dict[key]["id_magasin"],
-                                            prod_dict[key]["id_article"],
-                                            prod_dict[key]["name"],
-                                            str(datetime.now().strftime("%d/%m/%Y")))
-                db.session.add(prod_temp) 
-    db.session.commit()
+with app.app_context():
+    @scheduler.task('cron', #launch at regular time
+                    id='maj_journaliere_prod_manquants',
+                    week='*', 
+                    day_of_week='mon-sun',
+                    timezone="Europe/Paris",
+                    hour=os.getenv("HOUR_DAILY_UPDATE"),
+                    minute=os.getenv("MINUTE_DAILY_UPDATE"))
+    def maj_produits_manquants():
+        """
+        Daily update of the database produitsManquants
+    
+        Returns
+        -------
+        None.
+    
+        """
+        
+        print("Launch maj produits manquants")
+        qry_produits=db.engine.execute("select * from produits")
+        prod_dict = dict(((x[0],x[1]),{"id_magasin":x[0],
+                                       "id_article":x[1],
+                                       "carbone_kg":x[2],
+                                       "name":x[3],
+                                       "date":x[4],
+                                       "carbone_unite":x[5]}) for x in list(qry_produits))
+        #qry_produits_manquants=db.engine.execute(f"select * from produitsManquants")
+        #prod_manquants_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits_manquants))
+        qry_produits_manquants=ProduitsManquants.query.all()
+        prod_manquants_dict={}
+        for record in qry_produits_manquants:
+            prod_manquants_dict[(record.id_magasin,record.id_article)]={"id_magasin":record.id_magasin,
+                                                                        "id_article":record.id_article,
+                                                                        "date":record.date,
+                                                                        "name":record.name}
+        for key in prod_dict:
+            if key in prod_manquants_dict:
+                if prod_dict[key]["carbone_kg"]!=None or prod_dict[key]["carbone_unite"]!=None:
+                    ProduitsManquants.query.filter_by(id_magasin=prod_dict[key]["id_magasin"],
+                                                      id_article=prod_dict[key]["id_article"]).delete()
+            else:
+                if prod_dict[key]["carbone_kg"]==None and prod_dict[key]["carbone_unite"]==None:
+                    prod_temp=ProduitsManquants(prod_dict[key]["id_magasin"],
+                                                prod_dict[key]["id_article"],
+                                                prod_dict[key]["name"],
+                                                str(datetime.now().strftime("%d/%m/%Y")))
+                    db.session.add(prod_temp) 
+        db.session.commit()
 
 
 
