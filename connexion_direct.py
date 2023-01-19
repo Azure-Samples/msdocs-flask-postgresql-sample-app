@@ -261,6 +261,8 @@ def select_data():
 def select_prod_manquants():
     print(s.query(ProduitsManquants).all())
     
+
+    
 # fonctions supports
 def read_database_temp(lien):
     db=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)

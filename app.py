@@ -199,20 +199,23 @@ def logout():
     logout_user()
     return render_template("login.html")
 
+
 @app.route('/add_user_website')
+@login_required
 def add_user():
-    """
+    return render_template('add_user_website.html')
+
+@app.route('/add_user_website',methods=['POST'])
+@login_required
+def add_user_post():
+    
     email = request.form.get('email')
     name = request.form.get('name')
     password = request.form.get('password')
-    """
-    email="test@gmail.com"
-    name="sebastien"
-    password="test"
     user = User_website.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
 
     if user: # if a user is found, we want to redirect back to signup page so user can try again
-        return {"statut":"user already exists"}
+        return render_template('add_user_website.html')
 
     # create a new user with the form data. Hash the password so the plaintext version isn't saved.
     
@@ -221,7 +224,26 @@ def add_user():
     # add the new user to the database
     db.session.add(new_user)
     db.session.commit()
+    return render_template('add_user_website.html')
 
+
+@app.route('/delete_user_website',methods=['POST']) # to implement
+@login_required
+def del_user_post():
+    
+    email = request.form.get('email')
+    
+    user = User_website.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
+
+    if user == False: # if a user is found, we want to redirect back to signup page so user can try again
+        return render_template('add_user_website.html')
+    else:
+        User_website.query.filter_by(email=email).delete()
+        
+
+    # delete the user in the database
+    db.session.commit()
+    return render_template('add_user_website.html')
 
 
 def password_user_website(user_password,password):
