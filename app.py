@@ -1,6 +1,7 @@
-from flask import Flask, request, render_template, Response, make_response, current_app
+from flask import Flask, request, render_template, Response, make_response, current_app, url_for, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_apscheduler import APScheduler
+from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user
 import psycopg2
 from model import *
 from dotenv import load_dotenv
@@ -17,13 +18,21 @@ app = Flask(__name__,template_folder='templates')
 
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR")
+app.secret_key = 'super secret key'
 db = SQLAlchemy(app)
 scheduler = APScheduler()
 scheduler.api_enabled = True
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.init_app(app)
+
 
 with app.app_context():
     scheduler.init_app(app)
     scheduler.start()
+
+
+
 
 
 # Schema BDD
@@ -76,61 +85,69 @@ class Utilisateur(db.Model):
         self.id_magasin=id_user
         self.password=password
 
-with app.app_context():
-    @scheduler.task('cron', #launch at regular time
-                    id='maj_journaliere_prod_manquants',
-                    week='*', 
-                    day_of_week='mon-sun',
-                    timezone="Europe/Paris",
-                    hour=os.getenv("HOUR_DAILY_UPDATE"),
-                    minute=os.getenv("MINUTE_DAILY_UPDATE"))
-    def maj_produits_manquants():
-        """
-        Daily update of the database produitsManquants
+
+class User_website(UserMixin,db.Model):
+    id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    name = db.Column(db.String(1000))
+
+
+
+@scheduler.task('cron', #launch at regular time
+                id='maj_journaliere_prod_manquants',
+                week='*', 
+                day_of_week='mon-sun',
+                timezone="Europe/Paris",
+                hour=os.getenv("HOUR_DAILY_UPDATE"),
+                minute=os.getenv("MINUTE_DAILY_UPDATE"))
+def maj_produits_manquants():
+    """
+    Daily update of the database produitsManquants
+
+    Returns
+    -------
+    None.
+
+    """
     
-        Returns
-        -------
-        None.
-    
-        """
-        
-        print("Launch maj produits manquants")
-        qry_produits=db.engine.execute("select * from produits")
-        prod_dict = dict(((x[0],x[1]),{"id_magasin":x[0],
-                                       "id_article":x[1],
-                                       "carbone_kg":x[2],
-                                       "name":x[3],
-                                       "date":x[4],
-                                       "carbone_unite":x[5]}) for x in list(qry_produits))
-        #qry_produits_manquants=db.engine.execute(f"select * from produitsManquants")
-        #prod_manquants_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits_manquants))
-        qry_produits_manquants=ProduitsManquants.query.all()
-        prod_manquants_dict={}
-        for record in qry_produits_manquants:
-            prod_manquants_dict[(record.id_magasin,record.id_article)]={"id_magasin":record.id_magasin,
-                                                                        "id_article":record.id_article,
-                                                                        "date":record.date,
-                                                                        "name":record.name}
-        for key in prod_dict:
-            if key in prod_manquants_dict:
-                if prod_dict[key]["carbone_kg"]!=None or prod_dict[key]["carbone_unite"]!=None:
-                    ProduitsManquants.query.filter_by(id_magasin=prod_dict[key]["id_magasin"],
-                                                      id_article=prod_dict[key]["id_article"]).delete()
-            else:
-                if prod_dict[key]["carbone_kg"]==None and prod_dict[key]["carbone_unite"]==None:
-                    prod_temp=ProduitsManquants(prod_dict[key]["id_magasin"],
-                                                prod_dict[key]["id_article"],
-                                                prod_dict[key]["name"],
-                                                str(datetime.now().strftime("%d/%m/%Y")))
-                    db.session.add(prod_temp) 
-        db.session.commit()
+    print("Launch maj produits manquants")
+    qry_produits=db.engine.execute("select * from produits")
+    prod_dict = dict(((x[0],x[1]),{"id_magasin":x[0],
+                                   "id_article":x[1],
+                                   "carbone_kg":x[2],
+                                   "name":x[3],
+                                   "date":x[4],
+                                   "carbone_unite":x[5]}) for x in list(qry_produits))
+    #qry_produits_manquants=db.engine.execute(f"select * from produitsManquants")
+    #prod_manquants_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits_manquants))
+    qry_produits_manquants=ProduitsManquants.query.all()
+    prod_manquants_dict={}
+    for record in qry_produits_manquants:
+        prod_manquants_dict[(record.id_magasin,record.id_article)]={"id_magasin":record.id_magasin,
+                                                                    "id_article":record.id_article,
+                                                                    "date":record.date,
+                                                                    "name":record.name}
+    for key in prod_dict:
+        if key in prod_manquants_dict:
+            if prod_dict[key]["carbone_kg"]!=None or prod_dict[key]["carbone_unite"]!=None:
+                ProduitsManquants.query.filter_by(id_magasin=prod_dict[key]["id_magasin"],
+                                                  id_article=prod_dict[key]["id_article"]).delete()
+        else:
+            if prod_dict[key]["carbone_kg"]==None and prod_dict[key]["carbone_unite"]==None:
+                prod_temp=ProduitsManquants(prod_dict[key]["id_magasin"],
+                                            prod_dict[key]["id_article"],
+                                            prod_dict[key]["name"],
+                                            str(datetime.now().strftime("%d/%m/%Y")))
+                db.session.add(prod_temp) 
+    db.session.commit()
 
 
 
 @app.route('/')
-def hello():
+def home():
     """
-    Welcome message of the API
+    Welcome page of the API
 
     Returns
     -------
@@ -138,12 +155,82 @@ def hello():
         DESCRIPTION.
 
     """
-    return render_template("home.html")
+    #db.create_all()
+    return render_template("login.html")
     #return "Bienvenue sur l'API de Tickarbone: https://www.tickarbone.fr/"
 
 
+@app.route('/home')
+def welcome():
+    return render_template("home.html")
+
+@login_manager.user_loader
+def load_user(user_id):
+    # since the user_id is just the primary key of our user table, use it in the query for the user
+    return User_website.query.get(int(user_id))
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def login_post():
+    email = request.form.get('email')
+    password = request.form.get('password')
+    remember = True if request.form.get('remember') else False
+
+    user = User_website.query.filter_by(email=email).first()
+
+    # check if the user actually exists
+    # take the user-supplied password, hash it, and compare it to the hashed password in the database
+    if not user or not password_user_website(user.password, password): 
+        print("passe")
+        flash('Please check your login details and try again.')
+        return render_template("login.html") # if the user doesn't exist or password is wrong, reload the page
+    
+    
+    # if the above check passes, then we know the user has the right credentials
+    login_user(user, remember=remember)
+    return render_template("home.html")
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return render_template("login.html")
+
+@app.route('/add_user_website')
+def add_user():
+    """
+    email = request.form.get('email')
+    name = request.form.get('name')
+    password = request.form.get('password')
+    """
+    email="test@gmail.com"
+    name="sebastien"
+    password="test"
+    user = User_website.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
+
+    if user: # if a user is found, we want to redirect back to signup page so user can try again
+        return {"statut":"user already exists"}
+
+    # create a new user with the form data. Hash the password so the plaintext version isn't saved.
+    
+    new_user = User_website(email=email, name=name, password=create_hash(password))
+
+    # add the new user to the database
+    db.session.add(new_user)
+    db.session.commit()
 
 
+
+def password_user_website(user_password,password):
+    result=False
+    password_encoded=password.encode('utf-8')
+    hashed=user_password
+    hashed=hashed.encode('utf-8')
+    result = bcrypt.checkpw(password_encoded, hashed)
+    return result
 
 
 # Fonctions non protegees
@@ -338,10 +425,10 @@ def process_json():
     else:
         return_json["statut"]="nom d'utilisateur ou mot de passe incorrect."
         return_json["data"]=[]
-    maj_produits_manquants()
     return return_json
 
 @app.route('/index')
+@login_required
 def index():
     """
     Endpoint to access the update page
@@ -354,6 +441,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/excelupload',methods=['POST'])
+@login_required
 def upload_file():
     
     """
@@ -380,6 +468,7 @@ def upload_file():
 
 
 @app.route('/download_everything')
+@login_required
 def download_everything():
     """
     Download all the product database
@@ -422,6 +511,7 @@ def download_everything():
 
 
 @app.route('/exceldownload')
+@login_required
 def download_file(colonne_carbone_kg=os.getenv("CARBONE_KG"),
                   colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
                   colonne_name=os.getenv("NAME"),
@@ -483,6 +573,7 @@ def download_file(colonne_carbone_kg=os.getenv("CARBONE_KG"),
 
 
 @app.route('/user')
+@login_required
 def user():
     """
     Render the template handleuser.html
@@ -497,6 +588,7 @@ def user():
 
 
 @app.route('/handle_user',methods=['POST'])
+@login_required
 def handle_user_():
     """
     Render the template handleuser.html and send a message if a modification has been done with this page
@@ -574,6 +666,8 @@ def password(id_magasin,password):
     return result
     
 
+    
+
 
 def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
@@ -582,7 +676,7 @@ def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
                        colonne_id_produit=os.getenv("ID_ARTICLE"),
                        colonne_date=os.getenv("DATE")):
     """
-    insert in the database the information in an excel
+    insert in the produits database the information in an excel
 
     Parameters
     ----------
@@ -659,4 +753,4 @@ def create_hash(mdp):
 
 
 if __name__ == '__main__':
-    app.run(port=8080,debug=False)
+    app.run(port=8080,debug=True)

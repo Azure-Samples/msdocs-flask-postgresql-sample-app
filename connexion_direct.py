@@ -80,6 +80,8 @@ class ProduitsManquants(Base):
     def __repr__(self):
         return f"<ProduitsManquants {self.id_magasin, self.id_article, self.name, self.date}>"
     
+
+
     
 
 # Fonction creation et destruction des bases
@@ -283,9 +285,9 @@ if __name__ == "__main__":
     query_test()
 
     
-    #update_or_insert("./database/tickarbase-v0.1_test3.xlsx",2)
+    #update_or_inser t("./database/tickarbase-v0.1_test3.xlsx",2)
     """
-    select_prod_manquants()
+    #select_prod_manquants()
     printTableName()
     #select_user()
     

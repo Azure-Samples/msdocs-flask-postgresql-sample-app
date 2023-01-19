@@ -10,3 +10,4 @@ openpyxl
 flask-apscheduler
 xlsxwriter
 datetime
+flask_login
