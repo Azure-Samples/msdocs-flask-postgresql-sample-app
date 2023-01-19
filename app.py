@@ -338,7 +338,7 @@ def process_json():
     else:
         return_json["statut"]="nom d'utilisateur ou mot de passe incorrect."
         return_json["data"]=[]
-    
+    maj_produits_manquants()
     return return_json
 
 @app.route('/index')
@@ -381,6 +381,15 @@ def upload_file():
 
 @app.route('/download_everything')
 def download_everything():
+    """
+    Download all the product database
+
+    Returns
+    -------
+    r : TYPE
+        DESCRIPTION.
+
+    """
     qry=Produits.query.all()
     df = pd.DataFrame()
     for record in qry:
@@ -419,6 +428,30 @@ def download_file(colonne_carbone_kg=os.getenv("CARBONE_KG"),
                   colonne_id_magasin=os.getenv("ID_MAGASIN"),
                   colonne_id_produit=os.getenv("ID_ARTICLE"),
                   colonne_date=os.getenv("DATE")):
+    """
+    Download all the muissing product database
+    
+    Parameters
+    ----------
+    colonne_carbone_kg : TYPE, optional
+        DESCRIPTION. The default is os.getenv("CARBONE_KG").
+    colonne_carbone_unite : TYPE, optional
+        DESCRIPTION. The default is os.getenv("CARBONE_UNITE").
+    colonne_name : TYPE, optional
+        DESCRIPTION. The default is os.getenv("NAME").
+    colonne_id_magasin : TYPE, optional
+        DESCRIPTION. The default is os.getenv("ID_MAGASIN").
+    colonne_id_produit : TYPE, optional
+        DESCRIPTION. The default is os.getenv("ID_ARTICLE").
+    colonne_date : TYPE, optional
+        DESCRIPTION. The default is os.getenv("DATE").
+
+    Returns
+    -------
+    r : TYPE
+        DESCRIPTION.
+
+    """
     qry=ProduitsManquants.query.all()
     df = pd.DataFrame()
     for record in qry:
@@ -451,11 +484,29 @@ def download_file(colonne_carbone_kg=os.getenv("CARBONE_KG"),
 
 @app.route('/user')
 def user():
+    """
+    Render the template handleuser.html
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     return render_template('handleuser.html')
 
 
 @app.route('/handle_user',methods=['POST'])
 def handle_user_():
+    """
+    Render the template handleuser.html and send a message if a modification has been done with this page
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     # 0: base, 1: utilisateur a ete ajouté, 2: utilisateur n'existe pas, 3: fail, 4: utilisateur existe deja, 5: l'utilisateur a été supprime
     utilisateur = request.form.get('utilisateur')
     mdp = request.form.get('mdp')
@@ -580,10 +631,24 @@ def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
                           str(df.iloc[i][colonne_carbone_unite]))
             db.session.add(prod)
     db.session.commit()
-    
+    maj_produits_manquants()
 
 
 def create_hash(mdp):
+    """
+    Return the hash equivalent of the password
+
+    Parameters
+    ----------
+    mdp : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     mdp_encoded=mdp.encode('utf-8')
     salt=bcrypt.gensalt() # genere le sel
     hashed = bcrypt.hashpw(mdp_encoded, salt) # cree le mot de passe hashe
