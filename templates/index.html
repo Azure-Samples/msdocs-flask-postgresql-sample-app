@@ -41,7 +41,7 @@
   </style>
 {% endblock %}
 {% block content %}
-      <h1>Restaurants</h1>
+      <h1>PKS</h1>
 
       {% if True %}
           <table class="table">
@@ -63,10 +63,10 @@
               </tbody>
           </table>
       {% else %}
-          <p>No restaurants exist.  Select Add new restaurant to add one.</p>
+          <p>No pks exist.  Select Add new PKS to add one.</p>
       {% endif %}
 
       <div class="d-flex justify-content-end">
-              <a href="{{ url_for('create_restaurant') }}" class="btn btn-success px-4 gap-3">Add new restaurant</a>
+              <a href="{{ url_for('create_restaurant') }}" class="btn btn-success px-4 gap-3">Add new pks</a>
       </div>
 {% endblock %}
