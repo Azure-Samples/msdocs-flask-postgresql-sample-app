@@ -342,17 +342,17 @@ def del_user_post():
         DESCRIPTION.
 
     """
-    
-    email = request.form.get('email')
     email_adder=request.form.get('adder_email')
     password_adder=request.form.get('adder_password')
+    email = request.form.get('email')
+    
     
     
     # message: 4: L'utilisateur n'existe pas, 1 : Votre identifiant ou mot de passe est incorrect, 2: Votre statut est incorrect, 7: L'utilisateur a bien été supprimé.
     
     
     user = User_website.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
-
+    print(user.email)
     if user == False: # if a user is not found, we want to redirect back to signup page so user can try again
         message=4    
         return render_template('add_user_website.html',message=message)
@@ -368,6 +368,7 @@ def del_user_post():
         # delete the user in the database
         User_website.query.filter_by(email=email).delete()
         db.session.commit()
+        print("passe")
     else:
         message=2
         return render_template('add_user_website.html',message=message)
