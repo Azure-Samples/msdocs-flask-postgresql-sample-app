@@ -18,76 +18,63 @@
 
 <body class="back">
     <div class="container-fluid"> <!-- Class permettant de conserver la page vertical-fixe -->
-      <div class="col"> <!-- Class de la page web, permet de Stratifier la page, développer le code dedans -->
+    <div class="col"> <!-- Class de la page web, permet de Stratifier la page, développer le code dedans -->
         <div class="row"> <!-- Bande Titre Tickarbone-->
-          <div class="col p-3 text-white" style="background-color: black;">
-            
-            <h1 class="text-center">Tickarbone</h1>
-              <figcaption class="blockquote-footer">
-              Combien pèse votre <cite title="Source Title">Panier</cite> ?
-              </figcaption>
-          </div>
-        </div>
-      </div>
-
-      <div class="row"> <!-- Bande blanche séparateur menu -->
-          <div class="col p-1 bg-white"> </div>
-      </div>
-
-
-  
-
-
-  </div>
-    <section class="hero is-primary is-fullheight">
-
-        <div class="hero-head">
-            <nav class="navbar">
-                <div class="container">
-
-                    <div id="navbarMenuHeroA" class="navbar-menu">
-                        <div class="navbar-end">
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </div>
-
-        <div class="hero-body">
-            <div class="container has-text-centered">
-               <div class="column is-4 is-offset-4">
-                    <h3 class="title" >Login</h3>
-                    <div class="box">
-                        <form method="POST" action="/login" class="container-sm bg-dark">
-                            <div class="field">
-                                <div class="control">
-                                    <input class="form-control" type="email" name="email" placeholder="Your Email" autofocus="">
-                                </div>
-                            </div>
-                
-                            <div class="field">
-                                <div class="control">
-                                    <input class="form-control" type="password" name="password" placeholder="Your Password">
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="checkbox">
-                                    <input type="checkbox">
-                                    Remember me
-                                </label>
-                            </div>
-                            <button class="button is-block is-info is-large is-fullwidth">Login</button>
-                        </form>
-                    </div>
-                </div>
+            <div class="col p-3 text-white" style="background-color: black;">
+                <h1 class="text-center">Tickarbone</h1>
+                <figcaption class="blockquote-footer">
+                Combien pèse votre <cite title="Source Title">Panier</cite> ?
+                </figcaption>
             </div>
-            
-            
-            <div class="col-sm p-3 text-center">
-              <img src="/static/img/scrat_accueil.jpg" class="img-fluid " alt="...">
-            </div>  
+
+
+            <div class="row"> <!-- Bande blanche séparateur menu -->
+                <div class="col p-1 bg-white"> </div>
+            </div>
         </div>
-    </section>
+        
+        <br>
+        <br>
+    
+        <div class="row"> <!-- Ligne Block Centrale 1 -->
+
+            <div class="col"> <!-- Marge Gauche sur la ligne 1 --></div>
+            
+            <div class="col p-1 container-sm bg-dark"> <!-- Ligne Block Centrale 1 -->
+                <form class="container-sm bg-dark" method="POST" action="/login"> <!--Add User -->
+                    <h4 class="text-center text-white">Connexion</h4> 
+                    <label class="col-form-label text-white">Email</label>
+                    <input type="email" name="email" placeholder="Your Email" autofocus="" class="form-control" id="inputEmail3">
+                    <label class="col-form-label text-white">Mot de passe</label>
+                    <input name="password" type="password" class="form-control" placeholder="Your Password" id="inputPassword3">
+                    <label class="checkbox">
+                        <input type="checkbox">
+                        Remember me
+                    </label>
+                    <input type=submit class="input-group-text" value="Login">
+                    <br>
+                </form>
+            </div>
+
+            <div class="col"> <!-- Marge Droite sur la ligne 1 --></div>
+              
+        </div>
+
+        <br>
+        
+        <div class="row">
+            <div class="col"> <!-- Marge Gauche sur la ligne 1 --></div>
+            <div class="col p-1 container-sm bg-dark"> <!-- Marge Gauche sur la ligne 1 -->
+                <img src="/static/img/scrat_accueil.jpg" class="img-fluid" alt="...">
+            </div>
+            <div class="col"> <!-- Marge Gauche sur la ligne 1 --></div>
+        </div>
+
+        <br>
+
+    </div>
+    </div>
+
 </body>
 
 </html>

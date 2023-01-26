@@ -5,63 +5,176 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+
+    <!-- Bootstrap CSS -->
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+    <!-- Stylesheet CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+
     <title>Tickarbone</title>
     <link rel="icon" type="image/x-icon" href="/static/img/ScratFonticon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />
 </head>
 
-<body>
-    <section class="hero is-primary is-fullheight">
+<body class="back" onload="afficheMessage(' {{ message }} ')">
+    <div class="container-fluid"> <!-- Class permettant de conserver la page vertical-fixe -->
+    <div class="col"> <!-- Class de la page web, permet de Stratifier la page, développer le code dedans -->
+        <div class="row" style="background-color: black;"> <!-- Bande Titre Tickarbone-->    
+          <div class="col p-1 text-white"> <!-- Bande Menu -->
+            <nav class="navbar navbar-expand-lg navbar-dark p-3 text-white">
+              <div class="container-fluid collapse navbar-collapse" id="navbarText"> 
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                  <li class="nav-item">  
+                    <a class="nav-link active" aria-current="page" href="{{ url_for('welcome') }}"><h5>Home</h5></a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{ url_for('user') }}"><h5>Magasins</h5></a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}"><h5>BDD</h5></a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{ url_for('add_user_post') }}"><h5>Utilisateurs</h5></a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{ url_for('logout') }}"><h5>Deconnexion</h5></a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </div>
+    
+          <div class="col p-1 text-white"> <!-- Bande Titre-->
+            <h1 class="text-center">Tickarbone</h1>
+            <figcaption class="blockquote-footer">
+            Combien pèse votre <cite title="Source Title">Panier</cite> ?
+            </figcaption>
+          </div>
 
-        <div class="hero-head">
-            <nav class="navbar">
-                <div class="container">
+          <div class="col p-1 text-white"> <!-- Colonne droite équilibrage avec menu !--></div>
+        </div>
 
-                    <div id="navbarMenuHeroA" class="navbar-menu">
-                        <div class="navbar-end">
-                            <a href="{{ url_for('welcome') }}" class="navbar-item">
-                                Accueil
-                            </a>
-                            <a href="{{ url_for('logout') }}" class="navbar-item">
-                                Deconnexion
-                            </a>
+        <div class="row"> <!-- Bande blanche séparateur menu -->
+            <div class="col p-1 bg-white"> </div>
+        </div>
+
+        <br>
+        <br>
+
+
+        <div class="row"> <!-- Ligne Block Centrale 1 -->
+            <div class="col"> <!-- Marge Gauche sur la ligne 1 -->
+            </div>
+
+            <div class="col p-1 container-sm bg-dark"> <!-- Ligne Block Centrale 1 -->
+                <form class="container-sm bg-dark" action="/add_user_website" method=post enctype=multipart/form-data> <!--Add User -->
+                    <h4><u>Ajouter un utilisateurs</u></h4> 
+                    <label class="col-form-label">Votre email</label>
+                    <input type="email" name="adder_email" placeholder="Email" autofocus="" class="form-control" id="inputEmail3">
+                    <label class="col-form-label">Votre mot de passe</label>
+                    <input type="password" name="adder_password" placeholder="Mot de passe" class="form-control" id="inputPassword3">
+                    <label class="col-form-label">Email</label>
+                    <input type="email" name="email" placeholder="Email" autofocus="" class="form-control" id="inputEmail3">
+                    <label class="col-form-label">Nom de l'utilisateur</label>
+                    <input type="text" name="name" placeholder="Nom" class="form-control" id="inputEmail3">
+                    <label class="col-form-label">Mot de passe</label>
+                    <input type="password" name="password" placeholder="Mot de passe" class="form-control" id="inputPassword3">
+                    <br>
+                    <div class="row">
+                        <div class="col">
+                            <input type=submit class="input-group-text" value="Ajouter">
+                        </div>
+                        <div class="col">
+                            <select class="form-select" name="status" aria-label="Default select example">
+                                <option selected>Statut</option>
+                                <option value="admin">Administrateur</option>
+                                <option value="user">Utilisateur</option>
+                            </select>
                         </div>
                     </div>
-                </div>
-            </nav>
-        </div>
+                    <br>
+                </form>
+            </div>
 
-        <div class="hero-body">
-            <div class="container has-text-centered">
-              <div class="column is-4 is-offset-4">
-                <h3 class="title">Ajout utilisateur du site web</h3>
-                    <div class="box">
-                        <form method="POST" action="/add_user_website">
-                            <div class="field">
-                                <div class="control">
-                                    <input class="input is-large" type="email" name="email" placeholder="Email" autofocus="">
-                                </div>
-                            </div>
-                
-                            <div class="field">
-                                <div class="control">
-                                    <input class="input is-large" type="text" name="name" placeholder="Name" autofocus="">
-                                </div>
-                            </div>
-                
-                            <div class="field">
-                                <div class="control">
-                                    <input class="input is-large" type="password" name="password" placeholder="Password">
-                                </div>
-                            </div>
-                
-                            <button class="button is-block is-info is-large is-fullwidth">Ajout</button>
-                        </form>
-                    </div>
-                </div>
+            <div class="col p-1 container-sm bg-dark"> <!-- Image Scrat -->
+                <img src="/static/img/AddUserScrat.jpg" class="img-fluid" style="margin:10px; float:right" alt="ScratFace.jpg">
+            </div>
+
+            <div class="col"> <!-- Marge Droite sur la ligne-->
             </div>
         </div>
-    </section>
-</body>
+    
 
+
+        <br>
+        
+
+
+        <div class="row"> <!-- Ligne Block Centrale 2 -->
+            <div class="col"> <!-- Marge Gauche sur la ligne-->
+            </div>
+            <div class="col p-1 container-sm bg-dark"> <!-- Ligne Block Centrale 2 -->
+                <form class="container-sm bg-dark"  method="POST" action="/delete_user_website" enctype=multipart/form-data> <!-- Delete User -->
+                    <h4><u>Supprimer un Utilisateur</u></h4> 
+                    <label class="col-form-label">Votre email</label>
+                    <input name="adder_email" type="email" class="form-control" id="inputEmail3">
+                    <label class="col-form-label">Votre mot de passe</label>
+                    <input name="adder_password" type="password" class="form-control" id="inputPassword3">
+                    <label class="col-form-label">Nom de l'utilisateur à supprimer</label>
+                    <input name="utilisateur" type="name" class="form-control" id="inputEmail3">
+                    <br>
+                    <input type=submit class="input-group-text" value="Supprimer">
+                    <br>
+                </form>
+            </div>
+            <div class="col p-1 container-sm bg-dark"> <!-- Image Scrat -->
+                <img src="/static/img/DeleteUserScrat.gif" class="img-fluid" style="margin:10px; float:right" alt="ScratScared.gif">
+            </div>
+            <div class="col"> <!-- Marge Droite sur la ligne-->
+            </div>
+        </div>
+
+    <br>
+    <br>
+
+    </div>
+    </div>
+    <script>
+        function afficheMessage(message){
+            switch (parseInt(message)) {
+                case 0 :
+                writeAlert = "L'utilisateur existe deja";
+                alert(writeAlert);
+                break;
+                case 1 :
+                writeAlert = "Votre identifiant ou mot de passe est incorrect";
+                alert(writeAlert);
+                break;
+                case 2 :
+                writeAlert = "Votre statut est incorrect";
+                alert(writeAlert);
+                break;
+                case 3 :
+                writeAlert = "L'utilisateur a bien été créé";
+                alert(writeAlert);
+                break;
+                case 4 :
+                writeAlert = "L'utilisateur n'existe pas";
+                alert(writeAlert);
+                break;
+                case 5 :
+                writeAlert = "L'utilisateur a bien été supprimé";
+                alert(writeAlert);
+                break;
+
+                default:
+                break;
+            }
+        }
+
+    </Script>
+</body>
+    
 </html>

@@ -27,10 +27,6 @@ login_manager.login_view = 'login'
 login_manager.init_app(app)
 
 
-with app.app_context():
-    scheduler.init_app(app)
-    scheduler.start()
-
 
 
 
@@ -87,20 +83,24 @@ class Utilisateur(db.Model):
 
 
 class User_website(UserMixin,db.Model):
+    """
+    Declaration of the table User_website that contained every user that has accessed to our website
+    """
+    __tablename__ = 'utilisateur_web'
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
+    status=db.Column(db.String(1000))# status of the user
+    
+    
+    def __init__(self, email,password,name,status):
+        self.email=email
+        self.password=password
+        self.name=name
+        self.status=status
+        
 
-
-
-@scheduler.task('cron', #launch at regular time
-                id='maj_journaliere_prod_manquants',
-                week='*', 
-                day_of_week='mon-sun',
-                timezone="Europe/Paris",
-                hour=os.getenv("HOUR_DAILY_UPDATE"),
-                minute=os.getenv("MINUTE_DAILY_UPDATE"))
 def maj_produits_manquants():
     """
     Daily update of the database produitsManquants
@@ -142,7 +142,9 @@ def maj_produits_manquants():
                 db.session.add(prod_temp) 
     db.session.commit()
 
-
+@app.route('/drop_all')
+def drop_all():
+    db.drop_all()
 
 @app.route('/')
 def home():
@@ -155,32 +157,85 @@ def home():
         DESCRIPTION.
 
     """
-    #db.create_all()
+    db.create_all() #in case of table dropping
     return render_template("login.html")
     #return "Bienvenue sur l'API de Tickarbone: https://www.tickarbone.fr/"
 
 
 @app.route('/home')
 def welcome():
+    """
+    Home page of the API
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
+    
     return render_template("home.html")
 
 @login_manager.user_loader
 def load_user(user_id):
+    """
+    Return the query containing the information of the user
+
+    Parameters
+    ----------
+    user_id : TYPE
+        id of the user
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
+    
     # since the user_id is just the primary key of our user table, use it in the query for the user
     return User_website.query.get(int(user_id))
 
 @app.route('/login')
 def login():
+    """
+    Return the login.html page
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     return render_template('login.html')
+
+
+
 
 @app.route('/login', methods=['POST'])
 def login_post():
+    """
+    If the email and password are ok give access to home else return login.html
+
+    Returns
+    -------
+    None.
+
+    """
+    
     email = request.form.get('email')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
-
+    
+    user_table_exist=User_website.query.all()
+    if len(user_table_exist)==0: # create the user if the base is empty
+        new_user = User_website(email=email, name="admin", password=create_hash(password),status="admin")
+        # add the new user to the database
+        db.session.add(new_user)
+        db.session.commit()
+    
     user = User_website.query.filter_by(email=email).first()
-
+    
     # check if the user actually exists
     # take the user-supplied password, hash it, and compare it to the hashed password in the database
     if not user or not password_user_website(user.password, password): 
@@ -196,6 +251,15 @@ def login_post():
 @app.route('/logout')
 @login_required
 def logout():
+    """
+    Logout the user from the website
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     logout_user()
     return render_template("login.html")
 
@@ -203,51 +267,138 @@ def logout():
 @app.route('/add_user_website')
 @login_required
 def add_user():
+    """
+    Return the user to the page ass_user_website.html
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     return render_template('add_user_website.html')
 
 @app.route('/add_user_website',methods=['POST'])
 @login_required
 def add_user_post():
-    
+    """
+    Add user to the website
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     email = request.form.get('email')
     name = request.form.get('name')
     password = request.form.get('password')
+    status=request.form.get('status')
+    email_adder=request.form.get('adder_email')
+    password_adder=request.form.get('adder_password')
+    print("status",status)
+    message=None
+    # message: 0: L'utilisateur existe deja, 1 : Votre identifiant ou mot de passe est incorrect, 2: Votre statut est incorrect, 3: L'utilisateur a bien été créé.
+
     user = User_website.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
 
     if user: # if a user is found, we want to redirect back to signup page so user can try again
-        return render_template('add_user_website.html')
+        message=0
+        print("passe1")
+        return render_template('add_user_website.html',message=message)
 
     # create a new user with the form data. Hash the password so the plaintext version isn't saved.
-    
-    new_user = User_website(email=email, name=name, password=create_hash(password))
+    admin=User_website.query.filter_by(email=email_adder).first()
+    print("ap",admin.password)
+    if admin==False or password_user_website(admin.password,password_adder)==False:
+        message=1
+        print("passe2")
+        return render_template('add_user_website.html',message=message)
+    print("as",admin.status)  
+    if admin.status=="admin":
+        new_user = User_website(email=email, name=name, password=create_hash(password),status=status)
+        # add the new user to the database
+        db.session.add(new_user)
+        db.session.commit()
+        print("passe3")
+    else:
+        message=2
+        print("passe4")
+        return render_template('add_user_website.html',message=message)
+    message=3
+    print("passe5")
+    return render_template('add_user_website.html',message=message)
 
-    # add the new user to the database
-    db.session.add(new_user)
-    db.session.commit()
-    return render_template('add_user_website.html')
 
-
-@app.route('/delete_user_website',methods=['POST']) # to implement
+@app.route('/delete_user_website',methods=['POST'])
 @login_required
 def del_user_post():
+    """
+    Delete user of the website
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     
     email = request.form.get('email')
+    email_adder=request.form.get('adder_email')
+    password_adder=request.form.get('adder_password')
+    
+    
+    # message: 4: L'utilisateur n'existe pas, 1 : Votre identifiant ou mot de passe est incorrect, 2: Votre statut est incorrect, 7: L'utilisateur a bien été supprimé.
+    
     
     user = User_website.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
 
-    if user == False: # if a user is found, we want to redirect back to signup page so user can try again
-        return render_template('add_user_website.html')
-    else:
-        User_website.query.filter_by(email=email).delete()
-        
+    if user == False: # if a user is not found, we want to redirect back to signup page so user can try again
+        message=4    
+        return render_template('add_user_website.html',message=message)
 
-    # delete the user in the database
-    db.session.commit()
+        
+    admin=User_website.query.filter_by(email=email_adder).first()
+    if admin==False or password_user_website(admin.password,password_adder)==False:
+        message=1
+        return render_template('add_user_website.html',message=message)
+        
+    
+    if admin.status=="admin":
+        # delete the user in the database
+        User_website.query.filter_by(email=email).delete()
+        db.session.commit()
+    else:
+        message=2
+        return render_template('add_user_website.html',message=message)
+    
+    message=5
+    return render_template('add_user_website.html',message=message)
+    
+    
     return render_template('add_user_website.html')
+    
+    
 
 
 def password_user_website(user_password,password):
+    """
+    Evaluate if the user password and the password of the database are the same
+
+    Parameters
+    ----------
+    user_password : TYPE
+        DESCRIPTION.
+    password : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    result : bool
+    """
     result=False
+    print(user_password)
+    print(password)
     password_encoded=password.encode('utf-8')
     hashed=user_password
     hashed=hashed.encode('utf-8')
@@ -255,47 +406,7 @@ def password_user_website(user_password,password):
     return result
 
 
-# Fonctions non protegees
-"""
-@app.route('/temp')
-def temp():
-    return {"hello": "temp"}
 
-
-@app.route('/insert')
-def insert():
-    prod = Produits(1,2, '128')
-    db.session.add(prod)
-    db.session.commit()
-    return "done"
-
-@app.route('/drop_all')
-def drop():
-    db.drop_all()
-    return "done"
-
-
-@app.route('/select/all') 
-def select():
-    qry=Produits.query.all()
-    return {'data': [
-         {'id_produit':record.id_article, 'id_magasin':
-            record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
-        for record in qry
-       ]}
-
-
-@app.route('/select/sans_protection',methods=['GET'])
-def select_2():
-    id_magasin=request.args.get('id_magasin')
-    id_article=request.args.get('id_article')
-    qry=Produits.query.filter_by(id_magasin=id_magasin).filter_by(id_article=id_article)
-    return {'data': [
-         {'id_article':record.id_article, 'id_magasin':
-            record.id_magasin, 'name' :record.name,'carbone' :record.carbone}
-        for record in qry
-       ]}
-"""
 
 #selectionne un produit
 @app.route('/select/avec_protection',methods=['GET'])
@@ -646,18 +757,6 @@ def handle_user_():
             return_box=1
     db.session.commit()
     return render_template('handleuser.html',message=return_box)
-
-
-# Format envoi_json: curl -X POST -H "Content-type: application/json" -H "password: jaimelebio" -H "id_magasin: 1" -d "" "localhost:8080/envoi_json"
-"""
-@app.route('/test',methods=['POST'])
-def test():
-    json = request.data
-    print(json)
-    return str(json)
-    #query=Produits.query.filter(Produits.id_article.in_(my_list)).all()
-    #return str(query)
-""" 
 
 
 # Fonctions support
