@@ -8,35 +8,71 @@
     <!-- Stylesheet CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
     
-    <title>Home</title>
+    <title>Tickarbone</title>
+    <link rel="icon" type="image/x-icon" href="/static/img/ScratFonticon.png">
     
 </head>
 <body class="back">
-  <div class="container-fluid"> <!-- Class permettant de conserver la page vertical-fixe -->
-  <div class="col"> <!-- Class de la page web, permet de Stratifier la page, développer le code dedans -->
-    <div class="row"> <!-- Bande Titre Tickarbone-->
-      <div class="col p-3 text-white" style="background-color: black;">
-        <a href="{{ url_for('index') }}">Gestion des magasins</a>
-        <a href="{{ url_for('user') }}">Gestion des utilisateurs</a>
-        <a href="{{ url_for('add_user') }}" class="navbar-item">Ajout utilisateur site web</a>
-        <a href="{{ url_for('logout') }}" class="navbar-item">Deconnexion</a>
-        
-        <h1 class="text-center">Tickarbone</h1>
-          <figcaption class="blockquote-footer">
-          Combien pèse votre <cite title="Source Title">Panier</cite> ?
-          </figcaption>
-      </div>
+<div class="container-fluid"> <!-- Class permettant de conserver la page vertical-fixe -->
+<div class="col"> <!-- Class de la page web, permet de Stratifier la page, développer le code dedans -->
+  <div class="row" style="background-color: black;"> <!-- Bande Titre Tickarbone-->
+    <div class="col p-1 text-white"> <!-- Bande Menu -->
+      <nav class="navbar navbar-expand-lg navbar-dark p-3 text-white">
+        <div class="container-fluid collapse navbar-collapse" id="navbarText"> 
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">  
+              <a class="nav-link active" aria-current="page" href="{{ url_for('welcome') }}"><h5>Home</h5></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{{ url_for('user') }}"><h5>Magasins</h5></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}"><h5>BDD</h5></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{{ url_for('logout') }}"><h5>Deconnexion</h5></a>
+            </li>
+          </ul>
+        </div>
+      </nav>
     </div>
+        
+    <div class="col p-1 text-white"> <!-- Bande Titre-->
+      <h1 class="text-center">Tickarbone</h1>
+      <figcaption class="blockquote-footer">
+      Combien pèse votre <cite title="Source Title">Panier</cite> ?
+      </figcaption>
+    </div>
+
+    <div class="col p-1 text-white"><!-- Colonne droite équilibrage avec menu !--></div>
   </div>
 
   <div class="row"> <!-- Bande blanche séparateur menu -->
       <div class="col p-1 bg-white"> </div>
   </div>
 
-  <div class="col p-1 container-sm bg-dark"> <!-- Image Scrat -->
-    <img src="/static/img/gland.jpg" class="img-fluid w-75" style="margin:10px; float:left" alt="gland.jpg">
+  <br>
+  <br>
+
+  <div class="row">
+  <div class="col"></div>
+    <div class="col p-1 container-sm bg-dark p-2 text-center"> <!-- Image Scrat -->
+      <h4><u>Bienvenue sur la page de gestion de l'API Tickarbone</u></h4>
+    </div>
+  <div class="col"></div>
   </div>
-  
+
+  <br>
+  <br>
+
+  <div class="row">
+  <div class="col"></div>
+    <div class="col p-1 container-sm bg-dark p-2"> <!-- Image Scrat -->
+      <img src="/static/img/gland.jpg" class="img-fluid" alt="gland.jpg">
+    </div>
+  <div class="col"></div>
+  </div>
+
   <br>
   <br>
 
