@@ -53,11 +53,11 @@
                   </tr>
               </thead>
               <tbody>
-                  {% for restaurant in restaurants %}
+                  {% for customer in customers %}
                       <tr>
-                          <td>{{ restaurant.name }}</td>
+                          <td>{{ customer.name }}</td>
                           <td>{% include "star_rating.html" %}</td>
-                          <td class="text-end"><a href="{{ url_for('details', id=restaurant.id) }}" class="btn btn-sm btn-primary">Details</a></td>
+                          <td class="text-end"><a href="{{ url_for('details', id=customer.id) }}" class="btn btn-sm btn-primary">Details</a></td>
                       </tr>
                   {% endfor %}
               </tbody>
