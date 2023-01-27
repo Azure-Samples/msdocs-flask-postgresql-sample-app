@@ -1,7 +1,7 @@
-{% if star_rating(restaurant.id)["review_count"] %}
+{% if star_rating(customer.id)["review_count"] %}
     <span class="score">
         <div class="score-wrap align-top">
-            <span class="stars-active" style="width:{{ star_rating(restaurant.id)['stars_percent'] }}%">
+            <span class="stars-active" style="width:{{ star_rating(customer.id)['stars_percent'] }}%">
                 <i class="fa fa-star" aria-hidden="true"></i>
                 <i class="fa fa-star" aria-hidden="true"></i>
                 <i class="fa fa-star" aria-hidden="true"></i>
@@ -17,7 +17,7 @@
         </span>        
         </div>
         <span class="align-top">
-            {{ star_rating(restaurant.id)["avg_rating"]|float }} ({{star_rating(restaurant.id)["review_count"]}} {% if star_rating(restaurant.id)["review_count"] == 1 %} review{% else %} reviews{% endif %})
+            {{ star_rating(customer.id)["avg_rating"]|float }} ({{star_rating(customer.id)["review_count"]}} {% if star_rating(customer.id)["review_count"] == 1 %} review{% else %} reviews{% endif %})
         </span>
     </span> 
 {% else %}
