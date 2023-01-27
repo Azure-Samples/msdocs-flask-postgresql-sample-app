@@ -43,9 +43,9 @@ def index():
 
 @app.route('/<int:id>', methods=['GET'])
 def details(id):
-    restaurant = Customer.query.where(Customer.id == id).first()
+    customer = Customer.query.where(Customer.id == id).first()
     reviews = Review.query.where(Review.restaurant==id)
-    return render_template('details.html', restaurant=restaurant, reviews=reviews)
+    return render_template('details.html', customer=customer, reviews=reviews)
 
 @app.route('/create', methods=['GET'])
 def create_customer():
