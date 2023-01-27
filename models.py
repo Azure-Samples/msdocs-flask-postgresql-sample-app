@@ -14,12 +14,12 @@ class Restaurant(db.Model):
         return self.name
 
 class Customer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(255), nullable=False)
-    last_name = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.TIMESTAMP, default=datetime.datetime.utcnow)
+    id = Column(db.Integer, primary_key=True)
+    first_name = Column(db.String(255), nullable=False)
+    last_name = Column(db.String(255), nullable=False)
+    email = Column(db.String(255), nullable=False)
+    password = Column(db.String(255), nullable=False)
+    created_at = Column(db.TIMESTAMP, default=datetime.datetime.utcnow)
 
 class Review(db.Model):
     __tablename__ = 'review'
