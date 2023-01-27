@@ -63,10 +63,10 @@
               </tbody>
           </table>
       {% else %}
-          <p>No pks exist.  Select Add new PKS to add one.</p>
+          <p>No customer exist.  Select Add new customer to add one.</p>
       {% endif %}
 
       <div class="d-flex justify-content-end">
-              <a href="{{ url_for('create_restaurant') }}" class="btn btn-success px-4 gap-3">Add new pks</a>
+              <a href="{{ url_for('create_customer') }}" class="btn btn-success px-4 gap-3">Add new customer</a>
       </div>
 {% endblock %}
