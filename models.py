@@ -13,6 +13,14 @@ class Restaurant(db.Model):
     def __str__(self):
         return self.name
 
+class Customer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(255), nullable=False)
+    last_name = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, default=datetime.datetime.utcnow)
+
 class Review(db.Model):
     __tablename__ = 'review'
     id = Column(Integer, primary_key=True)
