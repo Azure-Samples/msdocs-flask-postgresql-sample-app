@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, redirect, url_for, send_from_
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.security import generate_password_hash
 
 
 app = Flask(__name__, static_folder='static')
@@ -32,36 +33,60 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # The import must be done after db initialization due to circular import issue
-from models import Restaurant, Review
+from models import Restaurant, Review, Customer
 
 @app.route('/', methods=['GET'])
 def index():
     print('Request for index page received')
-    restaurants = Restaurant.query.all()    
-    return render_template('index.html', restaurants=restaurants)
+    customers = Customer.query.all()    
+    return render_template('index.html', customers=customers)
 
 @app.route('/<int:id>', methods=['GET'])
 def details(id):
-    restaurant = Restaurant.query.where(Restaurant.id == id).first()
+    restaurant = Customer.query.where(Customer.id == id).first()
     reviews = Review.query.where(Review.restaurant==id)
     return render_template('details.html', restaurant=restaurant, reviews=reviews)
 
 @app.route('/create', methods=['GET'])
-def create_restaurant():
+def create_customer():
     print('Request for add restaurant page received')
-    return render_template('create_restaurant.html')
+    return render_template('create_customer.html')
 
 @app.route('/add', methods=['POST'])
 @csrf.exempt
+
+def add_customer():
+    try:
+        first_name = request.values.get('first_name')
+        last_name = request.values.get('last_name')
+        email = request.values.get('email')
+        password = request.values.get('password')
+    except (KeyError):
+        #Redisplay the form.
+        return render_template('add_customer.html', {
+            'error_message': "Error adding customer",
+        })
+    else:
+        customer = Customer()
+        customer.first_name = first_name
+        customer.last_name = last_name
+        customer.email = email
+        customer.password = generate_password_hash(password)
+        db.session.add(customer)
+        db.session.commit()
+
+        return redirect(url_for('details', id=customer.id))
+
 def add_restaurant():
     try:
-        name = request.values.get('restaurant_name')
-        street_address = request.values.get('street_address')
-        description = request.values.get('description')
+        name = request.values.get('first_name')
+        street_address = request.values.get('last_name')
+        description = request.values.get('email')
+        description = request.values.get('password')
     except (KeyError):
         # Redisplay the question voting form.
         return render_template('add_restaurant.html', {
-            'error_message': "You must include a restaurant name, address, and description",
+            'error_message': "You must include a customer name, address, and description",
         })
     else:
         restaurant = Restaurant()
