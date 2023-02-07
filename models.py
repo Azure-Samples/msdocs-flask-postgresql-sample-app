@@ -10,6 +10,7 @@ class Restaurant(db.Model):
     name = Column(String(50))
     street_address = Column(String(50))
     description = Column(String(250))
+
     def __str__(self):
         return self.name
 
@@ -28,4 +29,4 @@ class Review(db.Model):
         return value
 
     def __str__(self):
-        return self.restaurant.name + " (" + self.review_date.strftime("%x") +")"
+        return self.restaurant.name + " (" + self.review_date.strftime("%x") + ")"
