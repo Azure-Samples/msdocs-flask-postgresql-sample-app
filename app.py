@@ -95,7 +95,7 @@ def add_review(id):
         db.session.add(review)
         db.session.commit()
                 
-    return redirect(url_for('details', id = id))
+    return redirect(url_for('details', id=id))
 
 @app.context_processor
 def utility_processor():
@@ -103,7 +103,7 @@ def utility_processor():
         reviews = Review.query.where(Review.restaurant == id)
 
         ratings = []
-        review_count = 0;
+        review_count = 0
         for review in reviews:
             ratings += [review.rating]
             review_count += 1
