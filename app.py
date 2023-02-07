@@ -94,7 +94,7 @@ def add_review(id):
         review.review_text = review_text
         db.session.add(review)
         db.session.commit()
-                
+
     return redirect(url_for('details', id=id))
 
 @app.context_processor
