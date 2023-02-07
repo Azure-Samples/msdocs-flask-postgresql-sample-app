@@ -1,9 +1,9 @@
-from datetime import datetime
 import os
+from datetime import datetime
 
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, redirect, render_template, request, send_from_directory, url_for
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
 
