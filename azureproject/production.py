@@ -6,11 +6,15 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'flask-insecure-7ppocbnx@w71dcuinn*t^_mzal(
 ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']] if 'WEBSITE_HOSTNAME' in os.environ else []
 CSRF_TRUSTED_ORIGINS = ['https://' + os.environ['WEBSITE_HOSTNAME']] if 'WEBSITE_HOSTNAME' in os.environ else []
 
-# Configure Postgres database; the full username for PostgreSQL flexible server is
-# username (not @sever-name).
+# Configure Postgres database based on connection string of the libpq Keyword/Value form
+# https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
+conn_str = os.environ['AZURE_POSTGRESQL_CONNECTIONSTRING']
+#conn_str= 'dbname=msdocs-python-postgres-psfdj-database host=msdocs-python-postgres-psfdj-server.postgres.database.azure.com port=5432 sslmode=require user=bazbufjyde password=PASSWORD$'
+conn_str_params = {pair.split('=')[0]: pair.split('=')[1] for pair in conn_str.split(' ')}
+
 DATABASE_URI = 'postgresql+psycopg2://{dbuser}:{dbpass}@{dbhost}/{dbname}'.format(
-    dbuser=os.environ['DBUSER'],
-    dbpass=os.environ['DBPASS'],
-    dbhost=os.environ['DBHOST'] + ".postgres.database.azure.com",
-    dbname=os.environ['DBNAME']
+    dbuser=conn_str_params['user'],
+    dbpass=conn_str_params['password'],
+    dbhost=conn_str_params['host'],
+    dbname=conn_str_params['dbname']
 )
