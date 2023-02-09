@@ -1,6 +1,6 @@
 python-dotenv
 flask
-sqlalchemy
+sqlalchemy==1.4
 flask-sqlalchemy
 bcrypt
 psycopg2

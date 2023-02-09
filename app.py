@@ -22,9 +22,6 @@ load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR")
 app.secret_key = 'super secret key'
 
-
-
-
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.login_view = 'login'
@@ -787,11 +784,12 @@ def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
     None.
 
     """
+    db = SQLAlchemy(app)
     df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
     df1=df[0:len(df)//4]
     df2=df[len(df)//4:2*len(df)//4]
     df3=df[2*len(df)//4:3*len(df)//4]
-    df4=df[3*len(df)//8:]
+    df4=df[3*len(df)//4:]
     qry_magasin=db.engine.execute("select * from produits")
     qry2 = dict(((x[0],x[1]),{colonne_id_magasin:x[0],
                               colonne_id_produit:x[1],
