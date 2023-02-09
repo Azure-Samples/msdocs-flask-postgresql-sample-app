@@ -11,3 +11,4 @@ flask-apscheduler
 xlsxwriter
 datetime
 flask_login
+asyncio

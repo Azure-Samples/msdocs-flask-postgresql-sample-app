@@ -756,6 +756,7 @@ def get_or_create_event_loop():
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             return asyncio.get_event_loop()
+
     
 def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
@@ -917,4 +918,4 @@ def create_hash(mdp):
 
 
 if __name__ == '__main__':
-    app.run(port=8080,debug=True)
+    app.run(port=8080,debug=False)
