@@ -106,10 +106,7 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     name: 'appsettings'
     properties: {
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
-      DBHOST: postgresServer.name
-      DBNAME: flaskDatabase.name
-      DBUSER: postgresServer.properties.administratorLogin
-      DBPASS: databasePassword
+      AZURE_POSTGRESQL_CONNECTIONSTRING: 'dbname=${flaskDatabase.name} host=${postgresServer.name}.postgres.database.azure.com port=5432 sslmode=require user=${postgresServer.properties.administratorLogin} password=${databasePassword}'
       SECRET_KEY: secretKey
       FLASK_DEBUG: 'False'
     }
