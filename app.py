@@ -784,7 +784,6 @@ def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
     None.
 
     """
-    db = SQLAlchemy(app)
     df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
     df1=df[0:len(df)//4]
     df2=df[len(df)//4:2*len(df)//4]
