@@ -548,13 +548,12 @@ def upload_file():
     if request.files['file'].filename != '': # check if file doesn't exist
         print("passe2")
         file = request.files['file']
-        #try: # check if the file has a good format
-        #update_or_insert(file)
-        update_or_insert(file)
-        print("passe3")
-        message=2
-        #except:
-            #message=1
+        try: # check if the file has a good format
+            update_or_insert(file)
+            print("passe3")
+            message=2
+        except:
+            message=1
     else:
         message=3
     print("passe_here")        
