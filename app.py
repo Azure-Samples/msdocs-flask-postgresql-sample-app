@@ -547,7 +547,7 @@ def upload_file():
     if request.files['file'].filename != '': # check if file doesn't exist
         file = request.files['file']
         df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
-        if len(df)>3500:
+        if len(df)>15000:
             message=4
         else:
             try: # check if the file has a good format
