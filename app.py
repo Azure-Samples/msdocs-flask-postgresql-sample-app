@@ -12,6 +12,8 @@ import pandas as pd
 import openpyxl
 import io
 from datetime import datetime
+import asyncio
+
 
 
 app = Flask(__name__,template_folder='templates')
@@ -19,14 +21,14 @@ app = Flask(__name__,template_folder='templates')
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv("UTILISATEUR")+":"+os.getenv("MDP")+"@"+os.getenv("SERVEUR")
 app.secret_key = 'super secret key'
+
+
+
+
 db = SQLAlchemy(app)
-scheduler = APScheduler()
-scheduler.api_enabled = True
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
-
-
 
 
 
@@ -101,46 +103,6 @@ class User_website(UserMixin,db.Model):
         self.status=status
         
 
-def maj_produits_manquants():
-    """
-    Daily update of the database produitsManquants
-
-    Returns
-    -------
-    None.
-
-    """
-    
-    print("Launch maj produits manquants")
-    qry_produits=db.engine.execute("select * from produits")
-    prod_dict = dict(((x[0],x[1]),{"id_magasin":x[0],
-                                   "id_article":x[1],
-                                   "carbone_kg":x[2],
-                                   "name":x[3],
-                                   "date":x[4],
-                                   "carbone_unite":x[5]}) for x in list(qry_produits))
-    #qry_produits_manquants=db.engine.execute(f"select * from produitsManquants")
-    #prod_manquants_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits_manquants))
-    qry_produits_manquants=ProduitsManquants.query.all()
-    prod_manquants_dict={}
-    for record in qry_produits_manquants:
-        prod_manquants_dict[(record.id_magasin,record.id_article)]={"id_magasin":record.id_magasin,
-                                                                    "id_article":record.id_article,
-                                                                    "date":record.date,
-                                                                    "name":record.name}
-    for key in prod_dict:
-        if key in prod_manquants_dict:
-            if prod_dict[key]["carbone_kg"]!=None or prod_dict[key]["carbone_unite"]!=None:
-                ProduitsManquants.query.filter_by(id_magasin=prod_dict[key]["id_magasin"],
-                                                  id_article=prod_dict[key]["id_article"]).delete()
-        else:
-            if prod_dict[key]["carbone_kg"]==None and prod_dict[key]["carbone_unite"]==None:
-                prod_temp=ProduitsManquants(prod_dict[key]["id_magasin"],
-                                            prod_dict[key]["id_article"],
-                                            prod_dict[key]["name"],
-                                            str(datetime.now().strftime("%d/%m/%Y")))
-                db.session.add(prod_temp) 
-    db.session.commit()
 
 @app.route('/drop_all')
 def drop_all():
@@ -249,7 +211,6 @@ def login_post():
     return render_template("home.html")
 
 @app.route('/logout')
-@login_required
 def logout():
     """
     Logout the user from the website
@@ -352,7 +313,6 @@ def del_user_post():
     
     
     user = User_website.query.filter_by(email=email).first() # if this returns a user, then the email already exists in database
-    print(user.email)
     if user == False: # if a user is not found, we want to redirect back to signup page so user can try again
         message=4    
         return render_template('add_user_website.html',message=message)
@@ -368,7 +328,6 @@ def del_user_post():
         # delete the user in the database
         User_website.query.filter_by(email=email).delete()
         db.session.commit()
-        print("passe")
     else:
         message=2
         return render_template('add_user_website.html',message=message)
@@ -587,16 +546,21 @@ def upload_file():
         .
 
     """
+    print("passe1")
     message=0 # message: 0:rien faire, 1:fichier uploade, 2:echec upload
     if request.files['file'].filename != '': # check if file doesn't exist
+        print("passe2")
         file = request.files['file']
-        try: # check if the file has a good format
-            update_or_insert(file)  
-            message=2
-        except:
-            message=1
+        #try: # check if the file has a good format
+        #update_or_insert(file)
+        update_or_insert(file)
+        print("passe3")
+        message=2
+        #except:
+            #message=1
     else:
-        message=3        
+        message=3
+    print("passe_here")        
     return render_template('index.html',message=message)
 
 
@@ -787,10 +751,15 @@ def password(id_magasin,password):
         result = bcrypt.checkpw(mdp_encoded, hashed)
     return result
     
-
+def get_or_create_event_loop():
+    try:
+        return asyncio.get_event_loop()
+    except RuntimeError as ex:
+        if "There is no current event loop in thread" in str(ex):
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            return asyncio.get_event_loop()
     
-
-
 def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
                        colonne_name=os.getenv("NAME"),
@@ -818,15 +787,51 @@ def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
     None.
 
     """
-    
     df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
-    qry_magasin=db.engine.execute(f"select * from produits")
+    df1=df[0:len(df)//4]
+    df2=df[len(df)//4:2*len(df)//4]
+    df3=df[2*len(df)//4:3*len(df)//4]
+    df4=df[3*len(df)//8:]
+    qry_magasin=db.engine.execute("select * from produits")
     qry2 = dict(((x[0],x[1]),{colonne_id_magasin:x[0],
                               colonne_id_produit:x[1],
                               colonne_carbone_kg:x[2],
                               colonne_name:x[3],
                               colonne_date:x[4],
                               colonne_carbone_unite:x[5]}) for x in list(qry_magasin))
+    
+    get_or_create_event_loop().run_until_complete(asyncio.gather(parcours_df(df1,qry2,colonne_carbone_kg=os.getenv("CARBONE_KG"),
+                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
+                        colonne_name=os.getenv("NAME"),
+                        colonne_id_magasin=os.getenv("ID_MAGASIN"),
+                        colonne_id_produit=os.getenv("ID_ARTICLE"),
+                        colonne_date=os.getenv("DATE")),parcours_df(df2,qry2,colonne_carbone_kg=os.getenv("CARBONE_KG"),
+                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
+                        colonne_name=os.getenv("NAME"),
+                        colonne_id_magasin=os.getenv("ID_MAGASIN"),
+                        colonne_id_produit=os.getenv("ID_ARTICLE"),
+                        colonne_date=os.getenv("DATE")),parcours_df(df3,qry2,colonne_carbone_kg=os.getenv("CARBONE_KG"),
+                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
+                        colonne_name=os.getenv("NAME"),
+                        colonne_id_magasin=os.getenv("ID_MAGASIN"),
+                        colonne_id_produit=os.getenv("ID_ARTICLE"),
+                        colonne_date=os.getenv("DATE")),parcours_df(df4,qry2,colonne_carbone_kg=os.getenv("CARBONE_KG"),
+                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
+                        colonne_name=os.getenv("NAME"),
+                        colonne_id_magasin=os.getenv("ID_MAGASIN"),
+                        colonne_id_produit=os.getenv("ID_ARTICLE"),
+                        colonne_date=os.getenv("DATE"))
+                        ))
+                    
+    task_maj_produits_manquants()
+
+    
+async def parcours_df(df,qry2,colonne_carbone_kg=os.getenv("CARBONE_KG"),
+                   colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
+                   colonne_name=os.getenv("NAME"),
+                   colonne_id_magasin=os.getenv("ID_MAGASIN"),
+                   colonne_id_produit=os.getenv("ID_ARTICLE"),
+                   colonne_date=os.getenv("DATE")): 
     for i in range(len(df)):
         key_id=(df.iloc[i][colonne_id_magasin],df.iloc[i][colonne_id_produit])
         if key_id in qry2:
@@ -847,8 +852,48 @@ def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
                           str(df.iloc[i][colonne_carbone_unite]))
             db.session.add(prod)
     db.session.commit()
-    maj_produits_manquants()
+        
+    
+def task_maj_produits_manquants():
+    """
+    Update of the database produitsManquants
 
+    Returns
+    -------
+    None.
+
+    """
+    
+    print("Launch maj produits manquants")
+    qry_produits=db.engine.execute("select * from produits")
+    prod_dict = dict(((x[0],x[1]),{"id_magasin":x[0],
+                                   "id_article":x[1],
+                                   "carbone_kg":x[2],
+                                   "name":x[3],
+                                   "date":x[4],
+                                   "carbone_unite":x[5]}) for x in list(qry_produits))
+    #qry_produits_manquants=db.engine.execute(f"select * from produitsManquants")
+    #prod_manquants_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits_manquants))
+    qry_produits_manquants=ProduitsManquants.query.all()
+    prod_manquants_dict={}
+    for record in qry_produits_manquants:
+        prod_manquants_dict[(record.id_magasin,record.id_article)]={"id_magasin":record.id_magasin,
+                                                                    "id_article":record.id_article,
+                                                                    "date":record.date,
+                                                                    "name":record.name}
+    for key in prod_dict:
+        if key in prod_manquants_dict:
+            if prod_dict[key]["carbone_kg"]!=None or prod_dict[key]["carbone_unite"]!=None:
+                ProduitsManquants.query.filter_by(id_magasin=prod_dict[key]["id_magasin"],
+                                                  id_article=prod_dict[key]["id_article"]).delete()
+        else:
+            if prod_dict[key]["carbone_kg"]==None and prod_dict[key]["carbone_unite"]==None:
+                prod_temp=ProduitsManquants(prod_dict[key]["id_magasin"],
+                                            prod_dict[key]["id_article"],
+                                            prod_dict[key]["name"],
+                                            str(datetime.now().strftime("%d/%m/%Y")))
+                db.session.add(prod_temp) 
+    db.session.commit()
 
 def create_hash(mdp):
     """
