@@ -540,23 +540,24 @@ def upload_file():
     Returns
     -------
     Template index.html
-        .
+        
 
     """
-    print("passe1")
     message=0 # message: 0:rien faire, 1:fichier uploade, 2:echec upload
     if request.files['file'].filename != '': # check if file doesn't exist
-        print("passe2")
         file = request.files['file']
-        try: # check if the file has a good format
-            update_or_insert(file)
-            print("passe3")
-            message=2
-        except:
-            message=1
+        df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
+        if len(df)>3500:
+            message=4
+        else:
+            try: # check if the file has a good format
+                update_or_insert(df)
+                message=2
+            except:
+                message=1
     else:
         message=3
-    print("passe_here")        
+    
     return render_template('index.html',message=message)
 
 
@@ -757,7 +758,7 @@ def get_or_create_event_loop():
             return asyncio.get_event_loop()
 
     
-def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
+def update_or_insert(df,colonne_carbone_kg=os.getenv("CARBONE_KG"),
                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
                        colonne_name=os.getenv("NAME"),
                        colonne_id_magasin=os.getenv("ID_MAGASIN"),
@@ -784,7 +785,7 @@ def update_or_insert(lien,colonne_carbone_kg=os.getenv("CARBONE_KG"),
     None.
 
     """
-    df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
+    
     df1=df[0:len(df)//4]
     df2=df[len(df)//4:2*len(df)//4]
     df3=df[2*len(df)//4:3*len(df)//4]
