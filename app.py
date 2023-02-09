@@ -546,7 +546,7 @@ def upload_file():
     message=0 # message: 0:rien faire, 1:fichier uploade, 2:echec upload
     if request.files['file'].filename != '': # check if file doesn't exist
         file = request.files['file']
-        df=pd.read_excel(lien,header=0, names=None, index_col=None, usecols=None)
+        df=pd.read_excel(file,header=0, names=None, index_col=None, usecols=None)
         if len(df)>15000:
             message=4
         else:
