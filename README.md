@@ -34,7 +34,7 @@ Steps for running the server:
 2. Install the requirements:
 
     ```shell
-    pip install -r requirements.txt
+    python3 -m pip install -r requirements.txt
     ```
 
 3. Create an `.env` file using `.env.sample` as a guide. Set the value of `DBNAME` to the name of an existing database in your local PostgreSQL instance. Set the values of `DBHOST`, `DBUSER`, and `DBPASS` as appropriate for your local PostgreSQL instance. If you're in the devcontainer, copy the values from `.env.sample.devcontainer`.
@@ -42,13 +42,13 @@ Steps for running the server:
 4. Run the migrations:
 
     ```shell
-    flask db upgrade
+    python3 -m flask db upgrade
     ```
 
 5. Run the local server: (or use VS Code "Run" button and select "Run server")
 
     ```shell
-    flask run
+    python3 -m flask run
     ```
 
 ### Deployment
