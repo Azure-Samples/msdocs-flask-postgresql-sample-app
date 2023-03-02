@@ -756,24 +756,25 @@ def upload_file():
     if request.files['file'].filename != '': # check if file doesn't exist
         file = request.files['file']
         df=pd.read_excel(file,header=0, names=None, index_col=None, usecols=None)
+        df["date"]=pd.Timestamp.today().strftime("%d/%m/%Y")
         qry_sql=pd.read_sql(sql="select * from produits",con=db.engine) # base magasin
         
         if len(qry_sql)==0:
             print("passe1")
             qry_sql = pd.DataFrame(columns=["id_article","id_magasin","date","name","carbone_kg","carbone_unite"],index=None) # mettre colonne dans le bon ordre
-        #if ((len(qry_sql.columns.difference(df.columns))==0) and (len(df.columns.difference(qry_sql.columns))==0)):
-            #try: # check if the file has a good format
-        print("passe2")
-        df_append=pd.concat([qry_sql,df],axis=0,ignore_index=True)
-        df_reduced=df_append.drop_duplicates(subset=["id_article","id_magasin"],keep="last")
-        df_reduced.to_sql(name="produits",con=db.engine,if_exists="replace",index=False)            
-        task_maj_produits_manquants()
-        message=2
-            #except:
-            #    print("passe3")
-            #message=1
-        #else:
-        #    message=1
+        if ((len(qry_sql.columns.difference(df.columns))==0) and (len(df.columns.difference(qry_sql.columns))==0)):
+            try: # check if the file has a good format
+                print("passe2")
+                df_append=pd.concat([qry_sql,df],axis=0,ignore_index=True)
+                df_reduced=df_append.drop_duplicates(subset=["id_article","id_magasin"],keep="last")
+                df_reduced.to_sql(name="produits",con=db.engine,if_exists="replace",index=False)            
+                task_maj_produits_manquants()
+                message=2
+            except:
+                print("passe3")
+                message=1
+        else:
+           message=1
     else:
         message=3
     return render_template('index.html',message=message)
