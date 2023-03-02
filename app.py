@@ -530,35 +530,7 @@ def index():
     """
     return render_template('index.html')
 
-@app.route('/excelupload',methods=['POST'])
-@login_required
-def upload_file():
-    
-    """
-    endpoint to sent the excel file for an update of the database
 
-    Returns
-    -------
-    Template index.html
-        
-
-    """
-    message=0 # message: 0:rien faire, 1:fichier uploade, 2:echec upload
-    if request.files['file'].filename != '': # check if file doesn't exist
-        file = request.files['file']
-        df=pd.read_excel(file,header=0, names=None, index_col=None, usecols=None)
-        if len(df)>15000:
-            message=4
-        else:
-            try: # check if the file has a good format
-                update_or_insert(df)
-                message=2
-            except:
-                message=1
-    else:
-        message=3
-    
-    return render_template('index.html',message=message)
 
 
 
@@ -574,11 +546,15 @@ def download_everything():
         DESCRIPTION.
 
     """
+    
+    """
     qry=Produits.query.all()
     df = pd.DataFrame()
     for record in qry:
         df1=pd.DataFrame({'id_article':record.id_article, 'id_magasin':record.id_magasin,'date':record.date, 'name' :record.name,'carbone_kg':record.carbone_kg,'carbone_unite':record.carbone_unite},index=[1])
         df=pd.concat([df,df1],ignore_index=True)
+    """
+    df=pd.read_sql(sql="select * from produits",con=db.engine)
     
     # Creating output and writer (pandas excel writer)
     out = io.BytesIO()
@@ -637,11 +613,13 @@ def download_file(colonne_carbone_kg=os.getenv("CARBONE_KG"),
         DESCRIPTION.
 
     """
-    qry=ProduitsManquants.query.all()
-    df = pd.DataFrame()
-    for record in qry:
-        df1=pd.DataFrame({colonne_id_produit:record.id_article,colonne_id_magasin :record.id_magasin,colonne_date:record.date, colonne_name :record.name,colonne_carbone_kg:None,colonne_carbone_unite:None},index=[1])
-        df=pd.concat([df,df1],ignore_index=True)
+
+    try:
+        df=pd.read_sql(sql="select * from produitsManquants",con=db.engine)
+    except:
+        df = pd.DataFrame(columns=["id_article","id_magasin","date","name","carbone_kg","carbone_unite"],index=None)
+        
+        
     
     # Creating output and writer (pandas excel writer)
     out = io.BytesIO()
@@ -758,100 +736,63 @@ def get_or_create_event_loop():
             return asyncio.get_event_loop()
 
     
-def update_or_insert(df,colonne_carbone_kg=os.getenv("CARBONE_KG"),
-                       colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
-                       colonne_name=os.getenv("NAME"),
-                       colonne_id_magasin=os.getenv("ID_MAGASIN"),
-                       colonne_id_produit=os.getenv("ID_ARTICLE"),
-                       colonne_date=os.getenv("DATE")):
-    """
-    insert in the produits database the information in an excel
 
-    Parameters
-    ----------
-    lien : string
-        link for the excel file
-    colonne_carbone : string
-        name of the carbon column in the excel
-    colonne_name : string
-        name of the name column in the excel
-    colonne_id_magasin : string
-        name of the magasin column in the excel
-    colonne_id_produit : string
-        name of the id product column
+ 
+    
+@app.route('/excelupload',methods=['POST'])
+@login_required
+def upload_file():
+    
+    """
+    endpoint to sent the excel file for an update of the database
 
     Returns
     -------
-    None.
+    Template index.html
+        
 
     """
-    
-    df1=df[0:len(df)//4]
-    df2=df[len(df)//4:2*len(df)//4]
-    df3=df[2*len(df)//4:3*len(df)//4]
-    df4=df[3*len(df)//4:]
-    qry_magasin=db.engine.execute("select * from produits")
-    qry2 = dict(((x[0],x[1]),{colonne_id_magasin:x[0],
-                              colonne_id_produit:x[1],
-                              colonne_carbone_kg:x[2],
-                              colonne_name:x[3],
-                              colonne_date:x[4],
-                              colonne_carbone_unite:x[5]}) for x in list(qry_magasin))
-    
-    get_or_create_event_loop().run_until_complete(asyncio.gather(parcours_df(df1,qry2,colonne_carbone_kg=os.getenv("CARBONE_KG"),
-                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
-                        colonne_name=os.getenv("NAME"),
-                        colonne_id_magasin=os.getenv("ID_MAGASIN"),
-                        colonne_id_produit=os.getenv("ID_ARTICLE"),
-                        colonne_date=os.getenv("DATE")),parcours_df(df2,qry2,colonne_carbone_kg=os.getenv("CARBONE_KG"),
-                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
-                        colonne_name=os.getenv("NAME"),
-                        colonne_id_magasin=os.getenv("ID_MAGASIN"),
-                        colonne_id_produit=os.getenv("ID_ARTICLE"),
-                        colonne_date=os.getenv("DATE")),parcours_df(df3,qry2,colonne_carbone_kg=os.getenv("CARBONE_KG"),
-                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
-                        colonne_name=os.getenv("NAME"),
-                        colonne_id_magasin=os.getenv("ID_MAGASIN"),
-                        colonne_id_produit=os.getenv("ID_ARTICLE"),
-                        colonne_date=os.getenv("DATE")),parcours_df(df4,qry2,colonne_carbone_kg=os.getenv("CARBONE_KG"),
-                        colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
-                        colonne_name=os.getenv("NAME"),
-                        colonne_id_magasin=os.getenv("ID_MAGASIN"),
-                        colonne_id_produit=os.getenv("ID_ARTICLE"),
-                        colonne_date=os.getenv("DATE"))
-                        ))
-                    
-    task_maj_produits_manquants()
+    message=0 # message: 0:rien faire, 2:fichier uploade, 1:echec upload
+    if request.files['file'].filename != '': # check if file doesn't exist
+        file = request.files['file']
+        df=pd.read_excel(file,header=0, names=None, index_col=None, usecols=None)
+        qry_sql=pd.read_sql(sql="select * from produits",con=db.engine) # base magasin
+        
+        if len(qry_sql)==0:
+            print("passe1")
+            qry_sql = pd.DataFrame(columns=["id_article","id_magasin","date","name","carbone_kg","carbone_unite"],index=None) # mettre colonne dans le bon ordre
+        if ((len(qry_sql.columns.difference(df.columns))==0) and (len(df.columns.difference(qry_sql.columns))==0)):
+            try: # check if the file has a good format
+                print("passe2")
+                df_append=pd.concat([qry_sql,df],axis=0,ignore_index=True)
+                df_reduced=df_append.drop_duplicates(subset=["id_article","id_magasin"],keep="last")
+                df_reduced.to_sql(name="produits",con=db.engine,if_exists="replace",index=False)            
+                task_maj_produits_manquants()
+                message=2
+            except:
+                print("passe3")
+                message=1
+        else:
+            message=1
+    else:
+        message=3
+    return render_template('index.html',message=message)
 
     
-async def parcours_df(df,qry2,colonne_carbone_kg=os.getenv("CARBONE_KG"),
-                   colonne_carbone_unite=os.getenv("CARBONE_UNITE"),
-                   colonne_name=os.getenv("NAME"),
-                   colonne_id_magasin=os.getenv("ID_MAGASIN"),
-                   colonne_id_produit=os.getenv("ID_ARTICLE"),
-                   colonne_date=os.getenv("DATE")): 
-    for i in range(len(df)):
-        key_id=(df.iloc[i][colonne_id_magasin],df.iloc[i][colonne_id_produit])
-        if key_id in qry2:
-            if str(df.iloc[i][colonne_carbone_kg])!=str(qry2[key_id][colonne_carbone_kg]) or str(df.iloc[i][colonne_name])!=str(qry2[key_id][colonne_name]) or str(df.iloc[i][colonne_carbone_unite])!=str(qry2[key_id][colonne_carbone_unite]) :
-                update_elem=Produits.query.filter_by(id_magasin=int(df.iloc[i][colonne_id_magasin]),
-                                                     id_article=int(df.iloc[i][colonne_id_produit])).first()
-                update_elem.name=str(df.iloc[i][colonne_name])
-                update_elem.carbone_unite=str(df.iloc[i][colonne_carbone_unite])
-                update_elem.carbone_kg=str(df.iloc[i][colonne_carbone_kg])
-                update_elem.date=str(datetime.now().strftime("%d/%m/%Y"))
-                db.session.commit()
-        else:
-            prod=Produits(int(df.iloc[i][colonne_id_magasin]),
-                          int(df.iloc[i][colonne_id_produit]),
-                          str(df.iloc[i][colonne_carbone_kg]),
-                          str(df.iloc[i][colonne_name]),
-                          str(datetime.now().strftime("%d/%m/%Y")),
-                          str(df.iloc[i][colonne_carbone_unite]))
-            db.session.add(prod)
-    db.session.commit()
-        
+
     
+    
+    
+    
+@app.route('/test',methods=['GET'])
+@login_required
+def test():
+    print(db.engine.table_names())
+    result=db.engine.execute("drop table if exists produits")
+    db.create_all()
+    return {"statut":"done"}
+     
+   
 def task_maj_produits_manquants():
     """
     Update of the database produitsManquants
