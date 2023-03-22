@@ -39,13 +39,18 @@ Steps for running the server:
 
 3. Create an `.env` file using `.env.sample` as a guide. Set the value of `DBNAME` to the name of an existing database in your local PostgreSQL instance. Set the values of `DBHOST`, `DBUSER`, and `DBPASS` as appropriate for your local PostgreSQL instance. If you're in the devcontainer, copy the values from `.env.sample.devcontainer`.
 
-4. Run the migrations:
+4. In the `.env` file, fill in a secret value for `SECRET_KEY`. You can use this command to generate an appropriate value:
+
+    ```shell
+    python -c 'import secrets; print(secrets.token_hex())'
+
+5. Run the migrations:
 
     ```shell
     python3 -m flask db upgrade
     ```
 
-5. Run the local server: (or use VS Code "Run" button and select "Run server")
+6. Run the local server: (or use VS Code "Run" button and select "Run server")
 
     ```shell
     python3 -m flask run
