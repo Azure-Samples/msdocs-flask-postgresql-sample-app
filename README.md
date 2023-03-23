@@ -43,6 +43,7 @@ Steps for running the server:
 
     ```shell
     python -c 'import secrets; print(secrets.token_hex())'
+    ```
 
 5. Run the migrations:
 
