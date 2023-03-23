@@ -29,4 +29,4 @@ class Review(db.Model):
         return value
 
     def __str__(self):
-        return f"{self.restaurant.name} ({self.review.date:%x})"
+        return f"{self.user_name}: {self.review_date:%x}"
