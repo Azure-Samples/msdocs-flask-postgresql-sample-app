@@ -6,7 +6,7 @@ bcrypt
 psycopg2
 pandas
 pyodbc
-openpyxl
+openpyxl==3.1.0
 flask-apscheduler
 xlsxwriter
 datetime
