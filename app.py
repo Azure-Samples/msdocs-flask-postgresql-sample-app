@@ -56,7 +56,7 @@ class ProduitsManquants(db.Model):
     """
     Declaration of the table produitManquants that contained every products of the shop that are actually in the database
     """
-    __tablename__ = 'produitsManquants'
+    __tablename__ = 'produits_manquants'
     id_magasin = db.Column(db.Integer,primary_key=True)
     id_article = db.Column(db.BigInteger,primary_key=True)
     name = db.Column(db.String())
@@ -104,6 +104,10 @@ class User_website(UserMixin,db.Model):
 @app.route('/drop_all')
 def drop_all():
     db.drop_all()
+    
+@app.route('/create_all')
+def create_all():
+    db.create_all()
 
 @app.route('/')
 def home():
@@ -492,6 +496,15 @@ def process_json():
 
             new_json=[] # liste contenant la liste des produits à renvoyer
             try:
+
+                produit_manquant_exist=ProduitsManquants.query.all()
+                if len(produit_manquant_exist)==0: # create the user if the base is empty
+                    new_pm = ProduitsManquants(1,0, "creation table", str(datetime.now().strftime("%Y-%m-%d")))
+                    # add the new user to the database
+                    db.session.add(new_pm)
+                    db.session.commit()
+
+                bdd_produitsManquants=pd.read_sql(sql="select * from produits_manquants",con=db.engine)
                 for i in json_data['data']:
                     if str(i["id_article"]) in qry4:
                         new_json.append({"id_article":i["id_article"],'carbone_kg':qry3[i["id_article"]]["carbone_kg"],'carbone_unite':qry3[i["id_article"]]["carbone_unite"]})
@@ -499,11 +512,15 @@ def process_json():
                         # ajouter au json de retour
                         new_json.append({"id_article":i["id_article"],'carbone_kg':None,'carbone_unite':None})
                         # ajouter à la base des produits manquants et des produits
-                        produitsManquants =  ProduitsManquants(int(id_magasin), int(i["id_article"]),str(i["name"]),str(datetime.now().strftime("%d/%m/%Y")))# cree l'element qu'on n a pas dans produits
-                        db.session.add(produitsManquants) 
-                        produits =  Produits(int(id_magasin), int(i["id_article"]),None,str(i["name"]),str(datetime.now().strftime("%d/%m/%Y")),None)# cree l'element qu'on n a pas dans produits manquants
+                        
+                        produits =  Produits(int(id_magasin), int(i["id_article"]),None,str(i["name"]),str(datetime.now().strftime("%Y-%m-%d")),None)# cree l'element qu'on n a pas dans produits manquants
                         db.session.add(produits) 
-                db.session.commit()
+                        db.session.commit()
+
+                        dict_temp={"id_magasin":int(id_magasin),"id_article": int(i["id_article"]),"name":str(i["name"]),"date":str(datetime.now().strftime("%Y-%m-%d"))}
+                        bdd_produitsManquants=bdd_produitsManquants.append(dict_temp, ignore_index=True)
+                        
+                bdd_produitsManquants.to_sql(name="produits_manquants",con=db.engine,if_exists="replace",index=False)   
                 return_json["statut"]="ok"
                 return_json["data"]=new_json
             except(KeyError):
@@ -615,8 +632,10 @@ def download_file(colonne_carbone_kg=os.getenv("CARBONE_KG"),
     """
 
     try:
-        df=pd.read_sql(sql="select * from produitsManquants",con=db.engine)
+        df=pd.read_sql(sql="select * from produits_manquants",con=db.engine)
+        print("passe ici2")
     except:
+        print("passe ici3")
         df = pd.DataFrame(columns=["id_article","id_magasin","date","name","carbone_kg","carbone_unite"],index=None)
         
         
