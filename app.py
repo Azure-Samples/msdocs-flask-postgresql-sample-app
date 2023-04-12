@@ -580,7 +580,7 @@ def download_everything():
    
     # Export data frame to excel
     df.to_excel(excel_writer=writer, index=False, sheet_name='Sheet1')
-    writer.save()
+    #writer.save()
     writer.close()
    
     # Flask create response 
@@ -647,7 +647,7 @@ def download_file(colonne_carbone_kg=os.getenv("CARBONE_KG"),
    
     # Export data frame to excel
     df.to_excel(excel_writer=writer, index=False, sheet_name='Page1')
-    writer.save()
+    #writer.save()
     writer.close()
 
    
