@@ -575,7 +575,7 @@ def download_everything():
     
     # Creating output and writer (pandas excel writer)
     out = io.BytesIO()
-    writer = pd.ExcelWriter(out, engine='xlsxwriter')
+    writer = pd.ExcelWriter(out, engine='openpyxl')
 
    
     # Export data frame to excel
@@ -642,7 +642,7 @@ def download_file(colonne_carbone_kg=os.getenv("CARBONE_KG"),
     
     # Creating output and writer (pandas excel writer)
     out = io.BytesIO()
-    writer = pd.ExcelWriter(out, engine='xlsxwriter')
+    writer = pd.ExcelWriter(out, engine='openpyxl')
 
    
     # Export data frame to excel
