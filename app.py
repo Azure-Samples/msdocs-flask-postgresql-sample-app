@@ -43,13 +43,37 @@ class Produits(db.Model):
     name = db.Column(db.String())
     date= db.Column(db.String())
 
-    def __init__(self, id_magasin,id_article, carbone_kg,name,date,carbone_unite):
+    conditionnement=db.Column(db.String)
+    nom_fournisseur=db.Column(db.String)
+    code_barres=db.Column(db.String)
+    origine=db.Column(db.String)
+    plus_commander=db.Column(db.String)
+
+    def __init__(self, 
+                 id_magasin,
+                 id_article, 
+                 carbone_kg,
+                 name,
+                 date,
+                 carbone_unite,
+                 conditionnement,
+                 nom_fournisseur,
+                 code_barres,
+                 origine,
+                 plus_commander
+                 ):
         self.id_magasin=id_magasin
         self.id_article=id_article
         self.carbone_kg = carbone_kg
         self.carbone_unite=carbone_unite
         self.name=name
         self.date=date
+        self.conditionnement=conditionnement
+        self.nom_fournisseur=nom_fournisseur
+        self.code_barres=code_barres
+        self.origine=origine
+        self.plus_commander=plus_commander
+
         
         
 class ProduitsManquants(db.Model):
@@ -62,11 +86,31 @@ class ProduitsManquants(db.Model):
     name = db.Column(db.String())
     date= db.Column(db.String())
 
-    def __init__(self, id_magasin,id_article,name,date):
+    conditionnement=db.Column(db.String)
+    nom_fournisseur=db.Column(db.String)
+    code_barres=db.Column(db.String)
+    origine=db.Column(db.String)
+    plus_commander=db.Column(db.String)
+
+    def __init__(self, 
+                 id_magasin,
+                 id_article,
+                 name,
+                 date,
+                 conditionnement,
+                 nom_fournisseur,
+                 code_barres,
+                 origine,
+                 plus_commander):
         self.id_magasin=id_magasin
         self.id_article=id_article
         self.name=name
         self.date=date
+        self.conditionnement=conditionnement
+        self.nom_fournisseur=nom_fournisseur
+        self.code_barres=code_barres
+        self.origine=origine
+        self.plus_commander=plus_commander
 
 class Utilisateur(db.Model):
     """
@@ -392,13 +436,20 @@ def select_3():
         qry=Produits.query.filter_by(id_magasin=id_magasin).filter_by(id_article=id_article)
         print(qry)
         return {'data': [
-         {'id_article':record.id_article, 
-          'id_magasin':record.id_magasin, 
-          'name' :record.name,
-          'carbone_kg' :record.carbone_kg,
-          'carbone_unite' :record.carbone_unite,
-          'date':record.date}
-        for record in qry
+            {
+            'id_article':record.id_article, 
+            'id_magasin':record.id_magasin, 
+            'name' :record.name,
+            'carbone_kg' :record.carbone_kg,
+            'carbone_unite' :record.carbone_unite,
+            'date':record.date,
+            'conditionnement':record.conditionnement,
+            'nom_fournisseur':record.nom_fournisseur,
+            'code_barres':record.code_barres,
+            'origine':record.origine,
+            'plus_commander':record.plus_commander
+            }
+            for record in qry
        ]}
     else:
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
@@ -428,7 +479,12 @@ def select_4():
           'name' :record.name,
           'carbone_kg' :record.carbone_kg,
           'carbone_unite' :record.carbone_unite,
-          'date':record.date}
+          'date':record.date,
+          'conditionnement':record.conditionnement,
+          'nom_fournisseur':record.nom_fournisseur,
+          'code_barres':record.code_barres,
+          'origine':record.origine,
+          'plus_commander':record.plus_commander}
         for record in qry
        ]}
     else:
@@ -499,7 +555,7 @@ def process_json():
 
                 produit_manquant_exist=ProduitsManquants.query.all()
                 if len(produit_manquant_exist)==0: # create the user if the base is empty
-                    new_pm = ProduitsManquants(1,0, "creation table", str(datetime.now().strftime("%Y-%m-%d")))
+                    new_pm = ProduitsManquants(0,0, "creation table", str(datetime.now().strftime("%Y-%m-%d")),None,None,None,None,None)
                     # add the new user to the database
                     db.session.add(new_pm)
                     db.session.commit()
@@ -512,12 +568,31 @@ def process_json():
                         # ajouter au json de retour
                         new_json.append({"id_article":i["id_article"],'carbone_kg':None,'carbone_unite':None})
                         # ajouter à la base des produits manquants et des produits
-                        
-                        produits =  Produits(int(id_magasin), int(i["id_article"]),None,str(i["name"]),str(datetime.now().strftime("%Y-%m-%d")),None)# cree l'element qu'on n a pas dans produits manquants
+                        produits =  Produits(int(id_magasin), 
+                                                int(i["id_article"]),
+                                                None,
+                                                str(i["name"]),
+                                                str(datetime.now().strftime("%Y-%m-%d")),
+                                                None,
+                                                str(i["conditionnement"]),
+                                                str(i["nom_fournisseur"]),
+                                                str(i["code_barres"]),
+                                                str(i["origine"]),
+                                                str(i["plus_commander"]))
+                        # cree l'element qu'on n a pas dans produits manquants
                         db.session.add(produits) 
                         db.session.commit()
 
-                        dict_temp={"id_magasin":int(id_magasin),"id_article": int(i["id_article"]),"name":str(i["name"]),"date":str(datetime.now().strftime("%Y-%m-%d"))}
+                        dict_temp={"id_magasin":int(id_magasin),
+                                    "id_article": int(i["id_article"]),
+                                    "name":str(i["name"]),
+                                    "date":str(datetime.now().strftime("%Y-%m-%d")),
+                                    "conditionnement":str(i["conditionnement"]),
+                                    "nom_fournisseur":str(i["nom_fournisseur"]),
+                                    "code_barres":str(i["code_barres"]),
+                                    "origine":str(i["origine"]),
+                                    "plus_commander":str(i["plus_commander"])
+                                    }
                         bdd_produitsManquants=bdd_produitsManquants.append(dict_temp, ignore_index=True)
                         
                 bdd_produitsManquants.to_sql(name="produits_manquants",con=db.engine,if_exists="replace",index=False)   
@@ -564,13 +639,7 @@ def download_everything():
 
     """
     
-    """
-    qry=Produits.query.all()
-    df = pd.DataFrame()
-    for record in qry:
-        df1=pd.DataFrame({'id_article':record.id_article, 'id_magasin':record.id_magasin,'date':record.date, 'name' :record.name,'carbone_kg':record.carbone_kg,'carbone_unite':record.carbone_unite},index=[1])
-        df=pd.concat([df,df1],ignore_index=True)
-    """
+    
     df=pd.read_sql(sql="select * from produits",con=db.engine)
     
     # Creating output and writer (pandas excel writer)
@@ -636,7 +705,7 @@ def download_file(colonne_carbone_kg=os.getenv("CARBONE_KG"),
         print("passe ici2")
     except:
         print("passe ici3")
-        df = pd.DataFrame(columns=["id_article","id_magasin","date","name","carbone_kg","carbone_unite"],index=None)
+        df = pd.DataFrame(columns=["id_article","id_magasin","date","name","carbone_kg","carbone_unite","conditionnement","nom_fournisseur","code_barres","origine","plus_commander"],index=None)
         
         
     
@@ -781,7 +850,7 @@ def upload_file():
         
         if len(qry_sql)==0:
             print("passe1")
-            qry_sql = pd.DataFrame(columns=["id_article","id_magasin","date","name","carbone_kg","carbone_unite"],index=None) # mettre colonne dans le bon ordre
+            qry_sql = pd.DataFrame(columns=["id_article","id_magasin","date","name","carbone_kg","carbone_unite","conditionnement","nom_fournisseur","code_barres","origine","plus_commander"],index=None) # mettre colonne dans le bon ordre
         if ((len(qry_sql.columns.difference(df.columns))==0) and (len(df.columns.difference(qry_sql.columns))==0)):
             try: # check if the file has a good format
                 print("passe2")
@@ -809,7 +878,8 @@ def upload_file():
 @login_required
 def test():
     print(db.engine.table_names())
-    result=db.engine.execute("drop table if exists produits")
+    db.engine.execute("drop table if exists produits")
+    db.engine.execute("drop table if exists produits_manquants")
     db.create_all()
     return {"statut":"done"}
      
@@ -831,7 +901,12 @@ def task_maj_produits_manquants():
                                    "carbone_kg":x[2],
                                    "name":x[3],
                                    "date":x[4],
-                                   "carbone_unite":x[5]}) for x in list(qry_produits))
+                                   "carbone_unite":x[5],
+                                   "conditionnement":x[6],
+                                   "nom_fournisseur":x[7],
+                                   "code_barres":x[8],
+                                   "origine":x[9],
+                                   "plus_commander":x[10]}) for x in list(qry_produits))
     #qry_produits_manquants=db.engine.execute(f"select * from produitsManquants")
     #prod_manquants_dict = dict(((x[0],x[1]),{"id_magasin":x[0],"id_article":x[1],"carbone":x[2],"name":x[3]}) for x in list(qry_produits_manquants))
     qry_produits_manquants=ProduitsManquants.query.all()
@@ -840,7 +915,12 @@ def task_maj_produits_manquants():
         prod_manquants_dict[(record.id_magasin,record.id_article)]={"id_magasin":record.id_magasin,
                                                                     "id_article":record.id_article,
                                                                     "date":record.date,
-                                                                    "name":record.name}
+                                                                    "name":record.name,
+                                                                    "conditionnement":record.conditionnement,
+                                                                    "nom_fournisseur":record.nom_fournisseur,
+                                                                    "code_barres":record.code_barres,
+                                                                    "origine":record.origine,
+                                                                    "plus_commander":record.plus_commander}
     for key in prod_dict:
         if key in prod_manquants_dict:
             if prod_dict[key]["carbone_kg"]!=None or prod_dict[key]["carbone_unite"]!=None:
@@ -851,7 +931,12 @@ def task_maj_produits_manquants():
                 prod_temp=ProduitsManquants(prod_dict[key]["id_magasin"],
                                             prod_dict[key]["id_article"],
                                             prod_dict[key]["name"],
-                                            str(datetime.now().strftime("%d/%m/%Y")))
+                                            str(datetime.now().strftime("%Y-%m-%d")),
+                                            prod_dict[key]["conditionnement"],
+                                            prod_dict[key]["nom_fournisseur"],
+                                            prod_dict[key]["code_barres"],
+                                            prod_dict[key]["origine"],
+                                            prod_dict[key]["plus_commander"],)
                 db.session.add(prod_temp) 
     db.session.commit()
 
