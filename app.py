@@ -544,19 +544,21 @@ def process_json():
                 return_json["data"]=[]
 
             # recupere la liste des produits du magasin (id_article + carbone)
-            qry2=None
-            with db.engine.connect() as conn:
-                qry2 = conn.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
-            #qry2 = db.engine.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
+            #qry2=None
+            #with db.engine.connect() as conn:
+            #    qry2 = conn.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
+            qry2 = db.engine.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
             qry_temp=list(qry2) # cree une copie car qry2 est un curseur
-            
+            print("qry_temp",qry_temp)
             qry3 = dict((x[0],{"carbone_kg":x[1],"carbone_unite":x[2]}) for x in list(qry_temp)) # cree un dictionnaire clé: id_article, valeur: carbone
+            print("qry3",qry_temp)
             qry4=list(map(lambda x: (str(x[0])),list(qry_temp))) # cree une liste des id_articles
-
+            print("qry4",qry4)
             new_json=[] # liste contenant la liste des produits à renvoyer
             try:
 
                 produit_manquant_exist=ProduitsManquants.query.all()
+                print("produit_manquant_exist",produit_manquant_exist)
                 if len(produit_manquant_exist)==0: # create the user if the base is empty
                     new_pm = ProduitsManquants(0,0, "creation table", str(datetime.now().strftime("%Y-%m-%d")),None,None,None,None,None)
                     # add the new user to the database
