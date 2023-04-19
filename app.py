@@ -544,7 +544,10 @@ def process_json():
                 return_json["data"]=[]
 
             # recupere la liste des produits du magasin (id_article + carbone)
-            qry2 = db.engine.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
+            qry2=None
+            with db.engine.connect() as conn:
+                qry2 = conn.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
+            #qry2 = db.engine.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
             qry_temp=list(qry2) # cree une copie car qry2 est un curseur
             
             qry3 = dict((x[0],{"carbone_kg":x[1],"carbone_unite":x[2]}) for x in list(qry_temp)) # cree un dictionnaire clé: id_article, valeur: carbone
@@ -893,6 +896,7 @@ def task_maj_produits_manquants():
     None.
 
     """
+
     
     print("Launch maj produits manquants")
     qry_produits=db.engine.execute("select * from produits")
