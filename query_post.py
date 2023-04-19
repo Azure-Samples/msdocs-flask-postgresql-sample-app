@@ -8,7 +8,7 @@ if __name__=="__main__":
     test = open(file)
     aff = json.load(test)
     #res = requests.post('https://tickarbone.azurewebsites.net/envoi_json', json=aff,headers=headers)
-    res = requests.post('http://localhost:8080/envoi_json', json=aff,headers=headers)
+    res = requests.post('https://tickarbone.azurewebsites.net/envoi_json', json=aff,headers=headers)
     if res.ok:
         print(res.json())
         #print(res)
