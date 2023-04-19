@@ -1,7 +1,7 @@
 python-dotenv==1.0.0
 flask==2.2.3
-SQLAlchemy==1.4.47
-flask-sqlalchemy==3.0.2
+SQLAlchemy==1.4.32
+flask-sqlalchemy==2.5.1
 bcrypt==4.0.1
 psycopg2==2.9.6
 pandas==1.5.3

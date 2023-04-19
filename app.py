@@ -491,6 +491,16 @@ def select_4():
         return {"statut":"nom d'utilisateur ou mot de passe incorrect."}
 
 
+
+
+
+
+
+
+
+
+
+
 # recevoir un json et l'afficher
 @app.route('/envoi_json',methods=['POST'])
 def process_json():
@@ -547,60 +557,54 @@ def process_json():
             #qry2=None
             #with db.engine.connect() as conn:
             #    qry2 = conn.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
+
             qry2 = db.engine.execute(f"select id_article,carbone_kg,carbone_unite from produits where id_magasin = {id_magasin}")
             qry_temp=list(qry2) # cree une copie car qry2 est un curseur
-            print("qry_temp",qry_temp)
             qry3 = dict((x[0],{"carbone_kg":x[1],"carbone_unite":x[2]}) for x in list(qry_temp)) # cree un dictionnaire clé: id_article, valeur: carbone
-            print("qry3",qry_temp)
             qry4=list(map(lambda x: (str(x[0])),list(qry_temp))) # cree une liste des id_articles
-            print("qry4",qry4)
             new_json=[] # liste contenant la liste des produits à renvoyer
             try:
+                with db.session() as session:
+                    produit_manquant_exist=db.session.query(ProduitsManquants).count()            
+                    if produit_manquant_exist==0: # create the user if the base is empty
+                        new_pm = ProduitsManquants(0,0, "creation table", str(datetime.now().strftime("%Y-%m-%d")),None,None,None,None,None)
+                        # add the new user to the database
+                        session.add(new_pm)
+                        session.commit()
+                    
+                    liste_produits=[]
+                    for i in json_data['data']:
+                        if str(i["id_article"]) in qry4:
+                            new_json.append({"id_article":i["id_article"],'carbone_kg':qry3[i["id_article"]]["carbone_kg"],'carbone_unite':qry3[i["id_article"]]["carbone_unite"]})
+                        else:
+                            # ajouter au json de retour
+                            new_json.append({"id_article":i["id_article"],'carbone_kg':None,'carbone_unite':None})
+                            # ajouter à la base des produits manquants et des produits
+                            liste_produits.append( Produits(int(id_magasin), 
+                                                    int(i["id_article"]),
+                                                    None,
+                                                    str(i["name"]),
+                                                    str(datetime.now().strftime("%Y-%m-%d")),
+                                                    None,
+                                                    str(i["conditionnement"]),
+                                                    str(i["nom_fournisseur"]),
+                                                    str(i["code_barres"]),
+                                                    str(i["origine"]),
+                                                    str(i["plus_commander"])))
+                            # cree l'element qu'on n a pas dans produits manquants
 
-                produit_manquant_exist=ProduitsManquants.query.all()
-                print("produit_manquant_exist",produit_manquant_exist)
-                if len(produit_manquant_exist)==0: # create the user if the base is empty
-                    new_pm = ProduitsManquants(0,0, "creation table", str(datetime.now().strftime("%Y-%m-%d")),None,None,None,None,None)
-                    # add the new user to the database
-                    db.session.add(new_pm)
-                    db.session.commit()
-
-                bdd_produitsManquants=pd.read_sql(sql="select * from produits_manquants",con=db.engine)
-                for i in json_data['data']:
-                    if str(i["id_article"]) in qry4:
-                        new_json.append({"id_article":i["id_article"],'carbone_kg':qry3[i["id_article"]]["carbone_kg"],'carbone_unite':qry3[i["id_article"]]["carbone_unite"]})
-                    else:
-                        # ajouter au json de retour
-                        new_json.append({"id_article":i["id_article"],'carbone_kg':None,'carbone_unite':None})
-                        # ajouter à la base des produits manquants et des produits
-                        produits =  Produits(int(id_magasin), 
-                                                int(i["id_article"]),
-                                                None,
-                                                str(i["name"]),
-                                                str(datetime.now().strftime("%Y-%m-%d")),
-                                                None,
-                                                str(i["conditionnement"]),
-                                                str(i["nom_fournisseur"]),
-                                                str(i["code_barres"]),
-                                                str(i["origine"]),
-                                                str(i["plus_commander"]))
-                        # cree l'element qu'on n a pas dans produits manquants
-                        db.session.add(produits) 
-                        db.session.commit()
-
-                        dict_temp={"id_magasin":int(id_magasin),
-                                    "id_article": int(i["id_article"]),
-                                    "name":str(i["name"]),
-                                    "date":str(datetime.now().strftime("%Y-%m-%d")),
-                                    "conditionnement":str(i["conditionnement"]),
-                                    "nom_fournisseur":str(i["nom_fournisseur"]),
-                                    "code_barres":str(i["code_barres"]),
-                                    "origine":str(i["origine"]),
-                                    "plus_commander":str(i["plus_commander"])
-                                    }
-                        bdd_produitsManquants=bdd_produitsManquants.append(dict_temp, ignore_index=True)
-                        
-                bdd_produitsManquants.to_sql(name="produits_manquants",con=db.engine,if_exists="replace",index=False)   
+                            liste_produits.append( ProduitsManquants(int(id_magasin), 
+                                                    int(i["id_article"]),
+                                                    str(i["name"]),
+                                                    str(datetime.now().strftime("%Y-%m-%d")),
+                                                    str(i["conditionnement"]),
+                                                    str(i["nom_fournisseur"]),
+                                                    str(i["code_barres"]),
+                                                    str(i["origine"]),
+                                                    str(i["plus_commander"])))  
+                            
+                    session.add_all(liste_produits)
+                    session.commit() 
                 return_json["statut"]="ok"
                 return_json["data"]=new_json
             except(KeyError):
@@ -612,6 +616,7 @@ def process_json():
     else:
         return_json["statut"]="nom d'utilisateur ou mot de passe incorrect."
         return_json["data"]=[]
+    db.session.remove()
     return return_json
 
 @app.route('/index')
@@ -877,17 +882,28 @@ def upload_file():
 
     
     
-    
+ 
     
 @app.route('/test',methods=['GET'])
-@login_required
 def test():
-    print(db.engine.table_names())
-    db.engine.execute("drop table if exists produits")
-    db.engine.execute("drop table if exists produits_manquants")
-    db.create_all()
+    #db.session.commit() 
+    #db.engine.execute("drop table if exists produits")
+    #db.engine.execute("drop table if exists produitsManquants")
+    #db.session.remove()
+    #db.drop_all()
+    #db.create_all()
+    #print(db.engine.table_names())
+    #el = User_website("seb.buquet@free.fr","ma99seb00","sebastien","admin")
+    #db.session.add(el)
+    #db.session.commit()
+    new_pm = ProduitsManquants(0,0, "creation table", str(datetime.now().strftime("%Y-%m-%d")),None,None,None,None,None)
+    # add the new user to the database
+    db.session.add(new_pm)
+    db.session.commit()
+            
+
     return {"statut":"done"}
-     
+
    
 def task_maj_produits_manquants():
     """
@@ -971,4 +987,4 @@ def create_hash(mdp):
 
 
 if __name__ == '__main__':
-    app.run(port=8080,debug=False)
+    app.run(port=8080,debug=True)
