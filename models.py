@@ -31,11 +31,24 @@ class Review(db.Model):
     def __str__(self):
         return f"{self.user_name}: {self.review_date:%x}"
 
+roles_users = db.Table('roles_users',
+        db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
+        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 
-class User(db.Model):
+class Users(db.Model):
+    __tablename__='users'
     id=Column(Integer,primary_key=True,autoincrement=True)
     username=Column(String(20),nullable=False,unique=True)
     password=Column(String(20),nullable=False)
     email = Column(String(100), unique=True)
     fs_uniquifier = Column(String(255), unique=True, nullable=False)
     admin= Column(Boolean,default=False)
+    roles = db.relationship('Role', secondary=roles_users,backref=db.backref('users_role', lazy='dynamic'))
+
+class Role(db.Model, RoleMixin):
+    __tablename__ = 'role'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
+
+user_datastore = SQLAlchemyUserDatastore(db, Users,Role)
