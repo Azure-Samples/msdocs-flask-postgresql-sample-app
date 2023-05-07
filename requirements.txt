@@ -1,6 +1,7 @@
 Flask
 Flask-Migrate
 Flask-SQLAlchemy
+Flask-Security-Too
 flask_wtf
 psycopg2
 python-dotenv
