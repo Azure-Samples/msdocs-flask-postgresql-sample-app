@@ -10,9 +10,16 @@ DATABASE_URI = 'postgresql+psycopg2://{dbuser}:{dbpass}@{dbhost}/{dbname}'.forma
     dbhost=os.environ['DBHOST'],
     dbname=os.environ['DBNAME']
 )
+SECRET_KEY =  "myappquantifie"
+SECURITY_TOKEN_MAX_AGE=3600
+SECURITY_UNAUTHORIZED_VIEW = None
+SECURITY_USERNAME_ENABLE=True
+SECURITY_TOKEN_AUTHENTICATION_HEADER="A-T"
+SECURITY_PASSWORD_SALT='secret'
+CORS_SUPPORTS_CREDENTIALS=True
+CORS_EXPOSE_HEADERS='A-T'
 
 TIME_ZONE = 'UTC'
 
 STATICFILES_DIRS = (str(BASE_DIR.joinpath('static')),)
 STATIC_URL = 'static/'
-
