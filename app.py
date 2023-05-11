@@ -32,67 +32,67 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # The import must be done after db initialization due to circular import issue
-from models import Restaurant, Review, Users
+from models import Appliance,Device,Users
 
 @app.route('/', methods=['GET'])
 def index():
     print('Request for index page received')
-    restaurants = Restaurant.query.all()
-    return render_template('index.html', restaurants=restaurants)
+    devices = Device.query.all()
+    return render_template('index.html', devices=devices)
 
 @app.route('/<int:id>', methods=['GET'])
 def details(id):
-    restaurant = Restaurant.query.where(Restaurant.id == id).first()
-    reviews = Review.query.where(Review.restaurant == id)
-    return render_template('details.html', restaurant=restaurant, reviews=reviews)
+    device = Device.query.where(Device.id == id).first()
+    appliances = Appliance.query.where(Appliance.device == id)
+    return render_template('details.html', device=device, appliances=appliances)
 
 @app.route('/create', methods=['GET'])
-def create_restaurant():
-    print('Request for add restaurant page received')
-    return render_template('create_restaurant.html')
+def create_device():
+    print('Request for add device page received')
+    return render_template('create_device.html')
 
 @app.route('/add', methods=['POST'])
 @csrf.exempt
-def add_restaurant():
+def add_device():
     try:
-        name = request.values.get('restaurant_name')
-        street_address = request.values.get('street_address')
-        description = request.values.get('description')
+        id = request.values.get('unique_id')
+        name = request.values.get('device_name')
+        location = request.values.get('device_location'))
     except (KeyError):
         # Redisplay the question voting form.
-        return render_template('add_restaurant.html', {
-            'error_message': "You must include a restaurant name, address, and description",
+        return render_template('add_device.html', {
+            'error_message': "You must include a device name, address, and description",
         })
     else:
-        restaurant = Restaurant()
-        restaurant.name = name
-        restaurant.street_address = street_address
-        restaurant.description = description
-        db.session.add(restaurant)
+        deice = Device()
+        device.name = name
+        device.location = location
+        device.id = id
+        db.session.add(device)
         db.session.commit()
 
-        return redirect(url_for('details', id=restaurant.id))
+        return redirect(url_for('details', id=device.id))
 
-@app.route('/review/<int:id>', methods=['POST'])
+@app.route('/appliance/<int:id>', methods=['POST'])
 @csrf.exempt
-def add_review(id):
+def add_appliance(id):
     try:
         user_name = request.values.get('user_name')
         rating = request.values.get('rating')
-        review_text = request.values.get('review_text')
+        appliance_text = request.values.get('appliance_text')
     except (KeyError):
         #Redisplay the question voting form.
-        return render_template('add_review.html', {
-            'error_message': "Error adding review",
+        return render_template('add_appliance.html', {
+            'error_message': "Error adding appliance",
         })
     else:
-        review = Review()
-        review.restaurant = id
-        review.review_date = datetime.now()
-        review.user_name = user_name
-        review.rating = int(rating)
-        review.review_text = review_text
-        db.session.add(review)
+        appliance = Appliance()
+        appliance.device = id
+        appliance.appliance_date = datetime.now()
+        appliance.user_name = user_name
+        appliance.rating = int(rating)
+        appliance.appliance_text = appliance_text
+        db.session.add(appliance)
         db.session.commit()
 
     return redirect(url_for('details', id=id))
@@ -100,17 +100,17 @@ def add_review(id):
 @app.context_processor
 def utility_processor():
     def star_rating(id):
-        reviews = Review.query.where(Review.restaurant == id)
+        appliances = Appliance.query.where(Appliance.device == id)
 
         ratings = []
-        review_count = 0
-        for review in reviews:
-            ratings += [review.rating]
-            review_count += 1
+        appliance_count = 0
+        for appliance in appliances:
+            ratings += [appliance.rating]
+            appliance_count += 1
 
         avg_rating = sum(ratings) / len(ratings) if ratings else 0
-        stars_percent = round((avg_rating / 5.0) * 100) if review_count > 0 else 0
-        return {'avg_rating': avg_rating, 'review_count': review_count, 'stars_percent': stars_percent}
+        stars_percent = round((avg_rating / 5.0) * 100) if appliance_count > 0 else 0
+        return {'avg_rating': avg_rating, 'appliance_count': appliance_count, 'stars_percent': stars_percent}
 
     return dict(star_rating=star_rating)
 
