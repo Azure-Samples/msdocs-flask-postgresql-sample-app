@@ -4,7 +4,13 @@ from datetime import datetime
 from flask import Flask, redirect, render_template, request, send_from_directory, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+
 from flask_wtf.csrf import CSRFProtect
+from flask_security import login_required,login_user,logout_user,auth_required,current_user
+from flask_security import Security,hash_password,verify_password
+from flask_cors import CORS
+
+from flask_restful import Api
 
 
 app = Flask(__name__, static_folder='static')
@@ -32,9 +38,45 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # The import must be done after db initialization due to circular import issue
-from models import Appliance,Device,Users
+from models import Appliance,Device,Users,user_datastore
 
-@app.route('/', methods=['GET'])
+#Security init
+security = Security(app, user_datastore)
+CORS(app)
+app.app_context().push()
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method=='POST':
+        uname=request.form.get('username')
+        passd=request.form.get('password')
+        try:
+            user=User.query.filter(User.username==uname).one()
+            print(verify_password(passd,user.password))
+        except Exception as e:
+            print(e)
+            return render_template('login.html',error='incorrect password or username')
+    if current_user.is_authenticated:
+        return index()
+    else:
+        return render_template('login.html')
+#---------------------------
+@app.route('/signup',methods=['GET','POST'])
+def signup():
+    if request.method=='POST':
+        uname=request.form.get('username')
+        passd=request.form.get('password')
+        email=request.form.get('email')
+        if uname not in [i.username for i in User.query.all()]:
+            # user=User(username=uname,password=passd,fs_uniquifier=bcrypt.gensalt())
+            user_datastore.create_user(username=uname,email=email, password=hash_password(passd))
+            # db.session.add(user)
+            db.session.commit()
+            return login()
+        return redirect('/notfound/User already exists.')
+    return render_template('signup.html')
+
+@app.route('/index', methods=['GET'])
 def index():
     print('Request for index page received')
     devices = Device.query.all()

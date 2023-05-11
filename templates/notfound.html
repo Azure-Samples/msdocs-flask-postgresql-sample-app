@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/static/main.css">
+    <title>EnvisionIoT</title>
+  </head>
+
+  <body>
+    <div class="error">
+      {% if error -%}
+      {% else %}
+      {% set error='404 Not found' %}
+      {% endif %}
+      <span>{{error}}</span>
+      <br>
+      <button type="button" name="back" onclick="javascrpt:history.back()">Go Back</button>
+      <button type="button" name="back"> <a href="/">Login</a> </button>
+      <button type="button" name="back"> <a href="/main">Home</a> </button>
+    </div>
+
+
+  </body>
+
+</html>
