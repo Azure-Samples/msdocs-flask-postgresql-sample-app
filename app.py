@@ -8,7 +8,7 @@ from flask_wtf.csrf import CSRFProtect
 
 
 app = Flask(__name__, static_folder='static')
-csrf = CSRFProtect(app)
+# csrf = CSRFProtect(app)
 
 # WEBSITE_HOSTNAME exists only in production environment
 if 'WEBSITE_HOSTNAME' not in os.environ:
@@ -52,7 +52,6 @@ def create_device():
     return render_template('create_device.html')
 
 @app.route('/add', methods=['POST'])
-@csrf.exempt
 def add_device():
     try:
         id = request.values.get('unique_id')
@@ -74,7 +73,6 @@ def add_device():
         return redirect(url_for('details', id=device.id))
 
 @app.route('/appliance/<int:id>', methods=['POST'])
-@csrf.exempt
 def add_appliance(id):
     try:
         user_name = request.values.get('user_name')

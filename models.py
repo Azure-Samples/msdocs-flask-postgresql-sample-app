@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Column, DateTime, ForeignKey, Integer,Float, String, Boolean
 from sqlalchemy.orm import validates
 from flask_security import UserMixin,RoleMixin,SQLAlchemyUserDatastore
 
@@ -16,8 +16,9 @@ roles_users = db.Table('roles_users',
 class Appliance(db.Model):
     __tablename__="appliance"
     id = Column(Integer, primary_key=True,autoincrement=True)
-    name = Column(String(8), unique=True, nullable=False)
-    state= Column(Boolean,default=False)
+    name = Column(String(8), nullable=False)
+    type = Column(String(10), nullable=False)
+    value= Column(Float,nullable=True)
     device_id= Column(Integer, ForeignKey('device.id'),nullable=False)
 
 class Device(db.Model):
