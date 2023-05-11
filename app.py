@@ -4,7 +4,6 @@ from datetime import datetime
 from flask import Flask, redirect, render_template, request, send_from_directory, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-
 from flask_wtf.csrf import CSRFProtect
 from flask_security import login_required,login_user,logout_user,auth_required,current_user
 from flask_security import Security,hash_password,verify_password
@@ -28,7 +27,7 @@ else:
 
 app.config.update(
     SQLALCHEMY_DATABASE_URI=app.config.get('DATABASE_URI'),
-    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    SQLALCHEMY_TRACK_MODIFICATIONS=True,
 )
 
 # Initialize the database connection
@@ -41,7 +40,7 @@ migrate = Migrate(app, db)
 from models import Appliance,Device,Users,user_datastore
 
 #Security init
-security = Security(app, user_datastore)
+security = Security(app,user_datastore)
 CORS(app)
 app.app_context().push()
 
@@ -51,12 +50,12 @@ def login():
         uname=request.form.get('username')
         passd=request.form.get('password')
         try:
-            user=User.query.filter(User.username==uname).one()
-            print(verify_password(passd,user.password))
+            user=Users.query.filter(Users.username==uname).first()
         except Exception as e:
             print(e)
             return render_template('login.html',error='incorrect password or username')
-    if current_user.is_authenticated:
+    if verify_password(passd,user.password):
+        login_user(user,True) #session login
         return index()
     else:
         return render_template('login.html')
@@ -67,10 +66,8 @@ def signup():
         uname=request.form.get('username')
         passd=request.form.get('password')
         email=request.form.get('email')
-        if uname not in [i.username for i in User.query.all()]:
-            # user=User(username=uname,password=passd,fs_uniquifier=bcrypt.gensalt())
+        if uname not in [i.username for i in Users.query.all()]:
             user_datastore.create_user(username=uname,email=email, password=hash_password(passd))
-            # db.session.add(user)
             db.session.commit()
             return login()
         return redirect('/notfound/User already exists.')

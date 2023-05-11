@@ -3,6 +3,8 @@ from sqlalchemy.orm import validates
 from flask_security import UserMixin,RoleMixin,SQLAlchemyUserDatastore
 
 from app import db
+
+
 class Role(db.Model, RoleMixin):
     __tablename__ = 'role'
     id = db.Column(db.Integer(), primary_key=True)
@@ -31,17 +33,17 @@ class Device(db.Model):
     def __str__(self):
         return self.name
 
-class Users(db.Model):
+class Users(db.Model, UserMixin):
     __tablename__='users'
     id=Column(Integer,primary_key=True,autoincrement=True)
     username=Column(String(20),nullable=False,unique=True)
-    password=Column(String(20),nullable=False)
+    password=Column(String(100),nullable=False)
     email = Column(String(100), unique=True)
     fs_uniquifier = Column(String(255), unique=True, nullable=False)
     user_devices= db.relationship('Device', backref='user', lazy=True)
     admin= Column(Boolean,default=False)
+    active = db.Column(db.Boolean())
     roles = db.relationship('Role', secondary=roles_users,backref=db.backref('users_role', lazy='dynamic'))
 
+user_datastore = SQLAlchemyUserDatastore(db,Users,Role)
 
-
-user_datastore = SQLAlchemyUserDatastore(db, Users,Role)
