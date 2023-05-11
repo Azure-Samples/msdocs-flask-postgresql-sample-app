@@ -57,14 +57,14 @@ def add_device():
     try:
         id = request.values.get('unique_id')
         name = request.values.get('device_name')
-        location = request.values.get('device_location'))
+        location = request.values.get('device_location')
     except (KeyError):
         # Redisplay the question voting form.
         return render_template('add_device.html', {
             'error_message': "You must include a device name, address, and description",
         })
     else:
-        deice = Device()
+        device = Device()
         device.name = name
         device.location = location
         device.id = id
