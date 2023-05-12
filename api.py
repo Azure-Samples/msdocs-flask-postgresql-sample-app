@@ -1,11 +1,11 @@
-from flask import redirect, render_template, request
+from flask import request
 from flask_restful  import Resource,fields,marshal_with,marshal
 from flask_security import auth_required,auth_token_required,hash_password,login_user,verify_password,current_user,logout_user
-from models import db, User, user_datastore
+from models import db, Users,Device,Appliance, user_datastore
 from datetime import datetime
 
 #------------output fields-----------------
-# tracker_fields={
+# device_fields={
 #     "user_id":fields.Integer,
 #     "tracker_id":fields.Integer,
 #     "tracker_name":fields.String(attribute='name'),
@@ -15,7 +15,7 @@ from datetime import datetime
 #     "last_updated":fields.String(attribute='lastupdate'),
 #     "logs":fields.String(attribute=lambda x:[(i.log_id,i.log_value) for i in x.logs])
 # }
-# log_fields={
+# appliance_fields={
 #     "tracker_id":fields.Integer,
 #     "log_id":fields.Integer,
 #     "log_datetime":fields.String,
@@ -29,7 +29,7 @@ user_fields={
 }
 #------------validation functions----------
 def username_valid(name):
-    b=(" " not in name)and(name not in [i[0] for i in db.session.query(User.username).all()])
+    b=(" " not in name)and(name not in [i[0] for i in db.session.query(Users.username).all()])
     return b
 def password_valid(p):
     b=(" " not in p)
@@ -69,9 +69,9 @@ class UserApi(Resource):
     def get(self,username):
         try:
             if username=="*":
-                user=User.query.all()
+                user=Users.query.all()
             elif " " not in username:
-                user=User.query.filter(User.username==username).first()
+                user=Users.query.filter(Users.username==username).first()
             else:
                 return "invalid user",400
             #print(user) #debug print
@@ -87,7 +87,7 @@ class UserApi(Resource):
     def put(self,username):
         try:
             newdata=request.json
-            q=User.query.filter(User.username==username)
+            q=Users.query.filter(Users.username==username)
             pdata=q.one()
             if pdata==None:
                 return "User not found",404
@@ -124,8 +124,8 @@ class UserApi(Resource):
         try:
             loginuser=request.json
             pwd=loginuser["password"]
-            if (username,) in db.session.query(User.username).all():
-                dbuser=User.query.filter(User.username==username).first()
+            if (username,) in db.session.query(Users.username).all():
+                dbuser=Users.query.filter(Users.username==username).first()
                 if verify_password(pwd,dbuser.password):
                     db.session.delete(dbuser)
                     db.session.commit()
@@ -154,4 +154,81 @@ class UserApi(Resource):
         except Exception as e:
             return "Internal Server Error",500
 
+class LoginApi(Resource):
+    def get(self):
+        pass
+    def post(self):
+        try:
+            loginuser=request.json
+            username=loginuser["username"]
+            pwd=loginuser["password"]
+            user_valid=username and username.isalnum()
+            pass_valid=pwd and password_valid(pwd)
+            if user_valid and pass_valid:
+                if (username,) in db.session.query(Users.username).all():
+                    dbuser=Users.query.filter(Users.username==username).first()
+                    if verify_password(pwd,dbuser.password):
+                        print(login_user(dbuser,remember=True,authn_via=["password"]))
+                        return {**marshal(dbuser,user_fields),
+                        "auth_token":dbuser.get_auth_token()},200
+                    else:
+                        print("invalid_password")
+                        return "wrong password",400
+                else:
+                    print("user not found")
+                    return "user not found",400
+        except Exception as e:
+            print(e)
+
+class DeviceApi(Resource):
+
+    @auth_required()
+    def get(self,id):
+        try:
+            if id=="*":
+                devices=current_user.user_devices
+            elif type(id)==int:
+                devices=Device.query.filter(id==id).first()
+                if devices.user_id==current_user.id:
+                    return devices,200
+            else:
+                return "invalid user",400
+            #print(user) #debug print
+            if user != None:
+                # print({*user,user.get_auth_token()})
+                return marshal(user,user_fields),200
+            else:
+                return "User not found",404
+        except:
+            return "Internal Server Error",500
+
+    @auth_required()
+    def post(self):
+        return 200
+
+    @auth_required()
+    def put(self,tracker_id):
+        return 200
+
+    @auth_required()
+    def delete(self,tracker_id):
+        return "OK",200
+    
+class ApplianceApi(Resource):
+
+    @auth_required()
+    def get(self,tracker_id):
+        return 200
+
+    @auth_required()
+    def post(self):
+        return 200
+
+    @auth_required()
+    def put(self,tracker_id):
+        return 200
+
+    @auth_required()
+    def delete(self,tracker_id):
+        return "OK",200
 #===========Api===========

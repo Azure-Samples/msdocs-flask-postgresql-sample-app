@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: de8f6456fc6e
-Revises: 12924596da55
-Create Date: 2023-05-11 10:06:04.503151
+Revision ID: 3049315cc332
+Revises: 
+Create Date: 2023-05-12 06:11:24.928570
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'de8f6456fc6e'
-down_revision = '12924596da55'
+revision = '3049315cc332'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -28,10 +28,11 @@ def upgrade():
     op.create_table('users',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('username', sa.String(length=20), nullable=False),
-    sa.Column('password', sa.String(length=20), nullable=False),
+    sa.Column('password', sa.String(length=100), nullable=False),
     sa.Column('email', sa.String(length=100), nullable=True),
     sa.Column('fs_uniquifier', sa.String(length=255), nullable=False),
     sa.Column('admin', sa.Boolean(), nullable=True),
+    sa.Column('active', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('fs_uniquifier'),
@@ -39,12 +40,13 @@ def upgrade():
     )
     op.create_table('device',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=8), nullable=False),
+    sa.Column('secret', sa.String(length=8), nullable=False),
+    sa.Column('name', sa.String(length=20), nullable=False),
     sa.Column('location', sa.String(length=50), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name')
+    sa.UniqueConstraint('secret')
     )
     op.create_table('roles_users',
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -53,13 +55,14 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], )
     )
     op.create_table('appliance',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(length=8), nullable=False),
-    sa.Column('state', sa.Boolean(), nullable=True),
-    sa.Column('device_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['device_id'], ['device.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name')
+    sa.Column('type', sa.String(length=10), nullable=False),
+    sa.Column('value', sa.Float(), nullable=True),
+    sa.Column('mode', sa.Integer(), nullable=False),
+    sa.Column('device_id', sa.String(length=8), nullable=False),
+    sa.ForeignKeyConstraint(['device_id'], ['device.secret'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 
