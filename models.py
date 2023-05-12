@@ -13,7 +13,8 @@ class Role(db.Model, RoleMixin):
 
 roles_users = db.Table('roles_users',
         Column('user_id', Integer(), ForeignKey('users.id')),
-        Column('role_id', Integer(), ForeignKey('role.id')))
+        Column('role_id', Integer(), ForeignKey('role.id'))
+        )
 
 class Device(db.Model):
     __tablename__ = 'device'
@@ -33,7 +34,7 @@ class Appliance(db.Model):
     type = Column(String(10), nullable=False)
     value= Column(Float,nullable=True,default=0)
     mode= Column(Integer,nullable=False,default=0)
-    device_id= Column(String(8),ForeignKey('device.secret'),nullable=False)
+    device_id= Column(Integer,ForeignKey('device.id'),nullable=False)
 
 
 class Users(db.Model, UserMixin):

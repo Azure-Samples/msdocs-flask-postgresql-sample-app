@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from flask import Flask, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, redirect, render_template, request, send_from_directory, url_for,jsonify
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
@@ -44,6 +44,23 @@ security = Security(app,user_datastore)
 CORS(app)
 app.app_context().push()
 
+api= Api(app)
+app.app_context().push()
+
+from api import *
+api.add_resource(UserApi,'/api/user/<string:username>','/api/user')
+api.add_resource(DeviceApi,'/api/devices/<int:id>','/api/devices')
+api.add_resource(LoginApi,'/api/login')
+api.add_resource(ApplianceApi,'/api/log/<int:log_id>','/api/log')
+
+@app.login_manager.unauthorized_handler
+def unauth_handler():
+    if request.is_json:
+        return jsonify(message='Authorize please to access this page.'), 401
+    else:
+        return render_template('errors.html'), 401
+
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method=='POST':
@@ -51,12 +68,14 @@ def login():
         passd=request.form.get('password')
         try:
             user=Users.query.filter(Users.username==uname).first()
+            if user==None:
+                raise Exception("usernotfound")
         except Exception as e:
             print(e)
             return render_template('login.html',error='incorrect password or username')
-    if verify_password(passd,user.password):
-        login_user(user,True) #session login
-        return index()
+        if verify_password(passd,user.password):
+            login_user(user,True) #session login
+            return index()
     else:
         return render_template('login.html')
 #---------------------------
@@ -66,11 +85,11 @@ def signup():
         uname=request.form.get('username')
         passd=request.form.get('password')
         email=request.form.get('email')
-        if uname not in [i.username for i in Users.query.all()]:
+        if uname not in [i.username for i in Users.query.all()] and email_valid(email):
             user_datastore.create_user(username=uname,email=email, password=hash_password(passd))
             db.session.commit()
             return login()
-        return redirect('/notfound/User already exists.')
+        return render_template('notfound.html',error="invalid email")
     return render_template('signup.html')
 
 @app.route('/index', methods=['GET'])
@@ -138,7 +157,6 @@ def add_appliance(id):
 def utility_processor():
     def star_rating(id):
         appliances = Appliance.query.where(Appliance.device == id)
-
         ratings = []
         appliance_count = 0
         for appliance in appliances:

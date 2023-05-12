@@ -5,28 +5,25 @@ from models import db, Users,Device,Appliance, user_datastore
 from datetime import datetime
 
 #------------output fields-----------------
-# device_fields={
-#     "user_id":fields.Integer,
-#     "tracker_id":fields.Integer,
-#     "tracker_name":fields.String(attribute='name'),
-#     "tracker_description":fields.String(attribute='desc'),
-#     "tracker_type":fields.String(attribute='type'),
-#     "settings":fields.String,
-#     "last_updated":fields.String(attribute='lastupdate'),
-#     "logs":fields.String(attribute=lambda x:[(i.log_id,i.log_value) for i in x.logs])
-# }
-# appliance_fields={
-#     "tracker_id":fields.Integer,
-#     "log_id":fields.Integer,
-#     "log_datetime":fields.String,
-#     "note":fields.String,
-#     "log_value":fields.String
-# }
+device_fields={
+    "id":fields.Integer,
+    "device_name":fields.String(attribute='name'),
+    "location":fields.String,
+    "appliances":fields.String(attribute=lambda x:[(i.id,i.name) for i in x.device_appliance])
+}
+appliance_fields={
+    "appliance_id":fields.Integer(attribute="id"),
+    "name":fields.String,
+    "type":fields.String,
+    "value":fields.Float,
+    "mode":fields.Integer
+}
 user_fields={
     "user_id":fields.String(attribute='id'),
     "username":fields.String,
     "email":fields.String
 }
+print( )
 #------------validation functions----------
 def username_valid(name):
     b=(" " not in name)and(name not in [i[0] for i in db.session.query(Users.username).all()])
@@ -34,10 +31,11 @@ def username_valid(name):
 def password_valid(p):
     b=(" " not in p)
     return b
-
+def email_valid(email):
+    b=(email not in [x.email for x in Users.query.all()])
+    print(b)
+    return b
 #----caching workaround--------------
-
-
 
 # def get_tracker(tracker_id):
 #     try:
@@ -65,8 +63,9 @@ def password_valid(p):
 
 #---------API-----------
 class UserApi(Resource):
-    @auth_required()
+    @auth_required('token')
     def get(self,username):
+        print(current_user)
         try:
             if username=="*":
                 user=Users.query.all()
@@ -139,12 +138,11 @@ class UserApi(Resource):
         try:
             data=request.json
             if data:
-                if username_valid(data['username']) and password_valid(data['password']):
+                if username_valid(data['username']) and password_valid(data['password']) and email_valid(data["email"]):
                     # db.session.add(new_user)
                     user_datastore.create_user(username=str(data['username']),
                     email=str(data['email']),password=hash_password(data['password']))
                     dbuser=user_datastore.find_user(username=str(data['username']))
-                    login_user(dbuser)
                     db.session.commit()
                 elif not username_valid(data['username']):
                     return "Username is invalid",400
@@ -181,7 +179,6 @@ class LoginApi(Resource):
             print(e)
 
 class DeviceApi(Resource):
-
     @auth_required()
     def get(self,id):
         try:
@@ -190,13 +187,19 @@ class DeviceApi(Resource):
             elif type(id)==int:
                 devices=Device.query.filter(id==id).first()
                 if devices.user_id==current_user.id:
-                    return devices,200
+                    return marshal(devices,device_fields),200
             else:
                 return "invalid user",400
             #print(user) #debug print
-            if user != None:
+            if devices != None:
                 # print({*user,user.get_auth_token()})
-                return marshal(user,user_fields),200
+                if len(devices)>1:
+                    return marshal(devices,device_fields),200
+                else:
+                    result=[]
+                    for i in devices:
+                        result.append(marshal(i,device_fields))
+                    return result,200
             else:
                 return "User not found",404
         except:
@@ -204,7 +207,26 @@ class DeviceApi(Resource):
 
     @auth_required()
     def post(self):
-        return 200
+        try:
+            data=request.json
+            if data:
+                if type(data["id"])!=int and data["id"]==0:
+                    return "Invalid ID",402
+                if len(data["secret"])==8 :
+                    return "Invalid SECRET",402
+                if len(data["name"])!=0 :
+                    return "Invalid NAME",402
+                id=int(data["id"])
+                secret=str(data['secret']),
+                name=data['name']
+                location= data['location']
+                user_id= current_user.id
+                device=Device(id=id,secret=secret,name=name,location=location,user_id=user_id)
+                db.session.add(device)
+                db.session.commit()
+            return marshal(device,device_fields),200
+        except Exception as e:
+            return f"Internal Server Error due to {e}",500
 
     @auth_required()
     def put(self,tracker_id):
