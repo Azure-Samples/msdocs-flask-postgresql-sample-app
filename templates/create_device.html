@@ -14,12 +14,12 @@ body {
 
 <form method="POST" action="{{ url_for('add_device') }}">
   <div class="mb-3">
-    <label for="unique_id" class="form-label">Device id</label>
-    <input type="text" class="form-control" id="unique_id" name="unique_id">
+    <label for="secret" class="form-label">Device secret key</label>
+    <input type="text" class="form-control" id="secret" name="secret">
   </div>
   <div class="mb-3">
     <label for="device_name" class="form-label">Name</label>
-    <input type="text" class="form-control" id="device_name" name="device_name">
+    <input type="text" class="form-control" id="device_name" name="name">
   </div>
   <div class="mb-3">
     <label for="location" class="form-label">Location</label>

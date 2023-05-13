@@ -6,3 +6,5 @@ flask_wtf
 psycopg2
 python-dotenv
 SQLAlchemy
+gmqtt
+uvloop

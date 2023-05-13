@@ -1,8 +1,9 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer,Float, String, Boolean
 from sqlalchemy.orm import validates
 from flask_security import UserMixin,RoleMixin,SQLAlchemyUserDatastore
-
-from app import db
+from flask_sqlalchemy import SQLAlchemy
+# from app import db
+db = SQLAlchemy()
 
 
 class Role(db.Model, RoleMixin):
@@ -18,7 +19,7 @@ roles_users = db.Table('roles_users',
 
 class Device(db.Model):
     __tablename__ = 'device'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True,autoincrement=True)
     secret=Column(String(8),unique=True,nullable=False)
     name = Column(String(20), nullable=False)
     location = Column(String(50))
@@ -32,8 +33,9 @@ class Appliance(db.Model):
     id = Column(Integer, primary_key=True,autoincrement=True)
     name = Column(String(8), nullable=False)
     type = Column(String(10), nullable=False)
-    value= Column(Float,nullable=True,default=0)
+    value= Column(Float,nullable=False,default=0)
     mode= Column(Integer,nullable=False,default=0)
+    mode_time= Column(Integer,nullable=False,default=0)
     device_id= Column(Integer,ForeignKey('device.id'),nullable=False)
 
 

@@ -8,9 +8,10 @@ from flask_wtf.csrf import CSRFProtect
 from flask_security import login_required,login_user,logout_user,auth_required,current_user
 from flask_security import Security,hash_password,verify_password
 from flask_cors import CORS
-
 from flask_restful import Api
+from dotenv import load_dotenv
 
+load_dotenv('./.env')
 
 app = Flask(__name__, static_folder='static')
 # csrf = CSRFProtect(app)
@@ -31,14 +32,14 @@ app.config.update(
 )
 
 # Initialize the database connection
-db = SQLAlchemy(app)
 
 # Enable Flask-Migrate commands "flask db init/migrate/upgrade" to work
-migrate = Migrate(app, db)
+
 
 # The import must be done after db initialization due to circular import issue
-from models import Appliance,Device,Users,user_datastore
-
+from models import db,Appliance,Device,Users,user_datastore
+db.init_app(app)
+migrate = Migrate(app, db)
 #Security init
 security = Security(app,user_datastore)
 CORS(app)
@@ -100,8 +101,8 @@ def index():
 
 @app.route('/<int:id>', methods=['GET'])
 def details(id):
-    device = Device.query.where(Device.id == id).first()
-    appliances = Appliance.query.where(Appliance.device == id)
+    device = Device.query.where(Device.id== id).first()
+    appliances = Appliance.query.where('device_id' == id).all()
     return render_template('details.html', device=device, appliances=appliances)
 
 @app.route('/create', methods=['GET'])
@@ -112,23 +113,33 @@ def create_device():
 @app.route('/add', methods=['POST'])
 def add_device():
     try:
-        id = request.values.get('unique_id')
-        name = request.values.get('device_name')
-        location = request.values.get('device_location')
+        secret= request.values.get('secret')
+        name = request.values.get('name')
+        location = request.values.get('location')
+        user_id = current_user.id
+        device = Device()
+        device.name = name
+        device.location = location
+        device.secret=secret
+        device.user_id=user_id
+        db.session.add(device)
+        db.session.commit()
+        app1=Appliance(name="light1",type="digital",device_id=device.id)
+        app2=Appliance(name="light2",type="digital",device_id=device.id)
+        app3=Appliance(name="socket",type="digital",device_id=device.id)
+        app4=Appliance(name="fan",type="analog",device_id=device.id)
+        db.session.add(app1)
+        db.session.add(app2)
+        db.session.add(app3)
+        db.session.add(app4)
+        db.session.commit()
+        return redirect(url_for('details', id=device.id))
     except (KeyError):
         # Redisplay the question voting form.
         return render_template('add_device.html', {
             'error_message': "You must include a device name, address, and description",
         })
-    else:
-        device = Device()
-        device.name = name
-        device.location = location
-        device.id = id
-        db.session.add(device)
-        db.session.commit()
-
-        return redirect(url_for('details', id=device.id))
+    
 
 @app.route('/appliance/<int:id>', methods=['POST'])
 def add_appliance(id):
@@ -174,5 +185,41 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+
+import gmqtt
+import asyncio
+class MQTTClient(gmqtt.Client):
+    def __init__(self, client_id):
+        super().__init__(client_id)
+        self._client_id = client_id
+
+    def on_connect(self, client, flags, rc, properties):
+        print('Connected:', flags, rc, properties)
+
+    def on_message(self, topic, payload, qos, properties):
+        print('Received message:', topic, payload, qos, properties)
+
+async def connect_mqtt(client):
+    broker_host = 'mqtt.flespi.io'
+    broker_port = 1883
+
+    client.set_auth_credentials('MMZOJkKnP5RzvVdyfyw0qGpNy3u4cSqMvdr2nZf1UVqfEsBJQXz5rNIPE2JEJXh2', None)
+    await client.connect(broker_host, broker_port, keepalive=60)
+
+@app.route('/publish/<topic>/<message>')
+def publish(topic, message):
+    client.publish(topic, message)
+    return f'Published message: {message} to topic: {topic}'
+
+@app.route('/subscribe/<topic>')
+def subscribe(topic):
+    client.subscribe(topic)
+    return f'Subscribed to topic: {topic}'
+
 if __name__ == '__main__':
+    client_id = 'my_client'
+    client = MQTTClient(client_id)
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(connect_mqtt(client))
     app.run()

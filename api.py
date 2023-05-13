@@ -1,4 +1,4 @@
-from flask import request
+from flask import request,jsonify
 from flask_restful  import Resource,fields,marshal_with,marshal
 from flask_security import auth_required,auth_token_required,hash_password,login_user,verify_password,current_user,logout_user
 from models import db, Users,Device,Appliance, user_datastore
@@ -82,7 +82,7 @@ class UserApi(Resource):
         except:
             return "Internal Server Error",500
 
-    @auth_required()
+    @auth_required("token")
     def put(self,username):
         try:
             newdata=request.json
@@ -118,7 +118,7 @@ class UserApi(Resource):
         except Exception as e:
             return e,500
 
-    @auth_required()
+    @auth_required("token")
     def delete(self,username):
         try:
             loginuser=request.json
@@ -177,16 +177,17 @@ class LoginApi(Resource):
                     return "user not found",400
         except Exception as e:
             print(e)
+            return e,415
 
 class DeviceApi(Resource):
-    @auth_required()
+    @auth_required("token")
     def get(self,id):
         try:
             if id=="*":
                 devices=current_user.user_devices
             elif type(id)==int:
                 devices=Device.query.filter(id==id).first()
-                if devices.user_id==current_user.id:
+                if devices and devices.user_id==current_user.id:
                     return marshal(devices,device_fields),200
             else:
                 return "invalid user",400
@@ -205,52 +206,92 @@ class DeviceApi(Resource):
         except:
             return "Internal Server Error",500
 
-    @auth_required()
+    @auth_required("token")
     def post(self):
         try:
             data=request.json
             if data:
-                if type(data["id"])!=int and data["id"]==0:
-                    return "Invalid ID",402
                 if len(data["secret"])==8 :
                     return "Invalid SECRET",402
-                if len(data["name"])!=0 :
+                if len(data["name"])==0 :
                     return "Invalid NAME",402
-                id=int(data["id"])
                 secret=str(data['secret']),
                 name=data['name']
                 location= data['location']
                 user_id= current_user.id
-                device=Device(id=id,secret=secret,name=name,location=location,user_id=user_id)
+                device=Device(secret=secret,name=name,location=location,user_id=user_id)
                 db.session.add(device)
+                db.session.commit()
+                app1=Appliance(name="light1",type="digital",device_id=device.id)
+                app2=Appliance(name="light2",type="digital",device_id=device.id)
+                app3=Appliance(name="socket",type="digital",device_id=device.id)
+                app4=Appliance(name="fan",type="analog",device_id=device.id)
+                db.session.add(app1)
+                db.session.add(app2)
+                db.session.add(app3)
+                db.session.add(app4)
                 db.session.commit()
             return marshal(device,device_fields),200
         except Exception as e:
             return f"Internal Server Error due to {e}",500
 
-    @auth_required()
-    def put(self,tracker_id):
+    @auth_required("token")
+    def put(self,id):
+        try:
+            newdata=request.json
+            q=Device.query.filter(Device.id==id)
+            pdata=q.one()
+            if pdata==None:
+                return "Device not found",404
+            modified_name=newdata.get("modified_name")
+            modified_location=newdata.get("modified_location")
+            if modified_name==None|"":
+                return "Invalid name",402
+            if verify_password(password,pdata.password):
+                if uname_valid:
+                    if newdata.get("new_password"):
+                        modified_password=newdata.get("new_password")
+                        if not password_valid(modified_password):
+                            return "modified password not valid",400
+                        else:
+                            q.update({"username":str(modified_username),
+                            "password":hash_password(modified_password),
+                            "email":str(modified_email)})
+                            db.session.commit()
+                    else:
+                        q.update({"username":str(modified_username),
+                        "email":str(modified_email)})
+                        db.session.commit()
+                elif not uname_valid:
+                    return "Modified Username is invalid",400
+            else:
+                return "wrong password",400
+            return {**marshal(pdata,user_fields),
+            "auth_token":pdata.get_auth_token()},200
+        except Exception as e:
+            return e,500
+
         return 200
 
-    @auth_required()
+    @auth_required("token")
     def delete(self,tracker_id):
         return "OK",200
     
 class ApplianceApi(Resource):
 
-    @auth_required()
+    @auth_required("token")
     def get(self,tracker_id):
         return 200
 
-    @auth_required()
+    @auth_required("token")
     def post(self):
         return 200
 
-    @auth_required()
+    @auth_required("token")
     def put(self,tracker_id):
         return 200
 
-    @auth_required()
+    @auth_required("token")
     def delete(self,tracker_id):
         return "OK",200
 #===========Api===========

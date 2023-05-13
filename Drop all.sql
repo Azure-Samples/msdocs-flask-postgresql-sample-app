@@ -1,1 +1,1 @@
-drop table roles_users,role,users,device,appliance cascade
+drop table device,appliance cascade
