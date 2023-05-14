@@ -1,0 +1,37 @@
+{% extends "index.html" %}
+{% block content %}
+<button class="add-button">Install</button>
+<span class="offline-notification">Offline</span>
+<!-- Product Features Section -->
+<section class="container">
+  
+
+<!-- Main Content -->
+<div class="col-md-10">
+<h1>Devices</h1>
+
+{% if True %}
+{% for device in devices %}
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <img src="product1.jpg" class="card-img-top" alt="Product 1">
+        <div class="card-body">
+          <h5 class="card-title">{{ device.name }}</h5>
+          <p class="card-text">Location:{{ device.location }}</p>
+          <button class="btn btn-sm btn-primary" href="{{ url_for('details', id=device.id) }}">Details</button>
+        </div>
+      </div>
+    </div>
+{% endfor %}
+{% else %}
+<p>No devices exist. Select Add new device to add one.</p>
+{% endif %}
+
+<div class="d-flex justify-content-end">
+<a href="{{ url_for('create_device') }}" class="btn btn-success px-4 gap-3">Add new device</a>
+</div>
+</div>
+</section>
+{% endblock %}

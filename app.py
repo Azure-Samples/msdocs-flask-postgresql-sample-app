@@ -62,6 +62,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 #Security init
 security = Security(app,user_datastore)
+
 CORS(app)
 app.app_context().push()
 
@@ -84,8 +85,14 @@ def unauth_handler():
     else:
         return render_template('errors.html'), 401
 
+@app.route('/',methods=['GET','POST'])
+def home():
+    if current_user.is_authenticated:
+        return index()
+    else:
+        return login()
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method=='POST':
         uname=request.form.get('username')
@@ -120,7 +127,7 @@ def signup():
 def index():
     print('Request for index page received')
     devices = Device.query.all()
-    return render_template('index.html', devices=devices)
+    return render_template('devices.html', devices=devices)
 
 @app.route('/<int:id>', methods=['GET'])
 def details(id):
@@ -140,6 +147,10 @@ def add_device():
         name = request.values.get('name')
         location = request.values.get('location')
         user_id = current_user.id
+        if len(secret)!=8:
+            return render_template('add_device.html', {
+            'error_message': "You must include a device name, address, and description",
+        })
         device = Device()
         device.name = name
         device.location = location
@@ -247,6 +258,7 @@ def handle_mqtt_message(client, userdata, message):
         topic=message.topic,
         payload=message.payload.decode()
     )
+    print(data)
     socketio.emit('mqtt_message', data=data)
 
 
@@ -257,4 +269,4 @@ def handle_mqtt_message(client, userdata, message):
 #         print(userdata,level, buf)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0',use_reloader=False)
+    socketio.run(app, host='0.0.0.0',use_reloader=True, debug=True)

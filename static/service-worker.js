@@ -6,7 +6,7 @@ const filesToCache = [
     '/static/app.js',
     '/static/styles.css',
     '/offline.html',
-    '/static/images/pwa-light.png'
+    '/static/images/azure-icon.png'
 ];
 
 // When the 'install' event is fired we will cache
