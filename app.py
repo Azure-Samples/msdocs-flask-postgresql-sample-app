@@ -11,6 +11,26 @@ from flask_cors import CORS
 from flask_restful import Api
 from dotenv import load_dotenv
 
+import eventlet
+import json
+from flask_mqtt import Mqtt,MQTT_LOG_INFO,MQTT_LOG_NOTICE,MQTT_LOG_DEBUG
+from flask_socketio import SocketIO
+from flask_bootstrap import Bootstrap
+
+eventlet.monkey_patch()
+
+app = Flask(__name__)
+app.config['SECRET'] = 'my secret key'
+
+
+# Parameters for SSL enabled
+# app.config['MQTT_BROKER_PORT'] = 8883
+# app.config['MQTT_TLS_ENABLED'] = True
+# app.config['MQTT_TLS_INSECURE'] = True
+# app.config['MQTT_TLS_CA_CERTS'] = 'ca.crt'
+
+
+
 load_dotenv('./.env')
 
 app = Flask(__name__, static_folder='static')
@@ -46,6 +66,9 @@ CORS(app)
 app.app_context().push()
 
 api= Api(app)
+mqtt = Mqtt(app)
+socketio = SocketIO(app)
+bootstrap = Bootstrap(app)
 app.app_context().push()
 
 from api import *
@@ -161,7 +184,6 @@ def add_appliance(id):
         appliance.appliance_text = appliance_text
         db.session.add(appliance)
         db.session.commit()
-
     return redirect(url_for('details', id=id))
 
 @app.context_processor
@@ -185,41 +207,46 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/mqtt')
+def main():
+    mqtt.subscribe("envision/action")
+    mqtt.publish("envision/photo","hello")
+    print("done")
+    return "Successful"
+    
 
-import gmqtt
-import asyncio
-class MQTTClient(gmqtt.Client):
-    def __init__(self, client_id):
-        super().__init__(client_id)
-        self._client_id = client_id
+@socketio.on('publish')
+def handle_publish(json_str):
+    data = json.loads(json_str)
+    mqtt.publish(data['topic'], data['message'])
 
-    def on_connect(self, client, flags, rc, properties):
-        print('Connected:', flags, rc, properties)
 
-    def on_message(self, topic, payload, qos, properties):
-        print('Received message:', topic, payload, qos, properties)
+@socketio.on('subscribe')
+def handle_subscribe(json_str):
+    data = json.loads(json_str)
+    mqtt.subscribe(data['topic'])
 
-async def connect_mqtt(client):
-    broker_host = 'mqtt.flespi.io'
-    broker_port = 1883
 
-    client.set_auth_credentials('MMZOJkKnP5RzvVdyfyw0qGpNy3u4cSqMvdr2nZf1UVqfEsBJQXz5rNIPE2JEJXh2', None)
-    await client.connect(broker_host, broker_port, keepalive=60)
+@socketio.on('unsubscribe_all')
+def handle_unsubscribe_all():
+    mqtt.unsubscribe_all()
 
-@app.route('/publish/<topic>/<message>')
-def publish(topic, message):
-    client.publish(topic, message)
-    return f'Published message: {message} to topic: {topic}'
 
-@app.route('/subscribe/<topic>')
-def subscribe(topic):
-    client.subscribe(topic)
-    return f'Subscribed to topic: {topic}'
+@mqtt.on_message()
+def handle_mqtt_message(client, userdata, message):
+    data = dict(
+        topic=message.topic,
+        payload=message.payload.decode()
+    )
+    print(data)
+    socketio.emit('mqtt_message', data=data)
+
+
+# @mqtt.on_log()
+# def handle_logging(client, userdata, level, buf):
+#     print(level,MQTT_LOG_NOTICE)
+#     if level==16:
+#         print(userdata,level, buf)
 
 if __name__ == '__main__':
-    client_id = 'my_client'
-    client = MQTTClient(client_id)
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(connect_mqtt(client))
-    app.run()
+    socketio.run(app, host='0.0.0.0',use_reloader=False)
