@@ -162,7 +162,7 @@ def add_device():
         return render_template('add_device.html', {
             'error_message': "You must include a device name, address, and description",
         })
-    
+
 
 @app.route('/appliance/<int:id>', methods=['POST'])
 def add_appliance(id):
@@ -207,13 +207,22 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/offline.html')
+def offline():
+   return app.send_static_file('offline.html')
+
+
+@app.route('/service-worker.js')
+def sw():
+   return app.send_static_file('service-worker.js')
+
 @app.route('/mqtt')
 def main():
     mqtt.subscribe("envision/action")
     mqtt.publish("envision/photo","hello")
     print("done")
     return "Successful"
-    
+
 
 @socketio.on('publish')
 def handle_publish(json_str):
@@ -238,7 +247,6 @@ def handle_mqtt_message(client, userdata, message):
         topic=message.topic,
         payload=message.payload.decode()
     )
-    print(data)
     socketio.emit('mqtt_message', data=data)
 
 

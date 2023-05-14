@@ -12,44 +12,43 @@ body {
 {% block content %}
 <h1>{{ device.name }}</h1>
 <div class="row">
-  <div class="col-md-2 fw-bold">Street address:</div>
-  <div class="col">{{ device.street_address }}</div>
+  <div class="col-md-2 fw-bold">Location:</div>
+  <div class="col">{{ device.location }}</div>
 </div>
 <div class="row">
-  <div class="col-md-2 fw-bold">Description:</div>
-  <div class="col">{{ device.description }}</div>
-</div>
-<div class="row">
-  <div class="col-md-2 fw-bold">Rating:</div>
-  <div class="col"></div>
+  <div class="col-md-2 fw-bold">Number of Appliance:</div>
+  <div class="col">{{ device.device_appliance|length }}</div>
 </div>
 
-<h4 class="mt-5">Reviews</h4>
 
+{% if products|length <4 %}
 <p>
-  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addReviewModal">
-    Add new appliance
+  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAppliance">
+    Update appliances
   </button>
 </p>
+{% endif %}
 
 <!-- Button trigger modal -->
 {% if appliances %}
 <table class="table">
   <thead>
     <tr>
-      <th>Date</th>
-      <th>User</th>
-      <th>Rating</th>
-      <th>Review</th>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Status</th>
+      <th>Mode</th>
+      <th>Time Setting</th>
     </tr>
   </thead>
   <tbody>
     {% for appliance in appliances %}
     <tr>
-      <td>{{ appliance.appliance_date }}</td>
-      <td>{{ appliance.user_name }}</td>
-      <td>{{ appliance.rating }}</td>
-      <td>{{ appliance.appliance_text }}</td>
+      <td>{{ appliance.name }}</td>
+      <td>{{ appliance.type }}</td>
+      <td>{{ appliance.value }}</td>
+      <td>{{ appliance.mode }}</td>
+      <td>{{ appliance.mode_time }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -57,59 +56,5 @@ body {
 {% else %}
 <p>No appliances of this device yet.</p>
 {% endif %}
-
-<!-- Modal -->
-<div class="modal fade" id="addReviewModal" tabindex="-1" aria-labelledby="addReviewModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addReviewModalLabel">Add Review</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form method="POST" action="{{ url_for('add_appliance', id=device.id) }}">
-
-        <div class="modal-body">
-
-          <div class="mb-3">
-            <label for="user_name" class="form-label fw-bold">Your name</label>
-            <input type="text" class="form-control" id="user_name" name="user_name">
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-bold">Rating</label>
-
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="rating" id="rating1" value="1">
-              <label class="form-check-label" for="rating1">1</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="rating" id="rating2" value="2">
-              <label class="form-check-label" for="rating2">2</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="rating" id="rating3" value="3">
-              <label class="form-check-label" for="rating3">3</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="rating" id="rating4" value="4">
-              <label class="form-check-label" for="rating3">4</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="rating" id="rating5" value="5">
-              <label class="form-check-label" for="rating3">5</label>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="appliance_text" class="form-label fw-bold">Comments</label>
-            <input type="text" class="form-control" id="appliance_text" name="appliance_text">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Save changes</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 {% endblock %}
