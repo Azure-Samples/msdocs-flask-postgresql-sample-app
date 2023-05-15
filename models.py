@@ -22,7 +22,6 @@ class Device(db.Model):
     id = Column(Integer, primary_key=True,autoincrement=True)
     secret=Column(String(8),unique=True,nullable=False)
     name = Column(String(20), nullable=False)
-    location = Column(String(50))
     user_id= Column(Integer, ForeignKey('users.id'),nullable=False)
     device_appliance= db.relationship('Appliance', backref='device', lazy=True)
     def __str__(self):
@@ -45,6 +44,7 @@ class Users(db.Model, UserMixin):
     username=Column(String(20),nullable=False,unique=True)
     password=Column(String(100),nullable=False)
     email = Column(String(100), unique=True)
+    location = Column(String(50))
     fs_uniquifier = Column(String(255), unique=True, nullable=False)
     user_devices= db.relationship('Device', backref='user', lazy=True)
     admin= Column(Boolean,default=False)

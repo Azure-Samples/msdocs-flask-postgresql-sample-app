@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Restaurant Create{% endblock %}
+{% extends "index.html" %}
+{% block title %}Device Create{% endblock %}
 {% block head %}
 {{ super() }}
 <style>
@@ -10,7 +10,7 @@ body {
 </style>
 {% endblock %}
 {% block content %}
-<h1>Add New Restaurant</h1>
+<h1>Add New Device</h1>
 
 <form method="POST" action="{{ url_for('add_device') }}">
   <div class="mb-3">
