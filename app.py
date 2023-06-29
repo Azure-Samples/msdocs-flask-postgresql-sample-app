@@ -44,7 +44,7 @@ def qnainit():
     except:
         return 'An exception occurred'
 
-@app.route('/testdb', methods=['POST'])
+@app.route('/testdb', methods=['GET'])
 def testdb():
     InsertQnA("Question test db", "answer test db", "")
     return "testdb"
