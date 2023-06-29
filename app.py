@@ -51,6 +51,13 @@ def completion(prompt):
     except:
         return 'An exception occurred'
 
+@app.route('/completionstring/<string:prompt>', methods=['GET'])
+def completion(prompt):
+    try:
+        return do_completion_string(prompt)
+    except:
+        return 'An exception occurred'
+
 @app.route('/qnainit', methods=['GET'])
 def qnainit():
     try:
@@ -117,6 +124,28 @@ def do_completion(prompt):
     except Exception as e:
         return 'error again in qnainit ' + str(e)
 
+def do_completion_string(prompt):
+    logs = "logs:"
+
+    try:
+        openai.api_key = "efa40032bc644d449c3bf80610e21228"
+        openai.api_base = "https://lxopenaihackathon.openai.azure.com/"
+        openai.api_type = "azure"
+        openai.api_version = '2022-12-01'
+
+        response = openai.Completion.create(
+            engine="lxgpt35",
+            prompt='reset previous conversation context and answer the following question '+ prompt,
+            temperature=0.7,
+            max_tokens=256,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=["\n"])
+        
+        return response
+    except Exception as e:
+        return 'error again in qnainit ' + str(e)
 
 def InsertQnA(question, embeddings, answer):
     if question is not None and answer is not None:
