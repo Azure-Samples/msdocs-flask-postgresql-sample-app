@@ -92,8 +92,6 @@ def InsertQnA(question, embeddings, answer):
     if question is not None and answer is not None:
         conn = psycopg2.connect(user="ATeam", password="4t34m!", host="ateam-qna-server.postgres.database.azure.com", port=5432, database="qna-embeddings-db")
         cur = conn.cursor()
-        print(conn)
-        print(cur)
         if embeddings is not None:
             insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ('{0}', '{1}', '{2}')".format(question,embeddings,answer)
         else:
