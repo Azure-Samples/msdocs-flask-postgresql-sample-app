@@ -5,3 +5,11 @@ flask_wtf
 psycopg2
 python-dotenv
 SQLAlchemy
+openai
+scipy
+plotly-express
+scikit-learn
+umap-learn
+csv
+os
+openai
