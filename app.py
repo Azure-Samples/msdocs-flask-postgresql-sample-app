@@ -2,7 +2,6 @@ import os
 import csv
 import openai
 import psycopg2
-import traceback
 from datetime import datetime
 
 from flask import Flask, redirect, render_template, request, send_from_directory, url_for
@@ -65,25 +64,25 @@ def qnainit():
         openai.api_type = os.getenv("OPENAI_TYPE")
         openai.api_version = os.getenv("OPENAI_VERSION")
         
-        with open('./data/qna.csv', newline='\r\n') as srccsvfile:
-            datareader = csv.reader(srccsvfile, delimiter=';')
+        # with open('./data/qna.csv', newline='\r\n') as srccsvfile:
+        #     datareader = csv.reader(srccsvfile, delimiter=';')
             
-            with open('./embeddings/embeddings.csv', 'a', newline='\r\n') as dstcsvfile:
-                tmpwriter = csv.writer(dstcsvfile, delimiter=';', quotechar='', quoting=csv.QUOTE_NONE)
-                for row in datareader:
-                    question = row[0]
-                    answer = row[1]
+        #     with open('./embeddings/embeddings.csv', 'a', newline='\r\n') as dstcsvfile:
+        #         tmpwriter = csv.writer(dstcsvfile, delimiter=';', quotechar='', quoting=csv.QUOTE_NONE)
+        #         for row in datareader:
+        #             question = row[0]
+        #             answer = row[1]
                     
-                    response = openai.Embedding.create(
-                        input=question,
-                        engine=os.getenv("OPENAI_DEPLOYMENT_EMBEDDING")
-                    )
-                    embeddings = response['data'][0]['embedding']
-                    logs += '\r\n\r\n' + question + ' ' + embeddings
-                    tmpwriter.writerow([question,answer,embeddings])
+        #             response = openai.Embedding.create(
+        #                 input=question,
+        #                 engine=os.getenv("OPENAI_DEPLOYMENT_EMBEDDING")
+        #             )
+        #             embeddings = response['data'][0]['embedding']
+        #             logs += '\r\n\r\n' + question + ' ' + embeddings
+        #             tmpwriter.writerow([question,answer,embeddings])
         return 'success' + logs
-    except Exception:
-        print(traceback.format_exc()) 
+    except:
+        return 'error again in qnainit'
 
 
 def InsertQnA(question, answer, embeddings):
