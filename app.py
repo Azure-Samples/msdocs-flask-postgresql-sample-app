@@ -88,7 +88,7 @@ def do_init():
                 )
                 embeddings = response['data'][0]['embedding']
                 logs += '\r\n\r\n' + question + ' ' + embeddings
-                tmpwriter.writerow([question,answer,embeddings])
+                #tmpwriter.writerow([question,answer,embeddings])
                 InsertQnA(question, embeddings, answer)
         return 'success' + logs
     except Exception as e:
