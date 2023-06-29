@@ -1,6 +1,7 @@
 import os
 import csv
 import openai
+import logging
 from datetime import datetime
 
 from flask import Flask, redirect, render_template, request, send_from_directory, url_for
@@ -76,8 +77,16 @@ def qnainit():
                     logs += '\r\n\r\n' + question + ' ' + embeddings
                     tmpwriter.writerow([question,answer,embeddings])
         return 'success' + logs
-    except:
-        return 'failure' + logs
+    except Exception as Argument:
+    
+        # creating/opening a file
+        f = open("demofile2.txt", "a")
+    
+        # writing in the file
+        f.write(str(Argument))
+        
+        # closing the file
+        f.close()
 
 
 if __name__ == '__main__':
