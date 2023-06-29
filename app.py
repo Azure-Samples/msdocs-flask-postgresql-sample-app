@@ -1,6 +1,7 @@
 import os
 import csv
 import openai
+import psycopg2
 import logging
 from datetime import datetime
 
@@ -43,6 +44,11 @@ def qnainit():
         return qnainit()
     except:
         return 'An exception occurred'
+
+@app.route('/testdb', methods=['POST'])
+def testdb():
+    InsertQnA("Question test db", "answer test db", NULL)
+    return "testdb"
 
 
 @app.route('/favicon.ico')
@@ -88,6 +94,13 @@ def qnainit():
         # closing the file
         f.close()
 
+
+def InsertQnA(question, answer, embeddings)
+    conn = psycopg2.connect(user="ATeam", password="4t34m!", host="ateam-qna-server.postgres.database.azure.com", port=5432, database="qna-embeddings-db")
+    cur = conn.cursor()
+    insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ({0}, {1}, {2})".format(question,embeddings,answer)
+    cur.execute(insert_query)
+    conn.commit()
 
 if __name__ == '__main__':
     app.run()
