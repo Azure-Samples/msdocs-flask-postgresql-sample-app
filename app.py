@@ -104,8 +104,8 @@ def do_completion(prompt):
         openai.api_version = '2022-12-01'
 
         response = openai.Completion.create(
-            engine="lxcodedavinci002",
-            prompt=prompt,
+            engine="lxgpt35",
+            prompt='reset previous conversation context and answer the following question'+ prompt,
             temperature=1,
             max_tokens=1000,
             top_p=1,
