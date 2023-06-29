@@ -84,8 +84,8 @@ def do_init():
                 tmpwriter.writerow([question,answer,embeddings])
                 InsertQnA(question, embeddings, answer)
         return 'success' + logs
-    except:
-        return 'error again in qnainit'
+    except Exception as e:
+        return 'error again in qnainit ' + str(e)
 
 
 def InsertQnA(question, embeddings, answer):
