@@ -1,8 +1,9 @@
 import os
 import csv
 import openai
+<<<<<<< HEAD
+=======
 import psycopg2
-import logging
 from datetime import datetime
 
 from flask import Flask, redirect, render_template, request, send_from_directory, url_for
@@ -83,16 +84,8 @@ def qnainit():
                     logs += '\r\n\r\n' + question + ' ' + embeddings
                     tmpwriter.writerow([question,answer,embeddings])
         return 'success' + logs
-    except Exception as Argument:
-    
-        # creating/opening a file
-        f = open("demofile2.txt", "a")
-    
-        # writing in the file
-        f.write(str(Argument))
-        
-        # closing the file
-        f.close()
+    except:
+        return 'Error in qnainit()'
 
 
 def InsertQnA(question, answer, embeddings)
