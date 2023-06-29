@@ -3,8 +3,6 @@ import os
 import openai
 
 def qnainit():
-    print('Entering qnainit')
-    
     logs = "logs:"
 
     try:
