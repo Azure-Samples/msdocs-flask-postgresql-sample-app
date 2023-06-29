@@ -7,9 +7,5 @@ python-dotenv
 SQLAlchemy
 openai
 scipy
-plotly-express
-scikit-learn
-umap-learn
 csv
 os
-openai
