@@ -47,7 +47,7 @@ def insertintodb():
 @app.route('/qnainit', methods=['GET'])
 def qnainit():
     try:
-        return qnainit()
+        return do_init()
     except:
         return 'An exception occurred'
 
@@ -57,7 +57,7 @@ def favicon():
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
-def qnainit():
+def do_init():
     logs = "logs:"
 
     try:
