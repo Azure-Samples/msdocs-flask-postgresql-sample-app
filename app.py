@@ -5,8 +5,8 @@ from flask import Flask, redirect, render_template, request, send_from_directory
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-import qnaprompt
-import qnainit
+# import qnaprompt
+# import qnainit
 
 
 app = Flask(__name__, static_folder='static')
@@ -60,12 +60,11 @@ def qna_prompt():
 
 @app.route('/qnainit', methods=['GET'])
 def qnainit():
-    try:
-        return qnainit.qnainit()
-    except:
-        return 'An exception occurred'
-
-    
+    return 'hello world'
+    # try:
+    #     return qnainit.qnainit()
+    # except:
+    #     return 'An exception occurred'
 
 @app.route('/add', methods=['POST'])
 @csrf.exempt
