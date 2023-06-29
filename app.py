@@ -51,13 +51,6 @@ def completion(prompt):
     except:
         return 'An exception occurred'
 
-@app.route('/completionstring/<string:prompt>', methods=['GET'])
-def completion(prompt):
-    try:
-        return do_completion_string(prompt)
-    except:
-        return 'An exception occurred'
-
 @app.route('/qnainit', methods=['GET'])
 def qnainit():
     try:
