@@ -58,13 +58,13 @@ def qna_prompt():
     print('qna_prompt')
     return 'Hello world'
 
-    @app.route('/qnainit', methods=['GET'])
+@app.route('/qnainit', methods=['GET'])
 def qnainit():
     try:
         return qnainit.qnainit()
     except:
         return 'An exception occurred'
-    
+
     
 
 @app.route('/add', methods=['POST'])
