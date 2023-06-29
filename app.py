@@ -3,7 +3,6 @@ import csv
 import openai
 import psycopg2
 from datetime import datetime
-from urllib.parse import unquote
 
 from flask import Flask, redirect, render_template, request, send_from_directory, url_for
 from flask_migrate import Migrate
@@ -48,7 +47,7 @@ def livecheck():
 @app.route('/completion/<string:prompt>', methods=['GET'])
 def completion(prompt):
     try:
-        return do_completion(unquote(prompt).decode('utf8'))
+        return do_completion(prompt)
     except:
         return 'An exception occurred'
 
