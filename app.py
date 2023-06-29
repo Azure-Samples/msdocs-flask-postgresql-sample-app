@@ -53,14 +53,14 @@ def create_restaurant():
     print('Request for add restaurant page received')
     return render_template('create_restaurant.html')
 
-@app.route('/prompt', methods=['GET'])
-def qna_prompt():
-    print('qna_prompt')
-    return 'Hello world'
+# @app.route('/prompt', methods=['GET'])
+# def qna_prompt():
+#     print('qna_prompt')
+#     return 'Hello world'
 
-@app.route('/qnainit', methods=['GET'])
-def qnainit():
-    return 'hello world'
+# @app.route('/qnainit', methods=['GET'])
+# def qnainit():
+#     return 'hello world'
     # try:
     #     return qnainit.qnainit()
     # except:
