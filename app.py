@@ -36,6 +36,10 @@ migrate = Migrate(app, db)
 
 @app.route('/livecheck', methods=['GET'])
 def livecheck():
+    return 'OK'
+
+@app.route('/insertintodb', methods=['GET'])
+def insertintodb():
     InsertQnA("Question test db", "answer test db", "")
     return 'OK'
 
