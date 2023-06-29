@@ -86,7 +86,7 @@ def qnainit():
         return 'Error in qnainit()'
 
 
-def InsertQnA(question, answer, embeddings)
+def InsertQnA(question, answer, embeddings):
     conn = psycopg2.connect(user="ATeam", password="4t34m!", host="ateam-qna-server.postgres.database.azure.com", port=5432, database="qna-embeddings-db")
     cur = conn.cursor()
     insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ({0}, {1}, {2})".format(question,embeddings,answer)
