@@ -46,7 +46,7 @@ def qnainit():
 
 @app.route('/testdb', methods=['POST'])
 def testdb():
-    InsertQnA("Question test db", "answer test db", NULL)
+    InsertQnA("Question test db", "answer test db", "")
     return "testdb"
 
 
@@ -89,7 +89,7 @@ def qnainit():
 def InsertQnA(question, answer, embeddings):
     conn = psycopg2.connect(user="ATeam", password="4t34m!", host="ateam-qna-server.postgres.database.azure.com", port=5432, database="qna-embeddings-db")
     cur = conn.cursor()
-    insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ({0}, {1}, {2})".format(question,embeddings,answer)
+    insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ({0}, NULL, {1})".format(question,answer)
     cur.execute(insert_query)
     conn.commit()
 
