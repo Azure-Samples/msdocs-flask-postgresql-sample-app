@@ -50,11 +50,6 @@ def qnainit():
     except:
         return 'An exception occurred'
 
-@app.route('/testdb', methods=['GET'])
-def testdb():
-    return "testdb"
-
-
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
