@@ -44,10 +44,10 @@ def livecheck():
 ##    except:
 #        return 'An exception occurred'
 
-@app.route('/completion', methods=['GET'])
-def completion():
+@app.route('/completion/<string:prompt>', methods=['GET'])
+def completion(prompt):
     try:
-        return do_completion()
+        return do_completion(prompt)
     except:
         return 'An exception occurred'
 
@@ -94,7 +94,7 @@ def do_init():
     except Exception as e:
         return 'error again in qnainit ' + str(e)
 
-def do_completion():
+def do_completion(prompt):
     logs = "logs:"
 
     try:
