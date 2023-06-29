@@ -113,7 +113,7 @@ def do_completion(prompt):
             presence_penalty=0,
             stop=None)
         
-        return response['choice'][0]['text']
+        return response['choices'][0]['text']
     except Exception as e:
         return 'error again in qnainit ' + str(e)
 
