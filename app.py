@@ -2,6 +2,7 @@ import os
 import csv
 import openai
 import psycopg2
+import traceback
 from datetime import datetime
 
 from flask import Flask, redirect, render_template, request, send_from_directory, url_for
@@ -82,8 +83,8 @@ def qnainit():
                     logs += '\r\n\r\n' + question + ' ' + embeddings
                     tmpwriter.writerow([question,answer,embeddings])
         return 'success' + logs
-    except:
-        return 'Error in qnainit()'
+    except Exception:
+        print(traceback.format_exc())
 
 
 def InsertQnA(question, answer, embeddings):
