@@ -40,7 +40,7 @@ def livecheck():
 @app.route('/insertintodb', methods=['GET'])
 def insertintodb():
     try:
-        return InsertQnA()
+        return InsertQnA("my question", null, "my answer")
     except:
         return 'An exception occurred'
 
@@ -82,20 +82,27 @@ def do_init():
                      embeddings = response['data'][0]['embedding']
                      logs += '\r\n\r\n' + question + ' ' + embeddings
                      tmpwriter.writerow([question,answer,embeddings])
+                     InsertQnA(question, embeddings, answer)
         return 'success' + logs
     except:
         return 'error again in qnainit'
 
 
-def InsertQnA():
-    conn = psycopg2.connect(user="ATeam", password="4t34m!", host="ateam-qna-server.postgres.database.azure.com", port=5432, database="qna-embeddings-db")
-    cur = conn.cursor()
-    print(conn)
-    print(cur)
-    insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ('my question', NULL,'my answer')"
-    cur.execute(insert_query)
-    conn.commit()
-    return insert_query
+def InsertQnA(question, embeddings, answer):
+    if question is not None && answer is not None:
+        conn = psycopg2.connect(user="ATeam", password="4t34m!", host="ateam-qna-server.postgres.database.azure.com", port=5432, database="qna-embeddings-db")
+        cur = conn.cursor()
+        print(conn)
+        print(cur)
+        if embeddings is not None
+            insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ('{0}', '{1}', '{2}')".format(question,embeddings,answer)
+        else
+            insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ('{0}', NULL, '{2}')".format(question,answer)
+        cur.execute(insert_query)
+        conn.commit()
+        return "ok"
+    else
+        return "question or answer null"
 
 if __name__ == '__main__':
     app.run()
