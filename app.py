@@ -92,9 +92,9 @@ def InsertQnA():
     cur = conn.cursor()
     print(conn)
     print(cur)
-    insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES (\"my question\", NULL,\"my answer\")"
-    #cur.execute(insert_query)
-    #conn.commit()
+    insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ('my question', NULL,'my answer')"
+    cur.execute(insert_query)
+    conn.commit()
     return insert_query
 
 if __name__ == '__main__':
