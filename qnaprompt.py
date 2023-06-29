@@ -1,6 +1,6 @@
 import os
 import openai
-import load
+
 def prompt(input):
     openai.api_key = os.getenv("OPENAI_API_KEY")
     openai.api_base = os.getenv("OPENAI_ENDPOINT")

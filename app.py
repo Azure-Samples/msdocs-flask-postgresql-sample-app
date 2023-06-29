@@ -63,7 +63,6 @@ def qnainit():
         return await qnainit.qnainit()
     except:
         return 'An exception occurred'
-    return
 
 @app.route('/add', methods=['POST'])
 @csrf.exempt
