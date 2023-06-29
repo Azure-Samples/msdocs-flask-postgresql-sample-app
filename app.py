@@ -94,14 +94,14 @@ def InsertQnA(question, embeddings, answer):
         cur = conn.cursor()
         print(conn)
         print(cur)
-        if embeddings is not None
+        if embeddings is not None:
             insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ('{0}', '{1}', '{2}')".format(question,embeddings,answer)
-        else
+        else:
             insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ('{0}', NULL, '{2}')".format(question,answer)
         cur.execute(insert_query)
         conn.commit()
         return "ok"
-    else
+    else:
         return "question or answer null"
 
 if __name__ == '__main__':
