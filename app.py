@@ -5,8 +5,8 @@ from flask import Flask, redirect, render_template, request, send_from_directory
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-# import qnaprompt
-# import qnainit
+import qnaprompt
+import qnainit
 
 app = Flask(__name__, static_folder='static')
 csrf = CSRFProtect(app)
@@ -52,10 +52,10 @@ def create_restaurant():
     print('Request for add restaurant page received')
     return render_template('create_restaurant.html')
 
-@app.route('/prompt', methods=['GET'])
-def qna_prompt():
+@app.route('/prompt/<prompt>', methods=['GET'])
+def qna_prompt(prompt):
     print('qna_prompt')
-    return 'Hello world'
+    return prompt
 
 @app.route('/qnainit', methods=['GET'])
 def qnainit():
