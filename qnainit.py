@@ -16,15 +16,14 @@ def qnainit():
         datareader = csv.reader(srccsvfile, delimiter=';')
         
         with open('./embeddings/embeddings.csv', 'a', newline='\r\n') as dstcsvfile:
-            tmpwriter = csv.writer(dstcsvfile, delimiter=';',
-                                quotechar='', quoting=csv.QUOTE_NONE)
+            tmpwriter = csv.writer(dstcsvfile, delimiter=';', quotechar='', quoting=csv.QUOTE_NONE)
             for row in datareader:
                 question = row[0]
                 answer = row[1]
                 
                 response = openai.Embedding.create(
                     input=question,
-                    engine=os.getenv("OPENAI_DEPLOYMENT")
+                    engine=os.getenv("OPENAI_DEPLOYMENT_EMBEDDING")
                 )
                 embeddings = response['data'][0]['embedding']
                 logs += '\r\n\r\n' + question + ' ' + embeddings
