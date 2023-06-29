@@ -39,13 +39,15 @@ def livecheck():
 
 @app.route('/insertintodb', methods=['GET'])
 def insertintodb():
-    InsertQnA("Question test db", "answer test db", "")
-    return 'OK'
+    try:
+        return qnainit()
+    except:
+        return 'An exception occurred'
 
 @app.route('/qnainit', methods=['GET'])
 def qnainit():
     try:
-        return qnainit()
+        return InsertQnA()
     except:
         return 'An exception occurred'
 
@@ -85,12 +87,13 @@ def qnainit():
         return 'error again in qnainit'
 
 
-def InsertQnA(question, answer, embeddings):
+def InsertQnA():
     conn = psycopg2.connect(user="ATeam", password="4t34m!", host="ateam-qna-server.postgres.database.azure.com", port=5432, database="qna-embeddings-db")
     cur = conn.cursor()
-    insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES ({0}, NULL, {1})".format(question,answer)
+    insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES (\"my question\", NULL,\"my answer\")"
     cur.execute(insert_query)
     conn.commit()
+    return "SUCCESS INSERT"
 
 if __name__ == '__main__':
     app.run()
