@@ -90,9 +90,11 @@ def qnainit():
 def InsertQnA():
     conn = psycopg2.connect(user="ATeam", password="4t34m!", host="ateam-qna-server.postgres.database.azure.com", port=5432, database="qna-embeddings-db")
     cur = conn.cursor()
+    print(conn)
+    print(cur)
     insert_query = "INSERT INTO qna.questionanswers(question, embedding, answer) VALUES (\"my question\", NULL,\"my answer\")"
-    cur.execute(insert_query)
-    conn.commit()
+    #cur.execute(insert_query)
+    #conn.commit()
     return "SUCCESS INSERT"
 
 if __name__ == '__main__':
