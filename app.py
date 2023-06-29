@@ -60,7 +60,7 @@ def qna_prompt():
 
     @app.route('/qnainit', methods=['GET'])
 def qnainit():
-    print('qnainit')
+    qnainit.qnainit()
     return 'Success'
     
 
