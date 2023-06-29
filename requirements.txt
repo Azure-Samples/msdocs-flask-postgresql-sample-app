@@ -7,5 +7,3 @@ python-dotenv
 SQLAlchemy
 openai
 scipy
-csv
-os
