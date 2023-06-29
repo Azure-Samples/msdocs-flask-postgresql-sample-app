@@ -105,7 +105,7 @@ def do_completion(prompt):
 
         response = openai.Completion.create(
             engine='lxgpt35',
-            prompt='Reset previous conversation context. Now answer the following question: '+ prompt,
+            prompt='Reset previous conversation context. Now answer the following question: '+ prompt.replace('%',' '),
             temperature=0.7,
             max_tokens=256,
             top_p=1,
