@@ -118,7 +118,7 @@ def do_completion(prompt):
             top_p=1,
             frequency_penalty=0,
             presence_penalty=0,
-            stop=["\n"])
+            stop=None)
         
         return response['choices'][0]['text']
     except Exception as e:
