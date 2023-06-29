@@ -77,7 +77,7 @@ def do_init():
             
                 response = openai.Embedding.create(
                     input=question,
-                    engine='lxgpt35'
+                    engine='lxtextembedding002'
                 )
                 embeddings = response['data'][0]['embedding']
                 logs += '\r\n\r\n' + question + ' ' + embeddings
