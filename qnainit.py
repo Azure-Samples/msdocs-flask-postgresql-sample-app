@@ -20,7 +20,9 @@ def qnainit():
                                 quotechar='', quoting=csv.QUOTE_NONE)
             for row in datareader:
                 question = row[0]
-                answer = row[1]                response = openai.Embedding.create(
+                answer = row[1]
+                
+                response = openai.Embedding.create(
                     input=question,
                     engine=os.getenv("OPENAI_DEPLOYMENT")
                 )
