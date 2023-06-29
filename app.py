@@ -61,6 +61,7 @@ def qna_prompt():
 def qnainit():
     try:
        return "13245"
+       
         # return await qnainit.qnainit()
     except:
         return 'An exception occurred'
