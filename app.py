@@ -44,6 +44,13 @@ def livecheck():
 ##    except:
 #        return 'An exception occurred'
 
+@app.route('/completion', methods=['GET'])
+def completion():
+    try:
+        return do_completion()
+    except:
+        return 'An exception occurred'
+
 @app.route('/qnainit', methods=['GET'])
 def qnainit():
     try:
@@ -84,6 +91,29 @@ def do_init():
                 tmpwriter.writerow([question,answer,embeddings])
                 InsertQnA(question, embeddings, answer)
         return 'success' + logs
+    except Exception as e:
+        return 'error again in qnainit ' + str(e)
+
+def do_completion():
+    logs = "logs:"
+
+    try:
+        openai.api_key = "efa40032bc644d449c3bf80610e21228"
+        openai.api_base = "https://lxopenaihackathon.openai.azure.com/"
+        openai.api_type = "azure"
+        openai.api_version = '2022-12-01'
+
+        response = openai.Completion.create(
+            engine="lxcodedavinci002",
+            prompt=prompt,
+            temperature=1,
+            max_tokens=1000,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=None)
+        
+        return response['choice'][0]['text']
     except Exception as e:
         return 'error again in qnainit ' + str(e)
 
