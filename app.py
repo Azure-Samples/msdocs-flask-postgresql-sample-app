@@ -8,7 +8,6 @@ from flask_wtf.csrf import CSRFProtect
 # import qnaprompt
 # import qnainit
 
-
 app = Flask(__name__, static_folder='static')
 csrf = CSRFProtect(app)
 
