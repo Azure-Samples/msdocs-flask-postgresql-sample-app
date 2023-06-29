@@ -6,4 +6,3 @@ psycopg2
 python-dotenv
 SQLAlchemy
 openai
-scipy
