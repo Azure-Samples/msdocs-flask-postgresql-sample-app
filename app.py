@@ -106,12 +106,12 @@ def do_completion(prompt):
         response = openai.Completion.create(
             engine="lxgpt35",
             prompt='reset previous conversation context and answer the following question '+ prompt,
-            temperature=1,
-            max_tokens=1000,
+            temperature=0.7,
+            max_tokens=256,
             top_p=1,
             frequency_penalty=0,
             presence_penalty=0,
-            stop=None)
+            stop=["\n"])
         
         return response['choices'][0]['text']
     except Exception as e:
