@@ -1,8 +1,6 @@
 import os
 import csv
 import openai
-<<<<<<< HEAD
-=======
 import psycopg2
 from datetime import datetime
 
