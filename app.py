@@ -37,12 +37,12 @@ migrate = Migrate(app, db)
 def livecheck():
     return 'OK'
 
-@app.route('/insertintodb', methods=['GET'])
-def insertintodb():
-    try:
-        return InsertQnA("my question", null, "my answer")
-    except:
-        return 'An exception occurred'
+#@app.route('/insertintodb', methods=['GET'])
+#def insertintodb():
+#    try:
+#        return InsertQnA("my question", null, "my answer")
+##    except:
+#        return 'An exception occurred'
 
 @app.route('/qnainit', methods=['GET'])
 def qnainit():
