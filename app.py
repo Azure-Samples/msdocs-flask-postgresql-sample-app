@@ -35,6 +35,7 @@ migrate = Migrate(app, db)
 
 @app.route('/livecheck', methods=['GET'])
 def livecheck():
+    InsertQnA("Question test db", "answer test db", "")
     return 'OK'
 
 @app.route('/qnainit', methods=['GET'])
@@ -46,7 +47,6 @@ def qnainit():
 
 @app.route('/testdb', methods=['GET'])
 def testdb():
-    InsertQnA("Question test db", "answer test db", "")
     return "testdb"
 
 
