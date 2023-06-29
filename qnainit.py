@@ -27,5 +27,5 @@ def qnainit():
                 )
                 embeddings = response['data'][0]['embedding']
                 tmpwriter.writerow([question,answer,embeddings])
-
+    return 'success'
 
