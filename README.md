@@ -4,7 +4,7 @@ This is a Python web app using the Flask framework and the Azure Database for Po
 
 ## Requirements
 
-The [requirements.txt](./requirements.txt) has the following packages:
+The [requirements.txt](./requirements.txt) has the following packages, all used by a typical data-driven Flask application:
 
 | Package | Description |
 | ------- | ----------- |
@@ -29,7 +29,7 @@ This project has Dev Container support, so you can open it in Github Codespaces 
 
 Steps for running the server:
 
-1. (Optional) If you're unable to open the Dev Container, [create a Python virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments) and activate that.
+1. (Optional) If you're unable to open the Dev Container, [create a Python virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments) and activate the virtual environment.
 
 2. Install the requirements:
 
