@@ -51,7 +51,7 @@
 			}
 		}
 	},
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// Use 'forwardPorts' to make a list of ports inside the container available locally. 5000 is for Flask, and 5432 is for PostgreSQL.
 	"forwardPorts": [
 		5000, 5432
 	],
