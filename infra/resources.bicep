@@ -13,6 +13,12 @@ var pgServerName = '${prefix}-postgres-server'
 var databaseSubnetName = 'database-subnet'
 var webappSubnetName = 'webapp-subnet'
 
+// Added for Azure Redis Cache
+var cacheServerName = '${prefix}-redisCache'
+var cacheSubnetName = 'cache-subnet'
+var cachePrivateEndpointName = 'cache-privateEndpoint'
+var cachePvtEndpointDnsGroupName = 'cacheDnsGroup'
+
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   name: '${prefix}-vnet'
   location: location
@@ -52,6 +58,12 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
           ]
         }
       }
+      {
+        name: cacheSubnetName
+        properties:{
+          addressPrefix: '10.0.2.0/24'
+        }
+      }
     ]
   }
   resource databaseSubnet 'subnets' existing = {
@@ -60,6 +72,10 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   resource webappSubnet 'subnets' existing = {
     name: webappSubnetName
   }
+  // Added for Azure Redis Cache
+  resource cacheSubnet 'subnets' existing = {
+    name: cacheSubnetName
+  }
 }
 
 resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
@@ -67,6 +83,16 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   location: 'global'
   tags: tags
   dependsOn: [
+    virtualNetwork
+  ]
+}
+
+// Added for Azure Redis Cache
+resource privateDnsZoneCache 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+  name: 'privatelink.redis.cache.windows.net'
+  location: 'global'
+  tags: tags
+  dependsOn:[
     virtualNetwork
   ]
 }
@@ -83,6 +109,54 @@ resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
   }
 }
 
+// Added for Azure Redis Cache
+resource privateDnsZoneLinkCache 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+ parent: privateDnsZoneCache
+ name: 'privatelink.redis.cache.windows.net-applink'
+ location: 'global'
+ properties: {
+   registrationEnabled: false
+   virtualNetwork: {
+     id: virtualNetwork.id
+   }
+ }
+}
+
+
+resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
+  name: cachePrivateEndpointName
+  location: location
+  properties: {
+    subnet: {
+      id: virtualNetwork::cacheSubnet.id
+    }
+    privateLinkServiceConnections: [
+      {
+        name: cachePrivateEndpointName
+        properties: {
+          privateLinkServiceId: redisCache.id
+          groupIds: [
+            'redisCache'
+          ]
+        }
+      }
+    ]
+  }
+  resource cachePvtEndpointDnsGroup 'privateDnsZoneGroups' = {
+    name: cachePvtEndpointDnsGroupName
+    properties: {
+      privateDnsZoneConfigs: [
+        {
+          name: 'privatelink-redis-cache-windows-net'
+          properties: {
+            privateDnsZoneId: privateDnsZoneCache.id
+          }
+        }
+      ]
+    }
+  }
+}
+
 resource web 'Microsoft.Web/sites@2022-03-01' = {
   name: '${prefix}-app-service'
   location: location
@@ -92,7 +166,7 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     serverFarmId: appServicePlan.id
     siteConfig: {
       alwaysOn: true
-      linuxFxVersion: 'PYTHON|3.10'
+      linuxFxVersion: 'PYTHON|3.11'
       ftpsState: 'Disabled'
       appCommandLine: 'startup.sh'
     }
@@ -109,6 +183,8 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
       AZURE_POSTGRESQL_CONNECTIONSTRING: 'dbname=${pythonAppDatabase.name} host=${postgresServer.name}.postgres.database.azure.com port=5432 sslmode=require user=${postgresServer.properties.administratorLogin} password=${databasePassword}'
       SECRET_KEY: secretKey
       FLASK_DEBUG: 'False'
+      //Added for Azure Redis Cache
+      AZURE_REDIS_CONNECTIONSTRING: 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.name}.redis.cache.windows.net:6380/0'
     }
   }
 
@@ -267,6 +343,22 @@ resource pythonAppDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@
   parent: postgresServer
   name: 'pythonapp'
 }
+
+//added for Redis Cache
+resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
+  location:location
+  name:cacheServerName
+  properties:{
+    sku:{
+      capacity: 1
+      family:'C'
+      name:'Standard'
+    }
+    enableNonSslPort:false
+    redisVersion:'6'
+    publicNetworkAccess:'Disabled'
+  }
+}    
 
 output WEB_URI string = 'https://${web.properties.defaultHostName}'
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsightsResources.outputs.APPLICATIONINSIGHTS_CONNECTION_STRING

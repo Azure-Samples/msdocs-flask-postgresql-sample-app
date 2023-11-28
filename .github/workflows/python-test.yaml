@@ -17,7 +17,7 @@ jobs:
         python_version: ["3.8", "3.9", "3.10", "3.11"]
     services:
       postgres:
-        image: postgres:11
+        image: postgres:12
         env:
           POSTGRES_PASSWORD: postgres
         ports:
@@ -51,4 +51,3 @@ jobs:
             DBHOST: localhost
             DBUSER: postgres
             DBPASS: postgres
-            SECRET_KEY: flask-insecure-key-${{ github.run_id }}-${{ github.run_attempt }}

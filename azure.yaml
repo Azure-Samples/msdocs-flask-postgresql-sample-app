@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 # azure.yaml is an azd configuration file and isn't used by the sample application. 
 
-name: flask-postgresql-sample-app
+name: python-app-service-postgresql-redis-infra
 metadata:
-  template: flask-postgresql-sample-app@0.0.1-beta
+  template: python-app-service-postgresql-redis-infra@0.0.1-beta
 services:
   web:
     project: .
