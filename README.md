@@ -8,8 +8,8 @@ languages:
 products:
 - azure
 - azure-app-service
-- azure-postgresql
-- azure-virtual-networks
+- azure-database-postgresql
+- azure-virtual-network
 urlFragment: msdocs-flask-postgresql-sample-app
 name: Deploy a Python (Flask) web app with PostgreSQL in Azure
 description: This is a Python web app using the Flask framework and the Azure Database for PostgreSQL relational database service. 
