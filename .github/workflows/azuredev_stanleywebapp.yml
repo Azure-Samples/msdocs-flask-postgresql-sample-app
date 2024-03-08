@@ -66,4 +66,4 @@ jobs:
         with:
           app-name: 'stanleywebapp'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_57120DA2F468400CA6E674C7B0C2E2F7 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E01637C3EED24C0C8E8A740966D96992 }}
