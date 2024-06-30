@@ -4,6 +4,20 @@ from sqlalchemy.orm import validates
 from app import db
 
 
+class Account(db.Model):
+    __tablename__ = 'accounts'
+    id = Column(Integer, primary_key=True)
+    account_number = Column(String(30), unique=True, nullable=False)
+    account_type = Column(String(20), nullable=False) # Single or joint
+    depositor_1 = Column(String(50), nullable=False)
+    depositor_2 = Column(String(50), nullable=True)
+    amount = Column(Integer, nullable=False)    
+    maturity_date = Column(String(50), nullable=False)
+
+    def __str__(self):
+        return self.depositor_name_1
+
+
 class Restaurant(db.Model):
     __tablename__ = 'restaurant'
     id = Column(Integer, primary_key=True)

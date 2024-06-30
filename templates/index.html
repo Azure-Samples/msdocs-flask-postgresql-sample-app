@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Restaurant List{% endblock %}
+{% block title %}DOP Buddy Home {% endblock %}
 {% block head %}
     {{ super() }}
     <style>
@@ -38,35 +38,99 @@
         -webkit-text-stroke: initial;
         /* overflow: hidden; */
       }
+
+      .tab-content .container {
+        padding-top: 20px;
+      }
   </style>
 {% endblock %}
 {% block content %}
-      <h1>Restaurants</h1>
-
-      {% if True %}
-          <table class="table">
-              <thead>
-                  <tr>
-                      <th>Name</th>
-                      <th>Rating</th>
-                      <th class="text-end">Details</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for restaurant in restaurants %}
-                      <tr>
-                          <td>{{ restaurant.name }}</td>
-                          <td>{% include "star_rating.html" %}</td>
-                          <td class="text-end"><a href="{{ url_for('details', id=restaurant.id) }}" class="btn btn-sm btn-primary">Details</a></td>
-                      </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-      {% else %}
-          <p>No restaurants exist.  Select Add new restaurant to add one.</p>
-      {% endif %}
-
-      <div class="d-flex justify-content-end">
-              <a href="{{ url_for('create_restaurant') }}" class="btn btn-success px-4 gap-3">Add new restaurant</a>
+    <nav>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <button class="nav-link active" id="nav-search-account-tab" data-bs-toggle="tab" data-bs-target="#nav-search-account" type="button" role="tab" aria-controls="nav-search-account" aria-selected="true">Search Accounts</button>
+        <button class="nav-link" id="nav-add-account-tab" data-bs-toggle="tab" data-bs-target="#nav-add-account" type="button" role="tab" aria-controls="nav-add-account" aria-selected="false">Add Account</button>
       </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane fade show active" id="nav-search-account" role="tabpanel" aria-labelledby="nav-search-account-tab" tabindex="0">
+        <div class="container">
+          <form class="row g-3" id="searchAccounts" method="POST" action="{{ url_for('search') }}">
+            <div class="col-md-12">
+              <label for="inputAccountIDs" class="form-label">Account IDs</label>
+              <input type="text" class="form-control" id="inputAccountIDs" placeholder="Comma separated account id (e.g. - 1,2,3)" name="account_ids">
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+              <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="nav-add-account" role="tabpanel" aria-labelledby="nav-add-account-tab" tabindex="0">
+        <div class="container">
+          <form class="row g-3" id="addAccount" method="POST" action="{{ url_for('add') }}">
+            <div>
+              <fieldset class="row md-3">
+                <legend class="col-form-label col-sm-2 pt-0">Account Type</legend>
+                <div class="col-sm-10">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" id="inlineRadio1" value="single" checked name="account_type">
+                    <label class="form-check-label" for="inlineRadio1">
+                      Single
+                    </label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" id="inlineRadio2" value="joint" name="account_type">
+                    <label class="form-check-label" for="inlineRadio2">
+                      Joint
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div class="col-md-4">
+              <label for="inputAccountNumber" class="form-label">Account Number</label>
+              <input type="text" class="form-control" id="inputAccountNumber" name="account_number">
+            </div>
+            <div class="col-md-4">
+              <label for="inputDepositor1" class="form-label">Depositor 1</label>
+              <input type="text" class="form-control" id="inputDepositor1" name="depositor_1">
+            </div>
+            <div class="col-md-4">
+              <label for="inputDepositor2" class="form-label">Depositor 2</label>
+              <input type="text" class="form-control" id="inputDepositor2" name="depositor_2">
+            </div>
+            <div class="col-md-4">
+              <label for="inputAmount" class="form-label">Amount</label>
+              <input type="text" class="form-control" id="inputAmount" name="amount">
+            </div>
+            <div class="col-md-4">
+              <label for="inputMaturityDate" class="form-label">Maturity Date</label>
+              <input type="text" class="form-control" id="inputMaturityDate" placeholder="DD/MM/YYYY" name="maturity_date">
+            </div>
+            <div class="col-md-4">
+              <label for="inputAgent" class="form-label">Agent</label>
+              <input type="text" class="form-control" id="inputAgent" placeholder="Ruhi Kumari (4286)" name="agent">
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+              <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+<script>
+  const triggerTabList = document.querySelectorAll('#myTab button')
+  triggerTabList.forEach(triggerEl => {
+    const tabTrigger = new bootstrap.Tab(triggerEl)
+
+    triggerEl.addEventListener('click', event => {
+      event.preventDefault()
+      tabTrigger.show()
+    })
+  })
+
+  
+
+</script>
 {% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Account Details{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style>
+      body {
+          min-height: 75rem;
+          padding-top: 4.5rem;
+      }
+  </style>
+{% endblock %}
+{% macro render_error(category, message) -%}
+      <h1>{{category}}</h1>
+      <div class="alert alert-danger" role="alert">
+        <p>{{message}}</p>
+      </div>
+{% endmacro %}
+
+{% block content %}
+{% if error %}
+      {{render_error(error.category, error.message)}}
+{% else %}
+      {{render_error('Unknown error', 'An unknown error occurred')}}
+{% endif %}
+{% endblock %}
