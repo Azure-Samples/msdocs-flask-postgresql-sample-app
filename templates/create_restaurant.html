@@ -25,9 +25,44 @@
             <label for="description" class="form-label">Description</label>
             <input type="text" class="form-control" id="description" name="description">
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-        <button type="cancel" class="btn btn-primary">Cancel</button>
         <input type="file" class="form-control" id="photo" name="photo">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="cancel" class="btn btn-secondary">Cancel</button>
     </form>
+
+    <!-- Bouton pour envoyer un email via Logic App -->
+    <button id="sendEmailButton" class="btn btn-success mt-3">Envoyer un email</button>
+
+    <script>
+        document.getElementById('sendEmailButton').addEventListener('click', function () {
+            const url = "https://prod-52.northeurope.logic.azure.com:443/workflows/c6fb2a86af7e4edf94b4c0e1679293e9/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=ikT3oWZG8GAzeO4R3GH2hXduO4pSryVqsw_gRsz99L8";
+
+            const body = {
+                "to": "destinataire@example.com",
+                "subject": "Nouveau Restaurant Ajouté",
+                "body": `Un nouveau restaurant a été ajouté :\n\nNom: ${document.getElementById('restaurant_name').value}\nAdresse: ${document.getElementById('street_address').value}\nDescription: ${document.getElementById('description').value}`
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Email envoyé avec succès !');
+                } else {
+                    alert('Erreur lors de l\'envoi de l\'email.');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur s\'est produite.');
+            });
+        });
+    </script>
 {% endblock %}
+
     
