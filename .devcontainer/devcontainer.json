@@ -14,7 +14,8 @@
 				"ms-python.python",
 				"ms-python.vscode-pylance",
 				"mtxr.sqltools",
-				"mtxr.sqltools-driver-pg"
+				"mtxr.sqltools-driver-pg",
+				"GitHub.copilot"
 			],
 			"settings": {
 				"sqltools.connections": [
