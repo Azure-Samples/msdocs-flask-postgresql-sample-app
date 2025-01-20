@@ -11,6 +11,9 @@
       "databasePassword": {
         "value": "$(secretOrRandomPassword)"
       },
+      "principalId": {
+        "value": "${AZURE_PRINCIPAL_ID}"
+      },
       "secretKey": {
         "value": "$(secretOrRandomPassword)"
       }
