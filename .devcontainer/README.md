@@ -5,6 +5,7 @@ This `.devcontainer` directory contains the configuration for a [dev container](
 The dev container configuration lets you open the repository in a [GitHub codespace](https://docs.github.com/codespaces/overview) or a dev container in Visual Studio Code. For your convenience, the dev container is configured with the following:
 
 - Python
+- Running `pip install -r requirements.txt` from the project at container start.
 - PostgreSQL
 - Redis
 - [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/overview) (so you can run `azd` commands directly).
