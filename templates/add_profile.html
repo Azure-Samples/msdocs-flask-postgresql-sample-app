@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile Form</title>
+    <style>
+        /* Global Styles */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+
+        /* Heading */
+        .form-container h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Form Inputs */
+        .form-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* Password Input */
+        .form-container input[type="password"] {
+            letter-spacing: 1px;
+        }
+
+        /* Submit Button */
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            background: #2575fc;
+            border: none;
+            color: white;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+        }
+
+        .form-container button:hover {
+            background: #6a11cb;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 400px) {
+            .form-container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <h3>Create Account</h3>
+        <form action="/add" method="POST">
+            <!-- Include CSRF token as a hidden field -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="first_name" placeholder="Username..." required>
+            <input type="password" name="pass_word" placeholder="Password..." required>
+            <button type="submit">Add</button>
+        </form>
+    </div>
+</body>
+
+</html>
