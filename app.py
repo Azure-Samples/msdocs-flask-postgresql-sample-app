@@ -118,6 +118,6 @@ def utility_processor():
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
+# add port 8000
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=8000)
