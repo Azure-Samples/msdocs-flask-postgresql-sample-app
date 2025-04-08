@@ -51,3 +51,4 @@ jobs:
             DBHOST: localhost
             DBUSER: postgres
             DBPASS: postgres
+            SECRET_KEY: flask-insecure-key-${{ github.run_id }}-${{ github.run_attempt }}
