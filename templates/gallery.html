@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+</head>
+<body>
+    <h1>Image Gallery</h1>
+
+    <div class="gallery">
+        {% for image in images %}
+            <div class="image-item">
+                <img src="{{ url_for('uploaded_file', filename=image.image_path) }}" alt="Uploaded Image" width="300">
+                <p>Uploaded at: {{ image.upload_time }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+</body>
+</html>
