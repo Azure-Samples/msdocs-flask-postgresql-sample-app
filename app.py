@@ -1,14 +1,28 @@
 import os
 from datetime import datetime
-
 from flask import Flask, redirect, render_template, request, send_from_directory, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.utils import secure_filename
+from flask import Flask, jsonify
 
+
+
+
+
+os.urandom(24)
 
 app = Flask(__name__, static_folder='static')
-csrf = CSRFProtect(app)
+
+
+
+#csrf = CSRFProtect(app)
+
+
+
+# Set the secret key for CSRF protection
+app.config['SECRET_KEY'] = 'your_secret_key_here'  # Usa una clave secreta segura
 
 # WEBSITE_HOSTNAME exists only in production environment
 if 'WEBSITE_HOSTNAME' not in os.environ:
@@ -20,25 +34,36 @@ else:
     print("Loading config.production.")
     app.config.from_object('azureproject.production')
 
+
+# Configuración
+UPLOAD_FOLDER = 'uploads/'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config.update(
-    SQLALCHEMY_DATABASE_URI=app.config.get('DATABASE_URI'),
+    SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URI', 'sqlite:///restaurants.db'),
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
 )
-
 # Initialize the database connection
 db = SQLAlchemy(app)
 
 # Enable Flask-Migrate commands "flask db init/migrate/upgrade" to work
 migrate = Migrate(app, db)
 
-# The import must be done after db initialization due to circular import issue
-from models import Restaurant, Review
 
+
+
+
+
+# Los modelos deben ser importados después de la inicialización de la base de datos
+from models import Restaurant, Review, ImageUpload
+
+# Rutas existentes...
 @app.route('/', methods=['GET'])
 def index():
     print('Request for index page received')
     restaurants = Restaurant.query.all()
-    return render_template('index.html', restaurants=restaurants)
+    images = ImageUpload.query.order_by(ImageUpload.upload_time.desc()).all()
+    return render_template('index.html', restaurants=restaurants, images=images)
 
 @app.route('/<int:id>', methods=['GET'])
 def details(id):
@@ -51,73 +76,56 @@ def create_restaurant():
     print('Request for add restaurant page received')
     return render_template('create_restaurant.html')
 
-@app.route('/add', methods=['POST'])
-@csrf.exempt
-def add_restaurant():
-    try:
-        name = request.values.get('restaurant_name')
-        street_address = request.values.get('street_address')
-        description = request.values.get('description')
-    except (KeyError):
-        # Redisplay the question voting form.
-        return render_template('add_restaurant.html', {
-            'error_message': "You must include a restaurant name, address, and description",
-        })
-    else:
-        restaurant = Restaurant()
-        restaurant.name = name
-        restaurant.street_address = street_address
-        restaurant.description = description
-        db.session.add(restaurant)
-        db.session.commit()
+# Nueva ruta para subir imágenes
+@app.route('/upload', methods=['GET', 'POST'])
+#@csrf.exempt  # Desactivar CSRF solo para esta ruta
+def upload_image():
+    if request.method == 'POST':
+        # Verificar si hay un archivo en la solicitud
+        if 'image_file' not in request.files:
+            return "No file part", 400
+        file = request.files['image_file']
 
-        return redirect(url_for('details', id=restaurant.id))
+        # Si no seleccionaron un archivo
+        if file.filename == '':
+            return "No selected file", 400
 
-@app.route('/review/<int:id>', methods=['POST'])
-@csrf.exempt
-def add_review(id):
-    try:
-        user_name = request.values.get('user_name')
-        rating = request.values.get('rating')
-        review_text = request.values.get('review_text')
-    except (KeyError):
-        #Redisplay the question voting form.
-        return render_template('add_review.html', {
-            'error_message': "Error adding review",
-        })
-    else:
-        review = Review()
-        review.restaurant = id
-        review.review_date = datetime.now()
-        review.user_name = user_name
-        review.rating = int(rating)
-        review.review_text = review_text
-        db.session.add(review)
-        db.session.commit()
+        if file and allowed_file(file.filename):
+            # Asegurarse de que el nombre del archivo es seguro
+            filename = secure_filename(file.filename)
+            # Guardar el archivo en la carpeta uploads en la raíz del proyecto
+            upload_folder = os.path.join(app.root_path, 'uploads')
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+            filepath = os.path.join(upload_folder, filename)
+            file.save(filepath)
 
-    return redirect(url_for('details', id=id))
+            # Obtener la hora de la subida
+            upload_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-@app.context_processor
-def utility_processor():
-    def star_rating(id):
-        reviews = Review.query.where(Review.restaurant == id)
+            # Registrar la subida de la imagen en la base de datos (si deseas hacerlo)
+            image_record = ImageUpload(image_path=filename, upload_time=upload_time) 
+            db.session.add(image_record)
+            db.session.commit()
 
-        ratings = []
-        review_count = 0
-        for review in reviews:
-            ratings += [review.rating]
-            review_count += 1
+            return f"Image uploaded successfully! Uploaded at: {upload_time}"
 
-        avg_rating = sum(ratings) / len(ratings) if ratings else 0
-        stars_percent = round((avg_rating / 5.0) * 100) if review_count > 0 else 0
-        return {'avg_rating': avg_rating, 'review_count': review_count, 'stars_percent': stars_percent}
+    return render_template('upload_image.html')  # Página con el formulario de carga de imág
 
-    return dict(star_rating=star_rating)
+# Método para verificar que el archivo tiene una extensión permitida
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(os.path.join(app.root_path, 'uploads'), filename)
+
+#@app.route('/health', methods=['GET'])
+#def health_check():
+    #return jsonify({"status": "healthy"}), 200
+
+
+# Rutas adicionales y utilidades...
 
 if __name__ == '__main__':
     app.run()

@@ -30,3 +30,9 @@ class Review(db.Model):
 
     def __str__(self):
         return f"{self.user_name}: {self.review_date:%x}"
+
+# Modelo de base de datos para almacenar la información de la imagen subida
+class ImageUpload(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(200), nullable=False)
+    upload_time = db.Column(db.String(50), nullable=False)
