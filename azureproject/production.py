@@ -7,7 +7,7 @@ DATABASE_URI = 'postgresql+psycopg2://{dbuser}:{dbpass}@{dbhost}/{dbname}'.forma
     dbhost=os.getenv('AZURE_POSTGRESQL_HOST'),
     dbname=os.getenv('AZURE_POSTGRESQL_NAME')
 )
-
+# hola
 # Otras configuraciones específicas del entorno de producción
 DEBUG = False
 SQLALCHEMY_TRACK_MODIFICATIONS = False
