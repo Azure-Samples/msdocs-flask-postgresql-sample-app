@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Uploads</title>
+</head>
+<body>
+    <h1>Uploaded Images</h1>
+    {% for upload in uploads %}
+        <div>
+            <h2>{{ upload.file_name }}</h2>
+            <p>Uploaded by: {{ upload.user_name }}</p>
+            <p>Red Pixels: {{ upload.red_pixels }}</p>
+            <p>Green Pixels: {{ upload.green_pixels }}</p>
+            <p>Blue Pixels: {{ upload.blue_pixels }}</p>
+            <img src="{{ url_for('uploaded_file', filename=upload.file_name) }}" alt="Uploaded Image">
+        </div>
+    {% endfor %}
+</body>
+</html>

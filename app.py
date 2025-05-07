@@ -1,22 +1,19 @@
 import os
 from datetime import datetime
-
-from flask import Flask, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, redirect, render_template, request, send_from_directory, url_for, jsonify
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
-# This is the main entry point for the application.
+# Main application
 app = Flask(__name__, static_folder='static')
 csrf = CSRFProtect(app)
 
-# WEBSITE_HOSTNAME exists only in production environment
+# Configuración según entorno
 if 'WEBSITE_HOSTNAME' not in os.environ:
-    # local development, where we'll use environment variables
     print("Loading config.development and environment variables from .env file.")
     app.config.from_object('azureproject.development')
 else:
-    # production
     print("Loading config.production.")
     app.config.from_object('azureproject.production')
 
@@ -25,14 +22,12 @@ app.config.update(
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
 )
 
-# Initialize the database connection
+# Inicializar base de datos
 db = SQLAlchemy(app)
-
-# Enable Flask-Migrate commands "flask db init/migrate/upgrade" to work
 migrate = Migrate(app, db)
 
-# The import must be done after db initialization due to circular import issue
-from models import Restaurant, Review
+# Importar modelos después de inicializar db
+from models import Restaurant, Review, ImageData
 
 @app.route('/', methods=['GET'])
 def index():
@@ -59,7 +54,6 @@ def add_restaurant():
         street_address = request.values.get('street_address')
         description = request.values.get('description')
     except (KeyError):
-        # Redisplay the question voting form.
         return render_template('add_restaurant.html', {
             'error_message': "You must include a restaurant name, address, and description",
         })
@@ -70,7 +64,6 @@ def add_restaurant():
         restaurant.description = description
         db.session.add(restaurant)
         db.session.commit()
-
         return redirect(url_for('details', id=restaurant.id))
 
 @app.route('/review/<int:id>', methods=['POST'])
@@ -81,7 +74,6 @@ def add_review(id):
         rating = request.values.get('rating')
         review_text = request.values.get('review_text')
     except (KeyError):
-        #Redisplay the question voting form.
         return render_template('add_review.html', {
             'error_message': "Error adding review",
         })
@@ -101,18 +93,38 @@ def add_review(id):
 def utility_processor():
     def star_rating(id):
         reviews = Review.query.where(Review.restaurant == id)
-
         ratings = []
         review_count = 0
         for review in reviews:
-            ratings += [review.rating]
+            ratings.append(review.rating)
             review_count += 1
-
         avg_rating = sum(ratings) / len(ratings) if ratings else 0
         stars_percent = round((avg_rating / 5.0) * 100) if review_count > 0 else 0
         return {'avg_rating': avg_rating, 'review_count': review_count, 'stars_percent': stars_percent}
-
     return dict(star_rating=star_rating)
+
+@app.route('/images', methods=['GET'])
+def image_table():
+    print('Request for image table page received')
+    images = ImageData.query.order_by(ImageData.upload_time.desc()).all()
+    return render_template('image_table.html', images=images)
+
+@app.route('/api/images', methods=['GET'])
+def image_json():
+    images = ImageData.query.order_by(ImageData.upload_time.desc()).all()
+    data = [
+        {
+            "id": img.id,
+            "filename": img.filename,
+            "username": img.username,
+            "upload_time": img.upload_time.isoformat(),
+            "pixel_rojo": img.pixel_rojo,
+            "pixel_verde": img.pixel_verde,
+            "pixel_azul": img.pixel_azul
+        }
+        for img in images
+    ]
+    return jsonify(data)
 
 @app.route('/favicon.ico')
 def favicon():
