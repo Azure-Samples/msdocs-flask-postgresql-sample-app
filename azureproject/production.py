@@ -5,4 +5,4 @@ DATABASE_URI = 'postgresql+psycopg2://{dbuser}:{dbpass}@{dbhost}/{dbname}'.forma
     dbpass=os.getenv('AZURE_POSTGRESQL_PASSWORD'),
     dbhost=os.getenv('AZURE_POSTGRESQL_HOST'),
     dbname=os.getenv('AZURE_POSTGRESQL_NAME')
- )
+)

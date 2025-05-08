@@ -1,51 +1,81 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Tabla de Imágenes Subidas</title>
+{% extends "base.html" %}
+{% block title %}Restaurant List{% endblock %}
+{% block head %}
+    {{ super() }}
     <style>
-        table {
-            border-collapse: collapse;
-            width: 90%;
-            margin: auto;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f3f3f3;
-        }
-    </style>
-</head>
-<body>
-    <h1 style="text-align:center;">Imágenes Subidas</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Archivo</th>
-                <th>Usuario</th>
-                <th>Fecha</th>
-                <th>Nº Pixeles Rojos</th>
-                <th>Nº Pixeles Verdes</th>
-                <th>Nº Pixeles Azules</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for img in images %}
-            <tr>
-                <td>{{ img.id }}</td>
-                <td>{{ img.filename }}</td>
-                <td>{{ img.username }}</td>
-                <td>{{ img.upload_time }}</td>
-                <td>{{ img.pixel_rojo }}</td>
-                <td>{{ img.pixel_verde }}</td>
-                <td>{{ img.pixel_azul }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+      body {
+          min-height: 75rem;
+          padding-top: 4.5rem;
+      }
+
+      .score {
+        display: block;
+        font-size: 16px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .score-wrap {
+        display: inline-block;
+        position: relative;
+        height: 19px;
+      }
+      
+      .score .stars-active {
+        color: #EEBD01;
+        position: relative;
+        z-index: 10;
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      
+      .score .stars-inactive {
+        color: grey;
+        position: absolute;
+        top: 0;
+        left: 0;
+        -webkit-text-stroke: initial;
+        /* overflow: hidden; */
+      }
+  </style>
+{% endblock %}
+{% block content %}
+      <h1>Restaurants</h1>
+
+      {% if True %}
+          <table class="table">
+              <thead>
+                  <tr>
+                      <th>Usuario</th>
+                      <th>Nombre imagen</th>
+                      <th>Rojo</th>
+                      <th>verde</th>
+                      <th>azul</th>
+                      <th>Fecha</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for image in images %}
+                      <tr>
+                          <td>{{ image.username }}</td>
+                          <td>{{ image.filename }}</td>
+                          <td>{{ image.pixel_red }}</td>
+                          <td>{{ image.pixel_green }}</td>
+                          <td>{{ image.pixel_blue }}</td>
+                          <td>{{ image.upload_time }}</td>
+
+
+                      
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+      {% else %}
+          <p>No restaurants exist.  Select Add new restaurant to add one.</p>
+      {% endif %}
+
+      <div class="d-flex justify-content-end">
+              <a href="{{ url_for('create_restaurant') }}" class="btn btn-success px-4 gap-3">Add new restaurant</a>
+      </div>
+{% endblock %}
