@@ -3,45 +3,103 @@
 {% block head %}
     {{ super() }}
     <style>
-      body {
-          min-height: 75rem;
-          padding-top: 4.5rem;
-      }
+        body {
+            min-height: 75rem;
+            padding-top: 4.5rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+        }
 
-      .score {
-        display: block;
-        font-size: 16px;
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .score-wrap {
-        display: inline-block;
-        position: relative;
-        height: 19px;
-      }
-      
-      .score .stars-active {
-        color: #EEBD01;
-        position: relative;
-        z-index: 10;
-        display: inline-block;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-      
-      .score .stars-inactive {
-        color: grey;
-        position: absolute;
-        top: 0;
-        left: 0;
-        -webkit-text-stroke: initial;
-        /* overflow: hidden; */
-      }
-  </style>
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 28px;
+            color: #1f2937;
+        }
+
+        table.table {
+            width: 95%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        table.table thead {
+            background-color: #2563eb;
+        }
+
+        table.table th {
+            color: white;
+            padding: 16px 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        table.table td {
+            padding: 14px 10px;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        table.table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        table.table tbody tr:hover {
+            background-color: #ede9fe; /* morado clarito */
+        }
+
+        @media (max-width: 768px) {
+            table.table th, table.table td {
+                padding: 10px 6px;
+                font-size: 13px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+        }
+
+        .score {
+            display: block;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-wrap {
+            display: inline-block;
+            position: relative;
+            height: 19px;
+        }
+
+        .score .stars-active {
+            color: #EEBD01;
+            position: relative;
+            z-index: 10;
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .score .stars-inactive {
+            color: grey;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
 {% endblock %}
+
+
 {% block content %}
-      <h1>Restaurants</h1>
+      <h1>Imagenes subidas</h1>
 
       {% if True %}
           <table class="table">
@@ -49,9 +107,9 @@
                   <tr>
                       <th>Usuario</th>
                       <th>Nombre imagen</th>
-                      <th>Rojo</th>
-                      <th>verde</th>
-                      <th>azul</th>
+                      <th>Pixeles Rojos</th>
+                      <th>Pixeles verdes</th>
+                      <th>Pixeles Azules</th>
                       <th>Fecha</th>
                   </tr>
               </thead>
@@ -72,10 +130,8 @@
               </tbody>
           </table>
       {% else %}
-          <p>No restaurants exist.  Select Add new restaurant to add one.</p>
+          <p>No existe imagen. Error.</p>
       {% endif %}
 
-      <div class="d-flex justify-content-end">
-              <a href="{{ url_for('create_restaurant') }}" class="btn btn-success px-4 gap-3">Add new restaurant</a>
-      </div>
+
 {% endblock %}
