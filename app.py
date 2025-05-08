@@ -1,7 +1,7 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
-from flask import Flask, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, jsonify, redirect, render_template, request, send_from_directory, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
@@ -32,13 +32,19 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # The import must be done after db initialization due to circular import issue
-from models import Restaurant, Review
+from models import Restaurant, Review, ImageData
+
+#@app.route('/', methods=['GET'])
+#def index():
+#    print('Request for index page received')
+#    restaurants = Restaurant.query.all()
+#    return render_template('index.html', restaurants=restaurants)
 
 @app.route('/', methods=['GET'])
 def index():
     print('Request for index page received')
-    restaurants = Restaurant.query.all()
-    return render_template('index.html', restaurants=restaurants)
+    images = ImageData.query.all()
+    return render_template('index.html', images=images)
 
 @app.route('/<int:id>', methods=['GET'])
 def details(id):
@@ -113,6 +119,49 @@ def utility_processor():
         return {'avg_rating': avg_rating, 'review_count': review_count, 'stars_percent': stars_percent}
 
     return dict(star_rating=star_rating)
+
+@app.route('/images', methods=['GET'])
+def image_table():
+    print('Request for image table page received')
+    images = ImageData.query.order_by(ImageData.upload_time.desc()).all()
+    return render_template('index.html', images=images)
+
+@csrf.exempt
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    print('Request to upload image received')
+    if not request.is_json:
+        return jsonify({"error": "Request must be JSON"}), 400
+
+    data = request.get_json()
+    filename = data.get('filename')
+    pixel_red = data.get('pixel_red')
+    pixel_green = data.get('pixel_green')
+    pixel_blue = data.get('pixel_blue')
+    username = data.get('username')
+    
+
+    if not all([filename, pixel_red, pixel_green, pixel_blue, username]):
+        return jsonify({"error": "All fields ('filename', 'pixel_red', 'pixel_green', 'pixel_blue', 'username') are required"}), 400
+
+    try:
+        new_image = ImageData(
+            filename=filename,
+            pixel_red=pixel_red,
+            pixel_green=pixel_green,
+            pixel_blue=pixel_blue,
+            username=username,
+            upload_time=datetime.now(timezone.utc)
+
+        )
+        #db.session.create_all()
+        #db.session.commit()
+        db.session.add(new_image)
+        db.session.commit()
+        return jsonify({"message": "Image uploaded successfully"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/favicon.ico')
 def favicon():

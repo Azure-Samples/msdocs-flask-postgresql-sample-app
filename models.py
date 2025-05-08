@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import validates
 
@@ -30,3 +31,17 @@ class Review(db.Model):
 
     def __str__(self):
         return f"{self.user_name}: {self.review_date:%x}"
+
+class ImageData(db.Model):
+    __tablename__ = 'image_data'
+
+    id = Column(Integer, primary_key=True)
+    filename = Column(String(255), nullable=False)
+    pixel_red = Column(Integer, nullable=False)    
+    pixel_green = Column(Integer, nullable=False)   #
+    pixel_blue = Column(Integer, nullable=False)    
+    username = Column(String(100), nullable=False)
+    upload_time = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)) 
+
+    def __repr__(self):
+        return f"<ImageData {self.filename} by {self.username} at {self.upload_time}>"
