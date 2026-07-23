@@ -148,7 +148,7 @@ resource privateDnsZoneDB 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   }  
 }
 
-// Resources needed to secure Redis Cache behind a private endpoint
+// Resources needed to secure Azure Managed Redis behind a private endpoint
 resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-03-01' = {
   name: '${appName}-cache-privateEndpoint'
   location: location
@@ -161,7 +161,7 @@ resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-03-01' = 
         name: '${appName}-cache-privateEndpoint'
         properties: {
           privateLinkServiceId: redisCache.id
-          groupIds: ['redisCache']
+          groupIds: ['redisEnterprise']
         }
       }
     ]
@@ -181,7 +181,7 @@ resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-03-01' = 
   }
 }
 resource privateDnsZoneCache 'Microsoft.Network/privateDnsZones@2024-06-01' = {
-  name: 'privatelink.redis.cache.windows.net'
+  name: 'privatelink.redis.azure.net'
   location: 'global'
   dependsOn: [
     virtualNetwork
@@ -274,21 +274,23 @@ resource dbserver 'Microsoft.DBforPostgreSQL/flexibleServers@2022-01-20-preview'
   ]
 }
 
-// The Redis cache is configured to the minimum pricing tier
-resource redisCache 'Microsoft.Cache/redis@2024-11-01' = {
+// Azure Managed Redis is configured to the minimum pricing tier
+resource redisCache 'Microsoft.Cache/redisEnterprise@2026-05-01-preview' = {
   name: '${appName}-cache'
   location: location
+  sku: {
+    name: 'Balanced_B0'
+  }
   properties: {
-    sku: {
-      name: 'Basic'
-      family: 'C'
-      capacity: 0
-    }
-    redisConfiguration: {}
-    enableNonSslPort: false
-    redisVersion: '6'
+    encryption: {}
+    minimumTlsVersion: '1.2'
     publicNetworkAccess: 'Disabled'
   }
+}
+
+resource redisDatabase 'Microsoft.Cache/redisEnterprise/databases@2026-05-01-preview' existing = {
+  parent: redisCache
+  name: 'default'
 }
 
 // The App Service plan is configured to the B1 pricing tier
@@ -430,7 +432,7 @@ resource cacheConnector 'Microsoft.ServiceLinker/linkers@2024-04-01' = {
     clientType: 'python'
     targetService: {
       type: 'AzureResource'
-      id:  resourceId('Microsoft.Cache/Redis/Databases', redisCache.name, '0')
+      id: redisDatabase.id
     }
     authInfo: {
       authType: 'accessKey'
