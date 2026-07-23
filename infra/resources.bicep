@@ -200,7 +200,7 @@ resource privateDnsZoneCache 'Microsoft.Network/privateDnsZones@2024-06-01' = {
 
 // The Key Vault is used to manage SQL database and redis secrets.
 // Current user has the admin permissions to configure key vault secrets, but by default doesn't have the permissions to read them.
-resource keyVault 'Microsoft.KeyVault/vaults@2024-02-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2026-03-01-preview' = {
   name: '${take(replace(appName, '-', ''), 17)}-vault'
   location: location
   properties: {
@@ -294,7 +294,7 @@ resource redisDatabase 'Microsoft.Cache/redisEnterprise/databases@2026-05-01-pre
 }
 
 // The App Service plan is configured to the B1 pricing tier
-resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: '${appName}-plan'
   location: location
   kind: 'linux'
@@ -306,7 +306,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
   }
 }
 
-resource web 'Microsoft.Web/sites@2024-04-01' = {
+resource web 'Microsoft.Web/sites@2025-03-01' = {
   name: appName
   location: location
   tags: union(tags, { 'azd-service-name': 'web' }) // Needed by AZD
@@ -327,13 +327,13 @@ resource web 'Microsoft.Web/sites@2024-04-01' = {
   // For app setting configuration see the appsettings resource
   
   // Disable basic authentication for FTP and SCM
-  resource ftp 'basicPublishingCredentialsPolicies@2023-12-01' = {
+  resource ftp 'basicPublishingCredentialsPolicies@2025-03-01' = {
     name: 'ftp'
     properties: {
       allow: false
     }
   }
-  resource scm 'basicPublishingCredentialsPolicies@2023-12-01' = {
+  resource scm 'basicPublishingCredentialsPolicies@2025-03-01' = {
     name: 'scm'
     properties: {
       allow: false
@@ -530,7 +530,7 @@ var aggregatedAppSettings = union(
     // 'FOO': 'BAR'
   }
 )
-resource appsettings 'Microsoft.Web/sites/config@2024-04-01' = {
+resource appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
   name: 'appsettings'
   parent: web
   properties: aggregatedAppSettings
