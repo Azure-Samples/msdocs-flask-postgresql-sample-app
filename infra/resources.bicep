@@ -288,9 +288,16 @@ resource redisCache 'Microsoft.Cache/redisEnterprise@2026-05-01-preview' = {
   }
 }
 
-resource redisDatabase 'Microsoft.Cache/redisEnterprise/databases@2026-05-01-preview' existing = {
+resource redisDatabase 'Microsoft.Cache/redisEnterprise/databases@2026-05-01-preview' = {
   parent: redisCache
   name: 'default'
+  properties: {
+    accessKeysAuthentication: 'Enabled'
+    clientProtocol: 'Encrypted'
+    clusteringPolicy: 'OSSCluster'
+    evictionPolicy: 'VolatileLRU'
+    port: 10000
+  }
 }
 
 // The App Service plan is configured to the B1 pricing tier
