@@ -149,7 +149,7 @@ resource privateDnsZoneDB 'Microsoft.Network/privateDnsZones@2024-06-01' = {
 }
 
 // Resources needed to secure Azure Managed Redis behind a private endpoint
-resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-01-01' = {
+resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-03-01' = {
   name: '${appName}-cache-privateEndpoint'
   location: location
   properties: {
@@ -288,16 +288,10 @@ resource redisCache 'Microsoft.Cache/redisEnterprise@2026-05-01-preview' = {
   }
 }
 
-resource redisDatabase 'Microsoft.Cache/redisEnterprise/databases@2026-05-01-preview' = {
+// The default Redis Enterprise database is platform-managed; reference it by ID.
+resource redisDatabase 'Microsoft.Cache/redisEnterprise/databases@2026-05-01-preview' existing = {
   parent: redisCache
   name: 'default'
-  properties: {
-    accessKeysAuthentication: 'Enabled'
-    clientProtocol: 'Encrypted'
-    clusteringPolicy: 'OSSCluster'
-    evictionPolicy: 'VolatileLRU'
-    port: 10000
-  }
 }
 
 // The App Service plan is configured to the B1 pricing tier
@@ -549,17 +543,7 @@ resource appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
 // is a workaround to ensure that the app settings are aggregated correctly and consistent across multiple deployments.
 
 output WEB_URI string = 'https://${web.properties.defaultHostName}'
-// Keep this list in sync with the connector-generated app setting names.
-var connectionSettingNames = [
-  'AZURE_POSTGRESQL_NAME'
-  'AZURE_POSTGRESQL_HOST'
-  'AZURE_POSTGRESQL_USER'
-  'AZURE_POSTGRESQL_PASSWORD'
-  'AZURE_REDIS_CONNECTIONSTRING'
-  'AZURE_KEYVAULT_RESOURCEENDPOINT'
-  'AZURE_KEYVAULT_SCOPE'
-]
-output CONNECTION_SETTINGS array = connectionSettingNames
+output CONNECTION_SETTINGS array = map(concat(dbConnector.listConfigurations().configurations, cacheConnector.listConfigurations().configurations, vaultConnector.listConfigurations().configurations), config => config.name)
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsightsResources.outputs.APPLICATIONINSIGHTS_CONNECTION_STRING
 output WEB_APP_LOG_STREAM string = format('https://portal.azure.com/#@/resource{0}/logStream', web.id)
 output WEB_APP_SSH string = format('https://{0}.scm.azurewebsites.net/webssh/host', web.name)
