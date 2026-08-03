@@ -549,7 +549,8 @@ resource appsettings 'Microsoft.Web/sites/config@2025-03-01' = {
 // is a workaround to ensure that the app settings are aggregated correctly and consistent across multiple deployments.
 
 output WEB_URI string = 'https://${web.properties.defaultHostName}'
-output CONNECTION_SETTINGS array = [
+// Keep this list in sync with the connector-generated app setting names.
+var connectionSettingNames = [
   'AZURE_POSTGRESQL_NAME'
   'AZURE_POSTGRESQL_HOST'
   'AZURE_POSTGRESQL_USER'
@@ -558,6 +559,7 @@ output CONNECTION_SETTINGS array = [
   'AZURE_KEYVAULT_RESOURCEENDPOINT'
   'AZURE_KEYVAULT_SCOPE'
 ]
+output CONNECTION_SETTINGS array = connectionSettingNames
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsightsResources.outputs.APPLICATIONINSIGHTS_CONNECTION_STRING
 output WEB_APP_LOG_STREAM string = format('https://portal.azure.com/#@/resource{0}/logStream', web.id)
 output WEB_APP_SSH string = format('https://{0}.scm.azurewebsites.net/webssh/host', web.name)
